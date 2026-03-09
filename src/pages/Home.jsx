@@ -17,11 +17,13 @@ export default function Home() {
   const [showBuilder, setShowBuilder] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(null);
   const [user, setUser] = useState(null);
+  const [forgottenThreshold, setForgottenThreshold] = useState(30);
 
   useEffect(() => {
     base44.auth.me().then((u) => {
       setUser(u);
       setOnboardingDone(u?.onboarding_done === true);
+      setForgottenThreshold(u?.forgotten_load_threshold ?? 30);
     }).catch(() => setOnboardingDone(true));
   }, []);
 

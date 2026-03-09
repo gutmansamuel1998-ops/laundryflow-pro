@@ -36,6 +36,7 @@ export default function Settings() {
         anchor_days: u?.anchor_days || [],
         anchor_times: u?.anchor_times || [],
         reminders_enabled: u?.reminders_enabled !== false,
+        forgotten_load_threshold: u?.forgotten_load_threshold ?? 30,
         quiet_hours_start: u?.quiet_hours_start || "22:00",
         quiet_hours_end: u?.quiet_hours_end || "08:00",
         text_size: u?.text_size || "normal",
