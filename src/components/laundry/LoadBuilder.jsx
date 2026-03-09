@@ -22,9 +22,9 @@ const washGuidance = {
 const tempLabels = { cold: "Cold water", warm: "Warm water", hot: "Hot water" };
 const dryLabels = { tumble_low: "Tumble dry low", tumble_medium: "Tumble dry medium", hang_dry: "Hang dry" };
 
-export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad }) {
-  const [selected, setSelected] = useState(null);
-  const [step, setStep] = useState(1);
+export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, preselectedType }) {
+  const [selected, setSelected] = useState(preselectedType || null);
+  const [step, setStep] = useState(preselectedType ? 2 : 1);
   const [showDelicates, setShowDelicates] = useState(false);
 
   const allTypes = showDelicates

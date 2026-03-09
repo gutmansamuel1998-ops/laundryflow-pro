@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const TIMES = ["Morning", "Afternoon", "Evening"];
@@ -14,6 +15,7 @@ export default function OnboardingFlow({ onComplete }) {
     anchor_days: [],
     anchor_times: [],
     reminders_enabled: true,
+    environmental_anchors: [],
   });
 
   const handleDayToggle = (day) => {
@@ -54,7 +56,7 @@ export default function OnboardingFlow({ onComplete }) {
 
     // Step 1 — Environment
     <motion.div key="env" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="py-6">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Step 1 of 3</p>
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Step 1 of 4</p>
       <h2 className="text-xl font-semibold mb-2">Where do you do laundry?</h2>
       <p className="text-muted-foreground text-sm mb-6">This helps us time reminders better.</p>
       <div className="space-y-3">
@@ -91,7 +93,7 @@ export default function OnboardingFlow({ onComplete }) {
 
     // Step 2 — Anchors
     <motion.div key="anchors" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="py-6">
-      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Step 2 of 3</p>
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Step 2 of 4</p>
       <h2 className="text-xl font-semibold mb-2">When works best for laundry?</h2>
       <p className="text-muted-foreground text-sm mb-6">We can gently remind you around these times. Pick as many as you like, or skip.</p>
       <div className="mb-5">
@@ -136,7 +138,22 @@ export default function OnboardingFlow({ onComplete }) {
       </div>
     </motion.div>,
 
-    // Step 3 — Ready
+    // Step 3 — Environmental Anchors
+    <motion.div key="env-anchors" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="py-6">
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Step 3 of 4</p>
+      <h2 className="text-xl font-semibold mb-2">What triggers laundry for you?</h2>
+      <p className="text-muted-foreground text-sm mb-6">Tap any situations that usually kick off a load. We'll suggest the right load type automatically.</p>
+      <EnvironmentalAnchorEditor
+        value={preferences.environmental_anchors}
+        onChange={(anchors) => setPreferences(prev => ({ ...prev, environmental_anchors: anchors }))}
+      />
+      <div className="flex gap-3 mt-8">
+        <Button variant="ghost" onClick={() => setStep(2)} className="rounded-xl">Back</Button>
+        <Button onClick={() => setStep(4)} className="flex-1 rounded-xl py-5">Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>
+      </div>
+    </motion.div>,
+
+    // Step 4 — Ready
     <motion.div key="ready" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center py-8">
       <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-6">
         <Check className="w-7 h-7 text-emerald-600" />

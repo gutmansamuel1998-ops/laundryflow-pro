@@ -11,6 +11,7 @@ import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import ForgottenLoadAlert from "@/components/laundry/ForgottenLoadAlert";
 import ReadinessPrompt from "@/components/laundry/ReadinessPrompt";
 import LowSupplyAlert from "@/components/laundry/LowSupplyAlert";
+import EnvironmentalAnchorPrompt from "@/components/laundry/EnvironmentalAnchorPrompt";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {
@@ -20,12 +21,15 @@ export default function Home() {
   const [onboardingDone, setOnboardingDone] = useState(null);
   const [user, setUser] = useState(null);
   const [forgottenThreshold, setForgottenThreshold] = useState(30);
+  const [environmentalAnchors, setEnvironmentalAnchors] = useState([]);
+  const [preselectedLoadType, setPreselectedLoadType] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then((u) => {
       setUser(u);
       setOnboardingDone(u?.onboarding_done === true);
       setForgottenThreshold(u?.forgotten_load_threshold ?? 30);
+      setEnvironmentalAnchors(u?.environmental_anchors || []);
     }).catch(() => setOnboardingDone(true));
   }, []);
 
@@ -49,9 +53,15 @@ export default function Home() {
       laundry_environment: preferences.environment,
       anchor_days: preferences.anchor_days,
       anchor_times: preferences.anchor_times,
+      environmental_anchors: preferences.environmental_anchors || [],
     });
     setOnboardingDone(true);
     if (startLoad) setShowBuilder(true);
+  };
+
+  const handleAnchorTrigger = (anchor) => {
+    setPreselectedLoadType(anchor.load_type);
+    setShowBuilder(true);
   };
 
   const handleAction = (load, actionKey) => {
@@ -91,9 +101,10 @@ export default function Home() {
           {showBuilder ? (
             <motion.div key="builder" className="mt-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <LoadBuilder
-                onCreateLoad={(data) => createMutation.mutate(data)}
-                onCancel={() => setShowBuilder(false)}
+                onCreateLoad={(data) => { setPreselectedLoadType(null); createMutation.mutate(data); }}
+                onCancel={() => { setPreselectedLoadType(null); setShowBuilder(false); }}
                 isFirstLoad={activeLoads.length === 0}
+                preselectedType={preselectedLoadType}
               />
             </motion.div>
           ) : (
@@ -106,11 +117,13 @@ export default function Home() {
                 <div>
                   <ReadinessPrompt user={user} />
                   <LowSupplyAlert />
+                  <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
                   <EmptyState onStartLoad={() => setShowBuilder(true)} />
                 </div>
               ) : (
                 <div className="mt-6 space-y-4">
                   <LowSupplyAlert />
+                  <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
                   <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
                   {actionableLoad && (
                     <NextAction load={actionableLoad} onAction={handleAction} />

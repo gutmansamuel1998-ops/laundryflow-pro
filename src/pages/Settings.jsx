@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap } from "lucide-react";
+import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
 import { motion } from "framer-motion";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -25,6 +26,7 @@ export default function Settings() {
     text_size: "normal",
     reduced_motion: false,
     high_contrast: false,
+    environmental_anchors: [],
   });
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export default function Settings() {
         text_size: u?.text_size || "normal",
         reduced_motion: u?.reduced_motion || false,
         high_contrast: u?.high_contrast || false,
+        environmental_anchors: u?.environmental_anchors || [],
       }));
     }).catch(() => {});
   }, []);
@@ -221,6 +224,23 @@ export default function Settings() {
                   onCheckedChange={(v) => setSettings(prev => ({ ...prev, high_contrast: v }))}
                 />
               </div>
+            </Card>
+          </section>
+
+          {/* Environmental Anchors */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Environmental Anchors</h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm">
+              <p className="text-sm text-muted-foreground mb-4">
+                Select situations that trigger laundry for you. The app will prompt you with a suggested load type.
+              </p>
+              <EnvironmentalAnchorEditor
+                value={settings.environmental_anchors}
+                onChange={(anchors) => setSettings(prev => ({ ...prev, environmental_anchors: anchors }))}
+              />
             </Card>
           </section>
 
