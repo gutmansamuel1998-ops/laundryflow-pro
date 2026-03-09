@@ -10,6 +10,7 @@ import LoadBuilder from "@/components/laundry/LoadBuilder";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import ForgottenLoadAlert from "@/components/laundry/ForgottenLoadAlert";
 import ReadinessPrompt from "@/components/laundry/ReadinessPrompt";
+import LowSupplyAlert from "@/components/laundry/LowSupplyAlert";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {
