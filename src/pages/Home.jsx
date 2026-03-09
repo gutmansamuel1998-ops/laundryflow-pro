@@ -105,10 +105,12 @@ export default function Home() {
               ) : activeLoads.length === 0 ? (
                 <div>
                   <ReadinessPrompt user={user} />
+                  <LowSupplyAlert />
                   <EmptyState onStartLoad={() => setShowBuilder(true)} />
                 </div>
               ) : (
                 <div className="mt-6 space-y-4">
+                  <LowSupplyAlert />
                   <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
                   {actionableLoad && (
                     <NextAction load={actionableLoad} onAction={handleAction} />
