@@ -9,71 +9,287 @@ import { Badge } from "@/components/ui/badge";
 import TimerDisplay from "@/components/laundry/TimerDisplay";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Play, ArrowRight, RefreshCw, FolderOpen, CheckCircle, ChevronLeft,
-  Shirt, Bath, BedDouble, Sparkles, Layers, AlertCircle
+  Play, ArrowRight, RefreshCw, CheckCircle, ChevronLeft,
+  Shirt, Bath, BedDouble, Sparkles, Layers, AlertCircle,
+  Minus, Plus
 } from "lucide-react";
 
+// ─── Config ────────────────────────────────────────────────────────────────
+
 const loadTypeConfig = {
-  everyday_clothes: { label: "Clothes", icon: Shirt },
-  towels: { label: "Towels", icon: Bath },
-  bedding: { label: "Bedding", icon: BedDouble },
-  delicates: { label: "Delicates", icon: Sparkles },
-  mixed: { label: "Mixed", icon: Layers },
+  everyday_clothes: { label: "Clothes", icon: Shirt, color: "bg-blue-50 text-blue-600" },
+  towels:           { label: "Towels",  icon: Bath,    color: "bg-teal-50 text-teal-600" },
+  bedding:          { label: "Bedding", icon: BedDouble, color: "bg-purple-50 text-purple-600" },
+  delicates:        { label: "Delicates", icon: Sparkles, color: "bg-pink-50 text-pink-600" },
+  mixed:            { label: "Mixed",   icon: Layers,  color: "bg-amber-50 text-amber-600" },
 };
 
 const tempLabels = { cold: "Cold water", warm: "Warm water", hot: "Hot water" };
-const dryLabels = { tumble_low: "Tumble dry low", tumble_medium: "Tumble dry medium", hang_dry: "Hang dry" };
+const dryLabels  = { tumble_low: "Tumble dry low", tumble_medium: "Tumble dry medium", hang_dry: "Hang dry" };
 
-const stageContent = {
-  load_created: {
-    title: "Ready to Wash",
-    subtitle: "Load the machine and start when ready.",
-    actionLabel: "Start Washer",
-    icon: Play,
-  },
-  washing: {
-    title: "Washer Running",
-    subtitle: "We'll let you know when it's time to transfer.",
-    actionLabel: null,
-    icon: null,
-  },
-  wash_finished: {
-    title: "Time to Transfer",
-    subtitle: "Move your clothes to the dryer when you can.",
-    actionLabel: "Start Dryer",
-    icon: RefreshCw,
-  },
-  drying: {
-    title: "Dryer Running",
-    subtitle: "Almost done — we'll remind you when clothes are ready.",
-    actionLabel: null,
-    icon: null,
-  },
-  dry_finished: {
-    title: "Drying Complete",
-    subtitle: "Your clothes are ready to be removed and put away.",
-    actionLabel: "Finish Load",
-    icon: FolderOpen,
-  },
-  completed: {
-    title: "All Done!",
-    subtitle: "Nice work — this load is finished.",
-    actionLabel: null,
-    icon: CheckCircle,
-  },
-  abandoned: {
-    title: "Load Needs Attention",
-    subtitle: "That happens — want to pick this back up?",
-    actionLabel: "Resume Load",
-    icon: AlertCircle,
-  },
-};
+// ─── Sub-components ─────────────────────────────────────────────────────────
+
+function TimerStepper({ value, onChange, label }) {
+  const step = (dir) => {
+    const next = Math.min(120, Math.max(10, value + dir * 5));
+    onChange(next);
+  };
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
+      <div className="flex items-center gap-4 bg-muted/60 rounded-2xl px-4 py-3">
+        <button onClick={() => step(-1)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white transition-colors">
+          <Minus className="w-4 h-4" />
+        </button>
+        <span className="text-xl font-semibold w-20 text-center tabular-nums">{value} min</span>
+        <button onClick={() => step(1)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white transition-colors">
+          <Plus className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function GuidancePills({ washGuidance, dryGuidance }) {
+  if (!washGuidance && !dryGuidance) return null;
+  return (
+    <div className="flex flex-wrap gap-2 justify-center">
+      {washGuidance && (
+        <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
+          {tempLabels[washGuidance]}
+        </Badge>
+      )}
+      {dryGuidance && (
+        <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
+          {dryLabels[dryGuidance]}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+function ProgressBar({ currentState }) {
+  const steps = [
+    { key: "load_created", label: "Created" },
+    { key: "washing",      label: "Washing" },
+    { key: "wash_finished",label: "Transfer" },
+    { key: "drying",       label: "Drying" },
+    { key: "dry_finished", label: "Remove" },
+    { key: "completed",    label: "Done" },
+  ];
+  const idx = steps.findIndex(s => s.key === currentState);
+
+  return (
+    <div className="flex items-start gap-0">
+      {steps.map((step, i) => {
+        const done    = i < idx;
+        const current = i === idx;
+        return (
+          <React.Fragment key={step.key}>
+            <div className="flex flex-col items-center flex-1">
+              <div className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${
+                done ? "bg-primary" : current ? "bg-primary ring-4 ring-primary/20" : "bg-border"
+              }`} />
+              <span className={`text-[9px] mt-1.5 text-center leading-tight ${
+                done || current ? "text-foreground font-medium" : "text-muted-foreground/40"
+              }`}>
+                {step.label}
+              </span>
+            </div>
+            {i < steps.length - 1 && (
+              <div className={`h-px w-full mt-1 transition-all duration-500 ${done ? "bg-primary" : "bg-border"}`} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── No-load fallback ────────────────────────────────────────────────────────
+
+function NoLoadState({ onGoHome }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center pb-24">
+      <div className="w-16 h-16 rounded-3xl bg-muted flex items-center justify-center mb-5">
+        <span className="text-3xl">🧺</span>
+      </div>
+      <h2 className="text-xl font-semibold mb-2">No load selected</h2>
+      <p className="text-muted-foreground text-sm mb-8">
+        Start a load from the Home screen to use Laundry Mode.
+      </p>
+      <Button onClick={onGoHome} className="rounded-2xl px-8 py-5">
+        Go to Home
+      </Button>
+    </div>
+  );
+}
+
+// ─── Per-state layouts ────────────────────────────────────────────────────────
+
+function StateCreated({ load, washMinutes, onChangeWash, onStart, isPending }) {
+  const config = loadTypeConfig[load.load_type] || loadTypeConfig.mixed;
+  const Icon = config.icon;
+  return (
+    <motion.div key="load_created" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${config.color}`}>
+        <Icon className="w-9 h-9" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Ready to Wash</h1>
+        <p className="text-muted-foreground">Load the machine, then set your timer.</p>
+      </div>
+      <GuidancePills washGuidance={load.wash_guidance} dryGuidance={null} />
+      <TimerStepper value={washMinutes} onChange={onChangeWash} label="Wash cycle duration" />
+      <Button
+        onClick={onStart}
+        disabled={isPending}
+        size="lg"
+        className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
+      >
+        <Play className="w-5 h-5 mr-2" />
+        Start Washer
+      </Button>
+    </motion.div>
+  );
+}
+
+function StateWashing({ load }) {
+  return (
+    <motion.div key="washing" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Washer Running</h1>
+        <p className="text-muted-foreground text-sm">We'll let you know when it's time to transfer.</p>
+      </div>
+      <TimerDisplay stageStartTime={load.stage_start_time} durationMinutes={load.wash_timer_minutes} size="lg" />
+      <p className="text-sm text-muted-foreground">Wash cycle in progress</p>
+    </motion.div>
+  );
+}
+
+function StateWashFinished({ load, dryMinutes, onChangeDry, onStart, isPending }) {
+  return (
+    <motion.div key="wash_finished" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <div className="w-20 h-20 rounded-3xl bg-amber-50 flex items-center justify-center">
+        <RefreshCw className="w-9 h-9 text-amber-500" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Time to Transfer</h1>
+        <p className="text-muted-foreground">Move clothes to the dryer when you're ready.</p>
+      </div>
+      <GuidancePills washGuidance={null} dryGuidance={load.dry_guidance} />
+      <TimerStepper value={dryMinutes} onChange={onChangeDry} label="Dry cycle duration" />
+      <Button
+        onClick={onStart}
+        disabled={isPending}
+        size="lg"
+        className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
+      >
+        <ArrowRight className="w-5 h-5 mr-2" />
+        Move to Dryer
+      </Button>
+    </motion.div>
+  );
+}
+
+function StateDrying({ load }) {
+  return (
+    <motion.div key="drying" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Dryer Running</h1>
+        <p className="text-muted-foreground text-sm">Almost there — clothes are on their way.</p>
+      </div>
+      <TimerDisplay stageStartTime={load.stage_start_time} durationMinutes={load.dry_timer_minutes} size="lg" />
+      <p className="text-sm text-muted-foreground">Dry cycle in progress</p>
+    </motion.div>
+  );
+}
+
+function StateDryFinished({ onFinish, isPending }) {
+  return (
+    <motion.div key="dry_finished" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center">
+        <CheckCircle className="w-9 h-9 text-emerald-500" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Drying Complete</h1>
+        <p className="text-muted-foreground">Remove clothes and put them away when you're ready.</p>
+      </div>
+      <Button
+        onClick={onFinish}
+        disabled={isPending}
+        size="lg"
+        className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
+      >
+        Finish Load
+        <ArrowRight className="w-4 h-4 ml-2" />
+      </Button>
+    </motion.div>
+  );
+}
+
+function StateCompleted({ onHome, onNewLoad }) {
+  return (
+    <motion.div key="completed" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 180, damping: 14 }}
+        className="w-24 h-24 rounded-3xl bg-emerald-50 flex items-center justify-center"
+      >
+        <span className="text-5xl">🎉</span>
+      </motion.div>
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">All Done!</h1>
+        <p className="text-muted-foreground">Great job finishing this load.</p>
+      </div>
+      <div className="flex flex-col gap-3 w-full">
+        <Button onClick={onNewLoad} size="lg" className="w-full rounded-2xl py-5">
+          Start Another Load
+        </Button>
+        <Button onClick={onHome} variant="ghost" size="lg" className="w-full rounded-2xl py-5">
+          Back to Home
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
+function StateAbandoned({ onResume, isPending }) {
+  return (
+    <motion.div key="abandoned" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
+      <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
+        <AlertCircle className="w-9 h-9 text-orange-400" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-semibold mb-1">Load Set Aside</h1>
+        <p className="text-muted-foreground">That happens — want to pick this back up?</p>
+      </div>
+      <Button
+        onClick={onResume}
+        disabled={isPending}
+        size="lg"
+        className="w-full rounded-2xl py-6 text-base"
+      >
+        Resume Load
+        <ArrowRight className="w-4 h-4 ml-2" />
+      </Button>
+    </motion.div>
+  );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function LaundryMode() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const loadId = urlParams.get("loadId");
+
+  // Local timer adjustments before committing
+  const [washMinutes, setWashMinutes] = useState(35);
+  const [dryMinutes, setDryMinutes]   = useState(45);
+  const [initialised, setInitialised] = useState(false);
 
   const { data: load, isLoading } = useQuery({
     queryKey: ["load", loadId],
@@ -83,6 +299,15 @@ export default function LaundryMode() {
     refetchInterval: 15000,
   });
 
+  // Sync local state from load once
+  useEffect(() => {
+    if (load && !initialised) {
+      setWashMinutes(load.wash_timer_minutes ?? 35);
+      setDryMinutes(load.dry_timer_minutes  ?? 45);
+      setInitialised(true);
+    }
+  }, [load, initialised]);
+
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Load.update(id, data),
     onSuccess: () => {
@@ -91,11 +316,10 @@ export default function LaundryMode() {
     },
   });
 
-  // Check if timer has finished and auto-advance state
+  // Auto-advance state when timers expire
   useEffect(() => {
     if (!load) return;
     const { current_state, stage_start_time, wash_timer_minutes, dry_timer_minutes } = load;
-
     if (current_state === "washing" && stage_start_time) {
       const end = new Date(stage_start_time).getTime() + wash_timer_minutes * 60000;
       if (Date.now() >= end) {
@@ -110,27 +334,41 @@ export default function LaundryMode() {
     }
   }, [load]);
 
-  const handleAction = useCallback(() => {
-    if (!load) return;
-    const transitions = {
-      load_created: { current_state: "washing", stage_start_time: new Date().toISOString() },
-      wash_finished: { current_state: "drying", stage_start_time: new Date().toISOString() },
-      dry_finished: { current_state: "completed", status: "completed", completed_at: new Date().toISOString() },
-      abandoned: { current_state: "load_created", status: "active" },
-    };
-    const update = transitions[load.current_state];
-    if (update) {
-      updateMutation.mutate({ id: load.id, data: update });
-    }
+  const startWash = useCallback(() => {
+    updateMutation.mutate({ id: load.id, data: {
+      current_state: "washing",
+      wash_timer_minutes: washMinutes,
+      stage_start_time: new Date().toISOString(),
+    }});
+  }, [load, washMinutes]);
+
+  const startDry = useCallback(() => {
+    updateMutation.mutate({ id: load.id, data: {
+      current_state: "drying",
+      dry_timer_minutes: dryMinutes,
+      stage_start_time: new Date().toISOString(),
+    }});
+  }, [load, dryMinutes]);
+
+  const finishLoad = useCallback(() => {
+    updateMutation.mutate({ id: load.id, data: {
+      current_state: "completed",
+      status: "completed",
+      completed_at: new Date().toISOString(),
+    }});
   }, [load]);
 
-  const handleAbandon = () => {
-    if (!load) return;
-    updateMutation.mutate({
-      id: load.id,
-      data: { current_state: "abandoned", status: "abandoned" },
-    });
-  };
+  const resumeLoad = useCallback(() => {
+    updateMutation.mutate({ id: load.id, data: { current_state: "load_created", status: "active" } });
+  }, [load]);
+
+  const handleAbandon = useCallback(() => {
+    updateMutation.mutate({ id: load.id, data: { current_state: "abandoned", status: "abandoned" } });
+  }, [load]);
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  if (!loadId) return <NoLoadState onGoHome={() => navigate(createPageUrl("Home"))} />;
 
   if (isLoading || !load) {
     return (
@@ -140,164 +378,67 @@ export default function LaundryMode() {
     );
   }
 
-  const stage = stageContent[load.current_state] || stageContent.load_created;
   const config = loadTypeConfig[load.load_type] || loadTypeConfig.mixed;
-  const TypeIcon = config.icon;
-  const isTimerActive = load.current_state === "washing" || load.current_state === "drying";
-  const timerDuration = load.current_state === "washing" ? load.wash_timer_minutes : load.dry_timer_minutes;
   const isCompleted = load.current_state === "completed";
+  const showAbandon = !isCompleted && load.current_state !== "abandoned";
+
+  const stateNode = (() => {
+    switch (load.current_state) {
+      case "load_created":  return <StateCreated       load={load} washMinutes={washMinutes} onChangeWash={setWashMinutes} onStart={startWash}  isPending={updateMutation.isPending} />;
+      case "washing":       return <StateWashing        load={load} />;
+      case "wash_finished": return <StateWashFinished   load={load} dryMinutes={dryMinutes}  onChangeDry={setDryMinutes}  onStart={startDry}   isPending={updateMutation.isPending} />;
+      case "drying":        return <StateDrying         load={load} />;
+      case "dry_finished":  return <StateDryFinished    onFinish={finishLoad} isPending={updateMutation.isPending} />;
+      case "completed":     return <StateCompleted      onHome={() => navigate(createPageUrl("Home"))} onNewLoad={() => navigate(createPageUrl("Home"))} />;
+      case "abandoned":     return <StateAbandoned      onResume={resumeLoad} isPending={updateMutation.isPending} />;
+      default:              return null;
+    }
+  })();
 
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-6">
+
+        {/* Back */}
         <button
           onClick={() => navigate(createPageUrl("Home"))}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
-          <ChevronLeft className="w-4 h-4" /> Back to Home
+          <ChevronLeft className="w-4 h-4" /> Home
         </button>
 
+        {/* Load type badge */}
+        <div className="flex items-center justify-between mb-8">
+          <Badge variant="secondary" className={`rounded-full px-3 py-1 text-xs font-medium ${config.color}`}>
+            <config.icon className="w-3 h-3 mr-1.5" />
+            {config.label}
+          </Badge>
+        </div>
+
+        {/* State content */}
         <AnimatePresence mode="wait">
-          <motion.div
-            key={load.current_state}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-2">
-              <TypeIcon className="w-5 h-5 text-muted-foreground" />
-              <Badge variant="secondary" className="text-xs">{config.label}</Badge>
-            </div>
-            <h1 className="text-2xl font-semibold mb-1">{stage.title}</h1>
-            <p className="text-muted-foreground leading-relaxed mb-8">{stage.subtitle}</p>
-
-            {/* Timer */}
-            {isTimerActive && (
-              <div className="flex justify-center mb-8">
-                <TimerDisplay
-                  stageStartTime={load.stage_start_time}
-                  durationMinutes={timerDuration}
-                  label={load.current_state === "washing" ? "Wash cycle" : "Dry cycle"}
-                />
-              </div>
-            )}
-
-            {/* Completed celebration */}
-            {isCompleted && (
-              <div className="flex justify-center mb-8">
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="w-24 h-24 rounded-3xl bg-emerald-50 flex items-center justify-center"
-                >
-                  <CheckCircle className="w-10 h-10 text-emerald-500" />
-                </motion.div>
-              </div>
-            )}
-
-            {/* Guidance tips */}
-            {load.current_state === "load_created" && (
-              <Card className="p-4 mb-6 border-0 shadow-sm bg-muted/50">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Quick Tips</p>
-                <div className="space-y-2">
-                  {load.wash_guidance && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Temperature</span>
-                      <span className="font-medium">{tempLabels[load.wash_guidance]}</span>
-                    </div>
-                  )}
-                  {load.dry_guidance && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Drying</span>
-                      <span className="font-medium">{dryLabels[load.dry_guidance]}</span>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            )}
-
-            {/* Progress steps */}
-            <div className="mb-8">
-              <ProgressSteps currentState={load.current_state} />
-            </div>
-
-            {/* Action button */}
-            {stage.actionLabel && (
-              <Button
-                onClick={handleAction}
-                disabled={updateMutation.isPending}
-                className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
-                size="lg"
-              >
-                {stage.actionLabel}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
-
-            {isCompleted && (
-              <Button
-                onClick={() => navigate(createPageUrl("Home"))}
-                className="w-full rounded-2xl py-6 text-base"
-                size="lg"
-              >
-                Back to Home
-              </Button>
-            )}
-
-            {/* Abandon option (non-judgmental) */}
-            {!isCompleted && load.current_state !== "abandoned" && (
-              <button
-                onClick={handleAbandon}
-                className="block mx-auto mt-6 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Set aside for now
-              </button>
-            )}
-          </motion.div>
+          {stateNode}
         </AnimatePresence>
-      </div>
-    </div>
-  );
-}
 
-function ProgressSteps({ currentState }) {
-  const steps = [
-    { key: "load_created", label: "Created" },
-    { key: "washing", label: "Washing" },
-    { key: "wash_finished", label: "Transfer" },
-    { key: "drying", label: "Drying" },
-    { key: "dry_finished", label: "Remove" },
-    { key: "completed", label: "Done" },
-  ];
-
-  const currentIndex = steps.findIndex(s => s.key === currentState);
-
-  return (
-    <div className="flex items-center gap-1">
-      {steps.map((step, i) => (
-        <React.Fragment key={step.key}>
-          <div className="flex flex-col items-center flex-1">
-            <div
-              className={`w-2 h-2 rounded-full transition-all ${
-                i < currentIndex ? "bg-primary" :
-                i === currentIndex ? "bg-primary scale-150" :
-                "bg-border"
-              }`}
-            />
-            <span className={`text-[10px] mt-1.5 ${
-              i <= currentIndex ? "text-foreground font-medium" : "text-muted-foreground/50"
-            }`}>
-              {step.label}
-            </span>
+        {/* Progress tracker */}
+        {!isCompleted && (
+          <div className="mt-10">
+            <ProgressBar currentState={load.current_state} />
           </div>
-          {i < steps.length - 1 && (
-            <div className={`h-px flex-1 -mt-4 ${i < currentIndex ? "bg-primary" : "bg-border"}`} />
-          )}
-        </React.Fragment>
-      ))}
+        )}
+
+        {/* Non-judgmental abandon */}
+        {showAbandon && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleAbandon}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Set aside for now
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
