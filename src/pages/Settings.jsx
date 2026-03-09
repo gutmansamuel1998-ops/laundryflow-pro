@@ -162,6 +162,25 @@ export default function Settings() {
                   onCheckedChange={(v) => setSettings(prev => ({ ...prev, reminders_enabled: v }))}
                 />
               </div>
+              <div>
+                <Label className="text-sm mb-2 block">Forgotten load alert after</Label>
+                <Select
+                  value={String(settings.forgotten_load_threshold)}
+                  onValueChange={(v) => setSettings(prev => ({ ...prev, forgotten_load_threshold: Number(v) }))}
+                >
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15">15 minutes</SelectItem>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="60">1 hour</SelectItem>
+                    <SelectItem value="120">2 hours</SelectItem>
+                    <SelectItem value="240">4 hours</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  A gentle nudge appears when a finished cycle sits longer than this.
+                </p>
+              </div>
             </Card>
           </section>
 

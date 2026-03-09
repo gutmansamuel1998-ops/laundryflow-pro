@@ -104,6 +104,7 @@ export default function Home() {
                 <EmptyState onStartLoad={() => setShowBuilder(true)} />
               ) : (
                 <div className="mt-6 space-y-4">
+                  <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
                   {actionableLoad && (
                     <NextAction load={actionableLoad} onAction={handleAction} />
                   )}
