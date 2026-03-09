@@ -102,7 +102,10 @@ export default function Home() {
                   <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 </div>
               ) : activeLoads.length === 0 ? (
-                <EmptyState onStartLoad={() => setShowBuilder(true)} />
+                <div>
+                  <ReadinessPrompt user={user} />
+                  <EmptyState onStartLoad={() => setShowBuilder(true)} />
+                </div>
               ) : (
                 <div className="mt-6 space-y-4">
                   <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
