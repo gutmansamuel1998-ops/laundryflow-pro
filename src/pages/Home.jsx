@@ -9,7 +9,6 @@ import NextAction from "@/components/laundry/NextAction";
 import LoadBuilder from "@/components/laundry/LoadBuilder";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import ForgottenLoadAlert from "@/components/laundry/ForgottenLoadAlert";
-import ReadinessPrompt from "@/components/laundry/ReadinessPrompt";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {
@@ -102,13 +101,9 @@ export default function Home() {
                   <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 </div>
               ) : activeLoads.length === 0 ? (
-                <div className="mt-6 space-y-4">
-                  <ReadinessPrompt user={user} activeLoads={activeLoads} onStartLoad={() => setShowBuilder(true)} />
-                  <EmptyState onStartLoad={() => setShowBuilder(true)} />
-                </div>
+                <EmptyState onStartLoad={() => setShowBuilder(true)} />
               ) : (
                 <div className="mt-6 space-y-4">
-                  <ReadinessPrompt user={user} activeLoads={activeLoads} onStartLoad={() => setShowBuilder(true)} />
                   <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
                   {actionableLoad && (
                     <NextAction load={actionableLoad} onAction={handleAction} />
