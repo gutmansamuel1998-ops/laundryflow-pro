@@ -8,6 +8,7 @@ import LoadCard from "@/components/laundry/LoadCard";
 import NextAction from "@/components/laundry/NextAction";
 import LoadBuilder from "@/components/laundry/LoadBuilder";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import ForgottenLoadAlert from "@/components/laundry/ForgottenLoadAlert";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {

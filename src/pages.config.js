@@ -47,19 +47,19 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import Guides from './pages/Guides';
 import Home from './pages/Home';
 import LaundryMode from './pages/LaundryMode';
 import Loads from './pages/Loads';
-import Guides from './pages/Guides';
 import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "Guides": Guides,
     "Home": Home,
     "LaundryMode": LaundryMode,
     "Loads": Loads,
-    "Guides": Guides,
     "Settings": Settings,
 }
 

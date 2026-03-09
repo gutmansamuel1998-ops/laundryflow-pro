@@ -19,6 +19,7 @@ export default function Settings() {
     anchor_days: [],
     anchor_times: [],
     reminders_enabled: true,
+    forgotten_load_threshold: 30,
     quiet_hours_start: "22:00",
     quiet_hours_end: "08:00",
     text_size: "normal",
