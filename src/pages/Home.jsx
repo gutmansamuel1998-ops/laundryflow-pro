@@ -9,6 +9,7 @@ import NextAction from "@/components/laundry/NextAction";
 import LoadBuilder from "@/components/laundry/LoadBuilder";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import ForgottenLoadAlert from "@/components/laundry/ForgottenLoadAlert";
+import ReadinessPrompt from "@/components/laundry/ReadinessPrompt";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {
