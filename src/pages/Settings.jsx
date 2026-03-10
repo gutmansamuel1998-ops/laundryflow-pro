@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown } from "lucide-react";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
 import { motion } from "framer-motion";
 
@@ -27,6 +27,9 @@ export default function Settings() {
     reduced_motion: false,
     high_contrast: false,
     environmental_anchors: [],
+    friction_detection_enabled: true,
+    max_idle_time_wash_finished: 120,
+    max_idle_time_load_created: 240,
   });
 
   useEffect(() => {
@@ -45,6 +48,9 @@ export default function Settings() {
         reduced_motion: u?.reduced_motion || false,
         high_contrast: u?.high_contrast || false,
         environmental_anchors: u?.environmental_anchors || [],
+        friction_detection_enabled: u?.friction_detection_enabled !== false,
+        max_idle_time_wash_finished: u?.max_idle_time_wash_finished ?? 120,
+        max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
       }));
     }).catch(() => {});
   }, []);
@@ -241,6 +247,69 @@ export default function Settings() {
                 value={settings.environmental_anchors}
                 onChange={(anchors) => setSettings(prev => ({ ...prev, environmental_anchors: anchors }))}
               />
+            </Card>
+          </section>
+
+          {/* Friction Detection */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingDown className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Friction Detection</h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="friction">Enable friction detection</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Get alerts when loads are stuck at specific stages
+                  </p>
+                </div>
+                <Switch
+                  id="friction"
+                  checked={settings.friction_detection_enabled}
+                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, friction_detection_enabled: v }))}
+                />
+              </div>
+              {settings.friction_detection_enabled && (
+                <>
+                  <div>
+                    <Label className="text-sm mb-2 block">Transfer stage idle time</Label>
+                    <Select
+                      value={String(settings.max_idle_time_wash_finished)}
+                      onValueChange={(v) => setSettings(prev => ({ ...prev, max_idle_time_wash_finished: Number(v) }))}
+                    >
+                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="60">1 hour</SelectItem>
+                        <SelectItem value="120">2 hours</SelectItem>
+                        <SelectItem value="180">3 hours</SelectItem>
+                        <SelectItem value="240">4 hours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Alert when a load waits at wash_finished longer than this
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm mb-2 block">Load created idle time</Label>
+                    <Select
+                      value={String(settings.max_idle_time_load_created)}
+                      onValueChange={(v) => setSettings(prev => ({ ...prev, max_idle_time_load_created: Number(v) }))}
+                    >
+                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="120">2 hours</SelectItem>
+                        <SelectItem value="180">3 hours</SelectItem>
+                        <SelectItem value="240">4 hours</SelectItem>
+                        <SelectItem value="360">6 hours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Alert when a load is created but not started after this time
+                    </p>
+                  </div>
+                </>
+              )}
             </Card>
           </section>
 
