@@ -335,26 +335,32 @@ export default function LaundryMode() {
   }, [load]);
 
   const startWash = useCallback(() => {
+    const now = new Date().toISOString();
     updateMutation.mutate({ id: load.id, data: {
       current_state: "washing",
       wash_timer_minutes: washMinutes,
-      stage_start_time: new Date().toISOString(),
+      stage_start_time: now,
+      state_history: [...(load.state_history || []), { state: "washing", entered_at: now }],
     }});
   }, [load, washMinutes]);
 
   const startDry = useCallback(() => {
+    const now = new Date().toISOString();
     updateMutation.mutate({ id: load.id, data: {
       current_state: "drying",
       dry_timer_minutes: dryMinutes,
-      stage_start_time: new Date().toISOString(),
+      stage_start_time: now,
+      state_history: [...(load.state_history || []), { state: "drying", entered_at: now }],
     }});
   }, [load, dryMinutes]);
 
   const finishLoad = useCallback(() => {
+    const now = new Date().toISOString();
     updateMutation.mutate({ id: load.id, data: {
       current_state: "completed",
       status: "completed",
-      completed_at: new Date().toISOString(),
+      completed_at: now,
+      state_history: [...(load.state_history || []), { state: "completed", entered_at: now }],
     }});
   }, [load]);
 
