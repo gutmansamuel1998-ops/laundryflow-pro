@@ -13,6 +13,7 @@ import ReadinessPrompt from "@/components/laundry/ReadinessPrompt";
 import LowSupplyAlert from "@/components/laundry/LowSupplyAlert";
 import EnvironmentalAnchorPrompt from "@/components/laundry/EnvironmentalAnchorPrompt";
 import FrictionAlert from "@/components/laundry/FrictionAlert";
+import ShoppingList from "@/components/laundry/ShoppingList";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Home() {
@@ -123,6 +124,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="mt-6 space-y-4">
+                  <ShoppingList />
                   <LowSupplyAlert />
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
                   <FrictionAlert loads={activeLoads} />
