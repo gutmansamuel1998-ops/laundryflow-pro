@@ -66,11 +66,52 @@ Deno.serve(async (req) => {
       ? [7, 8, 9, 14, 15, 16, 21, 22] // Mid-morning, mid-afternoon, late evening
       : [22, 23, 0, 1, 2, 3, 4, 5, 6, 13, 14, 15]; // Night and early afternoon
 
+    // Get precise time preferences
+    const precisePreferences = user.precise_time_preferences || [];
+    
+    // Helper to check if current time falls within a precise preference
+    const isInPreciseWindow = (date) => {
+      const day = date.getDay();
+      const time = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+      
+      return precisePreferences.some(pref => {
+        if (pref.day !== day) return false;
+        return time >= pref.start_time && time <= pref.end_time;
+      });
+    };
+
     // Calculate next optimal time
     let suggestions = [];
 
     // If no active loads, suggest times
     if (activeLoads.length === 0) {
+      // Check precise preferences first (highest priority)
+      if (precisePreferences.length > 0) {
+        for (const pref of precisePreferences) {
+          if (pref.day === currentDay) {
+            const [startHour, startMin] = pref.start_time.split(':').map(Number);
+            const [endHour, endMin] = pref.end_time.split(':').map(Number);
+            
+            if (currentHour < endHour || (currentHour === endHour && now.getMinutes() < endMin)) {
+              const suggestedTime = new Date();
+              if (currentHour < startHour || (currentHour === startHour && now.getMinutes() < startMin)) {
+                suggestedTime.setHours(startHour, startMin, 0, 0);
+              } else {
+                suggestedTime.setHours(currentHour + 1, 0, 0, 0);
+              }
+              
+              if (suggestedTime.getHours() <= endHour) {
+                suggestions.push({
+                  time: suggestedTime.toISOString(),
+                  reason: 'Matches your precise scheduled time window',
+                  score: 12
+                });
+              }
+            }
+          }
+        }
+      }
+
       // Today's remaining optimal hours
       for (let h = currentHour + 1; h < 24; h++) {
         if (offPeakHours.includes(h) && peakHours.includes(h)) {
@@ -104,9 +145,22 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Suggest tomorrow if preferred day
+      // Suggest tomorrow based on precise preferences
       const tomorrow = (currentDay + 1) % 7;
-      if (peakDays.includes(tomorrow) && peakHours.length > 0) {
+      const tomorrowPrefs = precisePreferences.filter(p => p.day === tomorrow);
+      
+      if (tomorrowPrefs.length > 0) {
+        const firstPref = tomorrowPrefs[0];
+        const [startHour, startMin] = firstPref.start_time.split(':').map(Number);
+        const suggestedTime = new Date();
+        suggestedTime.setDate(suggestedTime.getDate() + 1);
+        suggestedTime.setHours(startHour, startMin, 0, 0);
+        suggestions.push({
+          time: suggestedTime.toISOString(),
+          reason: 'Tomorrow matches your precise scheduled time window',
+          score: 11
+        });
+      } else if (peakDays.includes(tomorrow) && peakHours.length > 0) {
         const suggestedTime = new Date();
         suggestedTime.setDate(suggestedTime.getDate() + 1);
         suggestedTime.setHours(peakHours[0], 0, 0, 0);

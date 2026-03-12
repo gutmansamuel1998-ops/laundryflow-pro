@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown } from "lucide-react";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
+import PreciseTimePreferences from "@/components/laundry/PreciseTimePreferences";
 import { motion } from "framer-motion";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -19,6 +20,7 @@ export default function Settings() {
     laundry_environment: "private",
     preferred_days_of_week: [],
     preferred_time_windows: [],
+    precise_time_preferences: [],
     enable_laundry_reminders: true,
     forgotten_threshold_minutes: 30,
     text_size: "normal",
@@ -38,6 +40,7 @@ export default function Settings() {
         laundry_environment: u?.laundry_environment || "private",
         preferred_days_of_week: u?.preferred_days_of_week || [],
         preferred_time_windows: u?.preferred_time_windows || [],
+        precise_time_preferences: u?.precise_time_preferences || [],
         enable_laundry_reminders: u?.enable_laundry_reminders !== false,
         forgotten_threshold_minutes: u?.forgotten_threshold_minutes ?? 30,
         text_size: u?.text_size || "normal",
@@ -148,6 +151,16 @@ export default function Settings() {
                     </button>
                   ))}
                 </div>
+              </div>
+              <div className="pt-2">
+                <Label className="text-sm mb-2 block">Precise Time Blocks (Optional)</Label>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Define exact time ranges for more accurate scheduling suggestions
+                </p>
+                <PreciseTimePreferences
+                  value={settings.precise_time_preferences}
+                  onChange={(prefs) => setSettings(prev => ({ ...prev, precise_time_preferences: prefs }))}
+                />
               </div>
             </Card>
           </section>
