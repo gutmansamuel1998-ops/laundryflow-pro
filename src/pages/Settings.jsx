@@ -17,18 +17,16 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [settings, setSettings] = useState({
     laundry_environment: "private",
-    anchor_days: [],
-    anchor_times: [],
-    reminders_enabled: true,
-    forgotten_load_threshold: 30,
-    quiet_hours_start: "22:00",
-    quiet_hours_end: "08:00",
+    preferred_days_of_week: [],
+    preferred_time_windows: [],
+    enable_laundry_reminders: true,
+    forgotten_threshold_minutes: 30,
     text_size: "normal",
     reduced_motion: false,
     high_contrast: false,
     environmental_anchors: [],
     friction_detection_enabled: true,
-    max_idle_time_wash_finished: 120,
+    idle_threshold_minutes: 120,
     max_idle_time_load_created: 240,
   });
 
@@ -38,38 +36,36 @@ export default function Settings() {
       setSettings(prev => ({
         ...prev,
         laundry_environment: u?.laundry_environment || "private",
-        anchor_days: u?.anchor_days || [],
-        anchor_times: u?.anchor_times || [],
-        reminders_enabled: u?.reminders_enabled !== false,
-        forgotten_load_threshold: u?.forgotten_load_threshold ?? 30,
-        quiet_hours_start: u?.quiet_hours_start || "22:00",
-        quiet_hours_end: u?.quiet_hours_end || "08:00",
+        preferred_days_of_week: u?.preferred_days_of_week || [],
+        preferred_time_windows: u?.preferred_time_windows || [],
+        enable_laundry_reminders: u?.enable_laundry_reminders !== false,
+        forgotten_threshold_minutes: u?.forgotten_threshold_minutes ?? 30,
         text_size: u?.text_size || "normal",
         reduced_motion: u?.reduced_motion || false,
         high_contrast: u?.high_contrast || false,
         environmental_anchors: u?.environmental_anchors || [],
         friction_detection_enabled: u?.friction_detection_enabled !== false,
-        max_idle_time_wash_finished: u?.max_idle_time_wash_finished ?? 120,
+        idle_threshold_minutes: u?.idle_threshold_minutes ?? 120,
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
       }));
     }).catch(() => {});
   }, []);
 
-  const handleDayToggle = (day) => {
+  const handleDayToggle = (dayIndex) => {
     setSettings(prev => ({
       ...prev,
-      anchor_days: prev.anchor_days.includes(day)
-        ? prev.anchor_days.filter(d => d !== day)
-        : [...prev.anchor_days, day],
+      preferred_days_of_week: prev.preferred_days_of_week.includes(dayIndex)
+        ? prev.preferred_days_of_week.filter(d => d !== dayIndex)
+        : [...prev.preferred_days_of_week, dayIndex],
     }));
   };
 
   const handleTimeToggle = (time) => {
     setSettings(prev => ({
       ...prev,
-      anchor_times: prev.anchor_times.includes(time)
-        ? prev.anchor_times.filter(t => t !== time)
-        : [...prev.anchor_times, time],
+      preferred_time_windows: prev.preferred_time_windows.includes(time)
+        ? prev.preferred_time_windows.filter(t => t !== time)
+        : [...prev.preferred_time_windows, time],
     }));
   };
 
@@ -120,12 +116,12 @@ export default function Settings() {
               <div>
                 <Label className="text-sm mb-2 block">Days</Label>
                 <div className="flex flex-wrap gap-2">
-                  {DAYS.map((day) => (
+                  {DAYS.map((day, index) => (
                     <button
                       key={day}
-                      onClick={() => handleDayToggle(day)}
+                      onClick={() => handleDayToggle(index)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        settings.anchor_days.includes(day)
+                        settings.preferred_days_of_week.includes(index)
                           ? "bg-primary text-white"
                           : "bg-secondary text-secondary-foreground"
                       }`}
@@ -141,9 +137,9 @@ export default function Settings() {
                   {TIMES.map((time) => (
                     <button
                       key={time}
-                      onClick={() => handleTimeToggle(time)}
+                      onClick={() => handleTimeToggle(time.toLowerCase())}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        settings.anchor_times.includes(time)
+                        settings.preferred_time_windows.includes(time.toLowerCase())
                           ? "bg-primary text-white"
                           : "bg-secondary text-secondary-foreground"
                       }`}
@@ -164,18 +160,23 @@ export default function Settings() {
             </div>
             <Card className="p-4 border-0 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="reminders">Enable reminders</Label>
+                <div>
+                  <Label htmlFor="reminders">Enable laundry reminders</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Get email alerts during your preferred times when no loads are active
+                  </p>
+                </div>
                 <Switch
                   id="reminders"
-                  checked={settings.reminders_enabled}
-                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, reminders_enabled: v }))}
+                  checked={settings.enable_laundry_reminders}
+                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, enable_laundry_reminders: v }))}
                 />
               </div>
               <div>
                 <Label className="text-sm mb-2 block">Forgotten load alert after</Label>
                 <Select
-                  value={String(settings.forgotten_load_threshold)}
-                  onValueChange={(v) => setSettings(prev => ({ ...prev, forgotten_load_threshold: Number(v) }))}
+                  value={String(settings.forgotten_threshold_minutes)}
+                  onValueChange={(v) => setSettings(prev => ({ ...prev, forgotten_threshold_minutes: Number(v) }))}
                 >
                   <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -273,10 +274,10 @@ export default function Settings() {
               {settings.friction_detection_enabled && (
                 <>
                   <div>
-                    <Label className="text-sm mb-2 block">Transfer stage idle time</Label>
+                    <Label className="text-sm mb-2 block">General idle time threshold</Label>
                     <Select
-                      value={String(settings.max_idle_time_wash_finished)}
-                      onValueChange={(v) => setSettings(prev => ({ ...prev, max_idle_time_wash_finished: Number(v) }))}
+                      value={String(settings.idle_threshold_minutes)}
+                      onValueChange={(v) => setSettings(prev => ({ ...prev, idle_threshold_minutes: Number(v) }))}
                     >
                       <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -287,7 +288,7 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground mt-1.5">
-                      Alert when a load waits at wash_finished longer than this
+                      Alert when a load sits idle at transfer stage longer than this
                     </p>
                   </div>
                   <div>
