@@ -98,6 +98,8 @@ Be concise, calm, and practical.`;
     await handleSearch(stainType || null, file_url);
   };
 
+  const confidenceColor = { high: "bg-green-100 text-green-700", medium: "bg-yellow-100 text-yellow-700", low: "bg-orange-100 text-orange-700" };
+
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
@@ -107,16 +109,11 @@ Be concise, calm, and practical.`;
             <h1 className="text-2xl font-semibold tracking-tight">Stain Guidance</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Get treatment steps for any stain type
+            Upload a photo or describe your stain for AI-powered removal steps
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="mt-6 space-y-4"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-6 space-y-4">
           <Card className="p-4 border-0 shadow-sm">
             <div className="flex gap-2">
               <Input
@@ -124,36 +121,36 @@ Be concise, calm, and practical.`;
                 onChange={(e) => setStainType(e.target.value)}
                 placeholder="Type a stain (e.g., coffee, grease)..."
                 className="rounded-xl"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch();
-                }}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
               />
-              <Button
-                onClick={() => handleSearch()}
-                disabled={!stainType.trim() || loading}
-                size="icon"
-                className="rounded-xl"
-              >
+              <Button onClick={() => handleSearch()} disabled={!stainType.trim() || loading} size="icon" className="rounded-xl">
                 <Search className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="flex items-center gap-2 my-3">
               <div className="flex-1 h-px bg-border" />
-              <span className="text-xs text-muted-foreground">or</span>
+              <span className="text-xs text-muted-foreground">or upload a photo for AI analysis</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            <label className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-border hover:border-primary/30 transition-colors cursor-pointer">
-              <Camera className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Upload stain photo</span>
-              <Input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
+            <label className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed transition-colors cursor-pointer ${previewUrl ? "border-primary/40 bg-primary/5" : "border-border hover:border-primary/30"}`}>
+              {previewUrl ? (
+                <div className="flex items-center gap-3 w-full">
+                  <img src={previewUrl} alt="Stain preview" className="w-14 h-14 object-cover rounded-lg" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-primary">Photo ready</p>
+                    <p className="text-xs text-muted-foreground">Tap to change</p>
+                  </div>
+                  <Sparkles className="w-4 h-4 text-primary ml-auto" />
+                </div>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Upload stain photo for AI identification</span>
+                </>
+              )}
+              <Input type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" />
             </label>
           </Card>
 
@@ -162,16 +159,7 @@ Be concise, calm, and practical.`;
               <p className="text-sm text-muted-foreground mb-2">Common stains:</p>
               <div className="flex flex-wrap gap-2">
                 {COMMON_STAINS.map((stain) => (
-                  <Button
-                    key={stain}
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl"
-                    onClick={() => {
-                      setStainType(stain);
-                      handleSearch(stain);
-                    }}
-                  >
+                  <Button key={stain} variant="outline" size="sm" className="rounded-xl" onClick={() => { setStainType(stain); handleSearch(stain); }}>
                     {stain}
                   </Button>
                 ))}
@@ -183,38 +171,98 @@ Be concise, calm, and practical.`;
             <Card className="p-8 border-0 shadow-sm">
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                <p className="text-sm text-muted-foreground">Getting guidance...</p>
+                <p className="text-sm text-muted-foreground">{loadingMsg}</p>
               </div>
             </Card>
           )}
 
           <AnimatePresence>
             {guidance && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                {imageUrl && (
-                  <Card className="p-4 border-0 shadow-sm overflow-hidden mb-4">
-                    <img src={imageUrl} alt="Stain" className="w-full rounded-lg" />
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+
+                {/* Identification Header */}
+                <Card className="p-4 border-0 shadow-sm bg-primary/5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">AI Identified</p>
+                      </div>
+                      <h2 className="text-lg font-semibold">{guidance.stain_identified}</h2>
+                      {guidance.fabric_detected && guidance.fabric_detected !== "Unknown" && (
+                        <p className="text-sm text-muted-foreground mt-0.5">Fabric: {guidance.fabric_detected}</p>
+                      )}
+                    </div>
+                    {guidance.confidence && (
+                      <Badge className={`text-xs capitalize ${confidenceColor[guidance.confidence] || "bg-muted text-muted-foreground"}`}>
+                        {guidance.confidence} confidence
+                      </Badge>
+                    )}
+                  </div>
+                  {previewUrl && (
+                    <img src={previewUrl} alt="Stain" className="w-full rounded-lg mt-3 max-h-48 object-cover" />
+                  )}
+                </Card>
+
+                {/* Warnings */}
+                {guidance.warnings?.length > 0 && (
+                  <Card className="p-4 border-0 shadow-sm bg-destructive/5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="w-4 h-4 text-destructive" />
+                      <p className="text-sm font-medium text-destructive">Caution</p>
+                    </div>
+                    {guidance.warnings.map((w, i) => (
+                      <p key={i} className="text-sm text-muted-foreground">{w}</p>
+                    ))}
                   </Card>
                 )}
 
-                <Card className="p-5 border-0 shadow-sm bg-primary/5">
-                  <h3 className="font-medium mb-2">Treatment Steps</h3>
-                  <p className="text-sm text-foreground whitespace-pre-wrap">{guidance}</p>
+                {/* Step-by-step */}
+                <Card className="p-5 border-0 shadow-sm">
+                  <h3 className="font-semibold mb-3">Removal Steps</h3>
+                  <div className="space-y-3">
+                    {guidance.steps?.map((step) => (
+                      <div key={step.step_number} className="flex gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                          {step.step_number}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{step.title}</p>
+                          <p className="text-sm text-muted-foreground">{step.instruction}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </Card>
 
-                <Button
-                  variant="outline"
-                  className="w-full rounded-xl mt-4"
-                  onClick={() => {
-                    setGuidance(null);
-                    setImageUrl(null);
-                    setStainType("");
-                  }}
-                >
+                {/* Supply Recommendations */}
+                {guidance.recommended_supplies?.length > 0 && (
+                  <Card className="p-5 border-0 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Package className="w-4 h-4 text-primary" />
+                      <h3 className="font-semibold">From Your Supplies</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {guidance.recommended_supplies.map((name) => (
+                        <div key={name} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">{name}</p>
+                            {guidance.supply_tips?.[name] && (
+                              <p className="text-xs text-muted-foreground">{guidance.supply_tips[name]}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+
+                {guidance.recommended_supplies?.length === 0 && supplies.length > 0 && (
+                  <p className="text-xs text-muted-foreground text-center">None of your current supplies are ideal for this stain type.</p>
+                )}
+
+                <Button variant="outline" className="w-full rounded-xl" onClick={() => { setGuidance(null); setImageUrl(null); setPreviewUrl(null); setStainType(""); }}>
                   Search Another Stain
                 </Button>
               </motion.div>
