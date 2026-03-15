@@ -15,46 +15,87 @@ export default function StainGuidance() {
   const [stainType, setStainType] = useState("");
   const [guidance, setGuidance] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState("Analyzing...");
   const [imageUrl, setImageUrl] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [supplies, setSupplies] = useState([]);
 
-  const handleSearch = async (customStain = null) => {
+  useEffect(() => {
+    base44.entities.Supply.list().then(setSupplies).catch(() => {});
+  }, []);
+
+  const buildPrompt = (stain, supplyNames) => {
+    const supplyList = supplyNames.length > 0 ? supplyNames.join(", ") : "none listed";
+    const stainContext = stain ? `The stain type is: "${stain}".` : "Identify the stain type from the image.";
+    return `You are a laundry expert. ${stainContext}
+
+Analyze the stain (and image if provided) and return a JSON object with:
+- stain_identified: string (name of the stain you identified or confirmed)
+- fabric_detected: string (fabric type if visible in image, otherwise "Unknown")
+- confidence: "high" | "medium" | "low"
+- steps: array of objects with { step_number: number, title: string, instruction: string }
+  (4-6 concrete, actionable steps covering pre-treatment, washing, and drying)
+- warnings: array of strings (e.g. avoid heat, test first — max 2)
+- recommended_supplies: array of strings chosen ONLY from this list of supplies the user already owns: [${supplyList}]
+  (return empty array if none are relevant)
+- supply_tips: object mapping each recommended supply name to a short tip on how to use it for this stain
+
+Be concise, calm, and practical.`;
+  };
+
+  const handleSearch = async (customStain = null, uploadedUrl = null) => {
     const stain = customStain || stainType;
-    if (!stain.trim() && !imageUrl) return;
+    const imgUrl = uploadedUrl || imageUrl;
+    if (!stain.trim() && !imgUrl) return;
 
     setLoading(true);
     setGuidance(null);
+    setLoadingMsg(imgUrl ? "Analyzing your photo..." : "Getting guidance...");
 
-    try {
-      const prompt = imageUrl
-        ? `You are analyzing a stain on clothing. Identify the stain type if possible and provide simple treatment steps: pretreatment, washing temperature, and drying precautions. Keep it concise and actionable. Avoid alarmist language.`
-        : `Provide simple stain removal guidance for: ${stain}. Include: pretreatment steps, washing temperature, and drying precautions. Keep it concise, calm, and actionable. Avoid perfectionism.`;
+    const supplyNames = supplies.map(s => s.name);
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        ...(imageUrl && { file_urls: [imageUrl] })
-      });
+    const response = await base44.integrations.Core.InvokeLLM({
+      prompt: buildPrompt(stain, supplyNames),
+      response_json_schema: {
+        type: "object",
+        properties: {
+          stain_identified: { type: "string" },
+          fabric_detected: { type: "string" },
+          confidence: { type: "string" },
+          steps: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                step_number: { type: "number" },
+                title: { type: "string" },
+                instruction: { type: "string" }
+              }
+            }
+          },
+          warnings: { type: "array", items: { type: "string" } },
+          recommended_supplies: { type: "array", items: { type: "string" } },
+          supply_tips: { type: "object" }
+        }
+      },
+      ...(imgUrl && { file_urls: [imgUrl] })
+    });
 
-      setGuidance(response);
-    } catch (error) {
-      setGuidance("I couldn't retrieve guidance right now. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    setGuidance(response);
+    setLoading(false);
   };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setPreviewUrl(URL.createObjectURL(file));
     setLoading(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setImageUrl(file_url);
-      await handleSearch();
-    } catch (error) {
-      setGuidance("I couldn't process this image. Please try again.");
-      setLoading(false);
-    }
+    setLoadingMsg("Uploading photo...");
+
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setImageUrl(file_url);
+    await handleSearch(stainType || null, file_url);
   };
 
   return (
