@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart } from "lucide-react";
+import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AdvancedPredictionPanel from "@/components/supplies/AdvancedPredictionPanel";
+import BarcodeScanner from "@/components/supplies/BarcodeScanner";
 
 const SUPPLY_PRESETS = [
   { name: "Laundry Detergent", unit: "loads" },
@@ -26,6 +27,7 @@ export default function Supplies() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
