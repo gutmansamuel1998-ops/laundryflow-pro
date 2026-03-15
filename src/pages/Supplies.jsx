@@ -26,6 +26,11 @@ export default function Supplies() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setIsPremium(u?.has_premium || false)).catch(() => {});
+  }, []);
   const [newSupply, setNewSupply] = useState({
     name: "",
     current_level: 100,
