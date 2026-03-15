@@ -130,6 +130,11 @@ const AuthenticatedApp = () => {
           <ShoppingList />
         </LayoutWrapper>
       } />
+      <Route path="/SupplyAnalytics" element={
+        <LayoutWrapper currentPageName="SupplyAnalytics">
+          <SupplyAnalytics />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
