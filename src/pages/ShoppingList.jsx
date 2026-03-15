@@ -38,6 +38,16 @@ export default function ShoppingList() {
   });
 
   const handleCheckOff = (item) => {
+    // Track analytics
+    base44.analytics.track({
+      eventName: "shopping_item_purchased",
+      properties: {
+        item_name: item.supply_name,
+        predicted_depletion_date: item.predicted_depletion_date,
+        added_reason: item.added_reason
+      }
+    });
+
     updateItemMutation.mutate({ id: item.id, status: 'purchased' });
   };
 

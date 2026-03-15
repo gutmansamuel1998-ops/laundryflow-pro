@@ -82,6 +82,16 @@ export default function Supplies() {
       level: 100
     });
 
+    // Track analytics
+    base44.analytics.track({
+      eventName: "supply_restocked",
+      properties: {
+        supply_name: supply.name,
+        previous_level: supply.current_level,
+        unit: supply.unit
+      }
+    });
+
     updateMutation.mutate({
       id: supply.id,
       data: {
@@ -106,6 +116,18 @@ export default function Supplies() {
 
     // Calculate days remaining based on usage pattern
     const estimatedDays = calculateDaysRemaining(usageHistory, newLevel);
+
+    // Track analytics
+    base44.analytics.track({
+      eventName: "supply_level_updated",
+      properties: {
+        supply_name: supply.name,
+        old_level: supply.current_level,
+        new_level: newLevel,
+        unit: supply.unit,
+        estimated_days_remaining: estimatedDays
+      }
+    });
 
     updateMutation.mutate({
       id: supply.id,
