@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles } from "lucide-react";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
 import PreciseTimePreferences from "@/components/laundry/PreciseTimePreferences";
 import { motion } from "framer-motion";
@@ -16,6 +16,7 @@ const TIMES = ["Morning", "Afternoon", "Evening"];
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [hasPremium, setHasPremium] = useState(false);
   const [settings, setSettings] = useState({
     laundry_environment: "private",
     preferred_days_of_week: [],
@@ -35,6 +36,7 @@ export default function Settings() {
   useEffect(() => {
     base44.auth.me().then((u) => {
       setUser(u);
+      setHasPremium(u?.has_premium === true);
       setSettings(prev => ({
         ...prev,
         laundry_environment: u?.laundry_environment || "private",
@@ -323,6 +325,36 @@ export default function Settings() {
                     </p>
                   </div>
                 </>
+              )}
+            </Card>
+          </section>
+
+          {/* Premium */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Premium</h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm">
+              {hasPremium ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <p className="text-sm font-medium">Premium Active</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You have access to AI laundry help and advanced guidance
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-sm mb-3">
+                    Upgrade to Premium for AI laundry help and advanced guidance
+                  </p>
+                  <Button variant="outline" className="w-full rounded-xl" size="sm">
+                    View Premium Features
+                  </Button>
+                </div>
               )}
             </Card>
           </section>

@@ -1,13 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Home, Play, Layers, BookOpen, Settings } from "lucide-react";
+import { Home, Play, Layers, BookOpen, Sparkles, Settings } from "lucide-react";
 
 const navItems = [
   { page: "Home", label: "Home", icon: Home },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Loads", label: "Loads", icon: Layers },
   { page: "Guides", label: "Guides", icon: BookOpen },
+  { page: "Assistant", label: "Assistant", icon: Sparkles },
   { page: "Settings", label: "Settings", icon: Settings },
 ];
 

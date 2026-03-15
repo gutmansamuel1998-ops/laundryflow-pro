@@ -6,6 +6,11 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import Assistant from '@/pages/Assistant';
+import AIAssistant from '@/pages/AIAssistant';
+import TagScanner from '@/pages/TagScanner';
+import StainGuidance from '@/pages/StainGuidance';
+import RoutineBuilder from '@/pages/RoutineBuilder';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -57,6 +62,31 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/Assistant" element={
+        <LayoutWrapper currentPageName="Assistant">
+          <Assistant />
+        </LayoutWrapper>
+      } />
+      <Route path="/AIAssistant" element={
+        <LayoutWrapper currentPageName="AIAssistant">
+          <AIAssistant />
+        </LayoutWrapper>
+      } />
+      <Route path="/TagScanner" element={
+        <LayoutWrapper currentPageName="TagScanner">
+          <TagScanner />
+        </LayoutWrapper>
+      } />
+      <Route path="/StainGuidance" element={
+        <LayoutWrapper currentPageName="StainGuidance">
+          <StainGuidance />
+        </LayoutWrapper>
+      } />
+      <Route path="/RoutineBuilder" element={
+        <LayoutWrapper currentPageName="RoutineBuilder">
+          <RoutineBuilder />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
