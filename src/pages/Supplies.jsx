@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw } from "lucide-react";
+import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { format, differenceInDays } from "date-fns";
 
 const SUPPLY_PRESETS = [
   { name: "Laundry Detergent", unit: "loads" },
@@ -66,25 +67,74 @@ export default function Supplies() {
   };
 
   const handleRestock = (supply) => {
+    // Track restock in usage history
+    const usageHistory = supply.usage_history || [];
+    usageHistory.push({
+      date: new Date().toISOString(),
+      level: 100
+    });
+
     updateMutation.mutate({
       id: supply.id,
       data: {
         current_level: 100,
         last_restocked: new Date().toISOString(),
-        notified_low: false
+        notified_low: false,
+        usage_history: usageHistory,
+        estimated_days_remaining: null
       }
     });
   };
 
   const handleUpdateLevel = (supply, newLevel) => {
     const shouldNotify = newLevel <= supply.low_threshold && newLevel < supply.current_level;
+    
+    // Track usage history
+    const usageHistory = supply.usage_history || [];
+    usageHistory.push({
+      date: new Date().toISOString(),
+      level: newLevel
+    });
+
+    // Calculate days remaining based on usage pattern
+    const estimatedDays = calculateDaysRemaining(usageHistory, newLevel);
+
     updateMutation.mutate({
       id: supply.id,
       data: {
         current_level: newLevel,
-        notified_low: shouldNotify ? false : supply.notified_low
+        notified_low: shouldNotify ? false : supply.notified_low,
+        usage_history: usageHistory,
+        estimated_days_remaining: estimatedDays
       }
     });
+  };
+
+  const calculateDaysRemaining = (history, currentLevel) => {
+    if (!history || history.length < 2 || currentLevel === 0) return null;
+
+    // Get recent usage data (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentHistory = history
+      .filter(h => new Date(h.date) >= thirtyDaysAgo)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (recentHistory.length < 2) return null;
+
+    // Calculate average daily usage
+    const firstEntry = recentHistory[0];
+    const lastEntry = recentHistory[recentHistory.length - 1];
+    const levelDrop = firstEntry.level - lastEntry.level;
+    const daysBetween = differenceInDays(new Date(lastEntry.date), new Date(firstEntry.date));
+
+    if (daysBetween === 0 || levelDrop <= 0) return null;
+
+    const dailyUsage = levelDrop / daysBetween;
+    const daysRemaining = Math.round(currentLevel / dailyUsage);
+
+    return daysRemaining > 0 ? daysRemaining : null;
   };
 
   const handlePresetSelect = (preset) => {
@@ -239,6 +289,12 @@ export default function Supplies() {
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {supply.current_level}% remaining • Alert at {supply.low_threshold}%
                         </p>
+                        {supply.estimated_days_remaining && (
+                          <div className="flex items-center gap-1 mt-1 text-xs text-primary">
+                            <Calendar className="w-3 h-3" />
+                            <span>~{supply.estimated_days_remaining} days remaining</span>
+                          </div>
+                        )}
                       </div>
                       <Button
                         variant="ghost"
@@ -261,7 +317,18 @@ export default function Supplies() {
                     {supply.current_level <= supply.low_threshold && (
                       <div className="flex items-center gap-2 bg-destructive/10 text-destructive px-3 py-2 rounded-lg text-xs mb-3">
                         <AlertCircle className="w-4 h-4" />
-                        Low supply - consider restocking
+                        <span>
+                          Low supply - consider restocking
+                          {supply.estimated_days_remaining && supply.estimated_days_remaining <= 7 && (
+                            <span className="font-medium"> ({supply.estimated_days_remaining} days left)</span>
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {!supply.estimated_days_remaining && supply.usage_history && supply.usage_history.length > 0 && (
+                      <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded-lg text-xs mb-3 text-muted-foreground">
+                        <TrendingDown className="w-3 h-3" />
+                        Update the level a few times to see usage estimates
                       </div>
                     )}
 
