@@ -315,6 +315,8 @@ export default function Supplies() {
           )}
         </AnimatePresence>
 
+        <AdvancedPredictionPanel isPremium={isPremium} />
+
         {isLoading ? (
           <div className="text-center py-12 text-muted-foreground">Loading supplies...</div>
         ) : supplies.length === 0 ? (
