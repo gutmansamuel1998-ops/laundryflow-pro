@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
@@ -27,6 +27,7 @@ export default function Settings() {
     precise_time_preferences: [],
     enable_laundry_reminders: true,
     forgotten_threshold_minutes: 30,
+    enable_supply_alerts: true,
     text_size: "normal",
     reduced_motion: false,
     high_contrast: false,
@@ -48,6 +49,7 @@ export default function Settings() {
         precise_time_preferences: u?.precise_time_preferences || [],
         enable_laundry_reminders: u?.enable_laundry_reminders !== false,
         forgotten_threshold_minutes: u?.forgotten_threshold_minutes ?? 30,
+        enable_supply_alerts: u?.enable_supply_alerts !== false,
         text_size: u?.text_size || "normal",
         reduced_motion: u?.reduced_motion || false,
         high_contrast: u?.high_contrast || false,
@@ -209,6 +211,37 @@ export default function Settings() {
                   A gentle nudge appears when a finished cycle sits longer than this.
                 </p>
               </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="supply-alerts">Low supply alerts</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Get notified when supplies fall below threshold
+                  </p>
+                </div>
+                <Switch
+                  id="supply-alerts"
+                  checked={settings.enable_supply_alerts}
+                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, enable_supply_alerts: v }))}
+                />
+              </div>
+            </Card>
+          </section>
+
+          {/* Supply Inventory */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Package className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Supply Inventory</h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm">
+              <Button
+                variant="outline"
+                className="w-full rounded-xl justify-start"
+                onClick={() => navigate(createPageUrl("Supplies"))}
+              >
+                <Package className="w-4 h-4 mr-2" />
+                Manage Supply Inventory
+              </Button>
             </Card>
           </section>
 
