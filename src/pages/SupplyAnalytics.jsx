@@ -11,7 +11,8 @@ import UsageTrendChart from "@/components/analytics/UsageTrendChart";
 import DepletionRateChart from "@/components/analytics/DepletionRateChart";
 import RestockCalendar from "@/components/analytics/RestockCalendar";
 
-function StatCard({ label, value, sub, icon: Icon, color = "text-primary" }) {
+function StatCard({ label, value, sub, icon: IconComp, color = "text-primary" }) {
+  const Icon = IconComp;
   return (
     <Card className="p-4 border-0 shadow-sm flex items-start gap-3">
       <div className={`mt-0.5 ${color}`}>

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine } from "lucide-react";
+import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine, BarChart2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
