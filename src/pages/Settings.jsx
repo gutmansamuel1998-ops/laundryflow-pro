@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
 import PreciseTimePreferences from "@/components/laundry/PreciseTimePreferences";
 import { motion } from "framer-motion";
@@ -14,6 +16,7 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 const TIMES = ["Morning", "Afternoon", "Evening"];
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [saved, setSaved] = useState(false);
   const [hasPremium, setHasPremium] = useState(false);
@@ -356,6 +359,24 @@ export default function Settings() {
                   </Button>
                 </div>
               )}
+            </Card>
+          </section>
+
+          {/* Business Info */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">About</h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm">
+              <Button
+                variant="outline"
+                className="w-full rounded-xl justify-start"
+                onClick={() => navigate(createPageUrl("BusinessInfo"))}
+              >
+                <Building2 className="w-4 h-4 mr-2" />
+                Business Info & Contact
+              </Button>
             </Card>
           </section>
 

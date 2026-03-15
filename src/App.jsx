@@ -11,6 +11,7 @@ import AIAssistant from '@/pages/AIAssistant';
 import TagScanner from '@/pages/TagScanner';
 import StainGuidance from '@/pages/StainGuidance';
 import RoutineBuilder from '@/pages/RoutineBuilder';
+import BusinessInfo from '@/pages/BusinessInfo';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -85,6 +86,11 @@ const AuthenticatedApp = () => {
       <Route path="/RoutineBuilder" element={
         <LayoutWrapper currentPageName="RoutineBuilder">
           <RoutineBuilder />
+        </LayoutWrapper>
+      } />
+      <Route path="/BusinessInfo" element={
+        <LayoutWrapper currentPageName="BusinessInfo">
+          <BusinessInfo />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
