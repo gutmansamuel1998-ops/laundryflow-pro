@@ -231,6 +231,15 @@ export default function Supplies() {
               </Button>
             )}
             <Button
+              variant="outline"
+              onClick={() => setShowScanner(true)}
+              className="rounded-xl"
+              size="sm"
+            >
+              <ScanLine className="w-4 h-4 mr-1" />
+              Scan
+            </Button>
+            <Button
               onClick={() => setShowAddForm(!showAddForm)}
               className="rounded-xl"
               size="sm"
