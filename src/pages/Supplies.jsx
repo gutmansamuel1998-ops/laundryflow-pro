@@ -240,6 +240,15 @@ export default function Supplies() {
             )}
             <Button
               variant="outline"
+              onClick={() => navigate(createPageUrl("SupplyAnalytics"))}
+              className="rounded-xl"
+              size="sm"
+            >
+              <BarChart2 className="w-4 h-4 mr-1" />
+              Trends
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => setShowScanner(true)}
               className="rounded-xl"
               size="sm"
