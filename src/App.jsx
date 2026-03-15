@@ -15,6 +15,7 @@ import BusinessInfo from '@/pages/BusinessInfo';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
 import RefundPolicy from '@/pages/RefundPolicy';
+import ThankYou from '@/pages/ThankYou';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -109,6 +110,11 @@ const AuthenticatedApp = () => {
       <Route path="/RefundPolicy" element={
         <LayoutWrapper currentPageName="RefundPolicy">
           <RefundPolicy />
+        </LayoutWrapper>
+      } />
+      <Route path="/ThankYou" element={
+        <LayoutWrapper currentPageName="ThankYou">
+          <ThankYou />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
