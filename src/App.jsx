@@ -17,6 +17,7 @@ import TermsOfService from '@/pages/TermsOfService';
 import RefundPolicy from '@/pages/RefundPolicy';
 import ThankYou from '@/pages/ThankYou';
 import Supplies from '@/pages/Supplies';
+import ShoppingList from '@/pages/ShoppingList';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -121,6 +122,11 @@ const AuthenticatedApp = () => {
       <Route path="/Supplies" element={
         <LayoutWrapper currentPageName="Supplies">
           <Supplies />
+        </LayoutWrapper>
+      } />
+      <Route path="/ShoppingList" element={
+        <LayoutWrapper currentPageName="ShoppingList">
+          <ShoppingList />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />

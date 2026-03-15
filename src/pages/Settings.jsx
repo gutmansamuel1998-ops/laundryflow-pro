@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
@@ -231,9 +231,9 @@ export default function Settings() {
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Package className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Supply Inventory</h2>
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Supply Management</h2>
             </div>
-            <Card className="p-4 border-0 shadow-sm">
+            <Card className="p-4 border-0 shadow-sm space-y-2">
               <Button
                 variant="outline"
                 className="w-full rounded-xl justify-start"
@@ -241,6 +241,14 @@ export default function Settings() {
               >
                 <Package className="w-4 h-4 mr-2" />
                 Manage Supply Inventory
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full rounded-xl justify-start"
+                onClick={() => navigate(createPageUrl("ShoppingList"))}
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Shopping List
               </Button>
             </Card>
           </section>

@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown } from "lucide-react";
+import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 const SUPPLY_PRESETS = [
   { name: "Laundry Detergent", unit: "loads" },
@@ -21,6 +23,7 @@ const SUPPLY_PRESETS = [
 
 export default function Supplies() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newSupply, setNewSupply] = useState({
     name: "",
@@ -32,6 +35,11 @@ export default function Supplies() {
   const { data: supplies = [], isLoading } = useQuery({
     queryKey: ['supplies'],
     queryFn: () => base44.entities.Supply.list('-created_date'),
+  });
+
+  const { data: shoppingItems = [] } = useQuery({
+    queryKey: ['shopping-items'],
+    queryFn: () => base44.entities.ShoppingItem.filter({ status: 'pending' }),
   });
 
   const createMutation = useMutation({
@@ -108,6 +116,11 @@ export default function Supplies() {
         estimated_days_remaining: estimatedDays
       }
     });
+
+    // Trigger shopping list update
+    base44.functions.invoke('updateShoppingList', {}).catch(err => 
+      console.error('Failed to update shopping list:', err)
+    );
   };
 
   const calculateDaysRemaining = (history, currentLevel) => {
@@ -162,14 +175,30 @@ export default function Supplies() {
               Track your laundry supplies
             </p>
           </div>
-          <Button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="rounded-xl"
-            size="sm"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Add
-          </Button>
+          <div className="flex gap-2">
+            {shoppingItems.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => navigate(createPageUrl("ShoppingList"))}
+                className="rounded-xl relative"
+                size="sm"
+              >
+                <ShoppingCart className="w-4 h-4 mr-1" />
+                List
+                <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {shoppingItems.length}
+                </span>
+              </Button>
+            )}
+            <Button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="rounded-xl"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add
+            </Button>
+          </div>
         </div>
 
         <AnimatePresence>
