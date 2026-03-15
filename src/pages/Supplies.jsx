@@ -180,6 +180,16 @@ export default function Supplies() {
     return daysRemaining > 0 ? daysRemaining : null;
   };
 
+  const handleBarcodeProduct = (product) => {
+    setNewSupply({
+      name: product.name,
+      current_level: 100,
+      low_threshold: 20,
+      unit: product.unit || "loads"
+    });
+    setShowAddForm(true);
+  };
+
   const handlePresetSelect = (preset) => {
     setNewSupply({
       name: preset.name,
