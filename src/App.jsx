@@ -18,6 +18,7 @@ import RefundPolicy from '@/pages/RefundPolicy';
 import ThankYou from '@/pages/ThankYou';
 import Supplies from '@/pages/Supplies';
 import ShoppingList from '@/pages/ShoppingList';
+import SupplyAnalytics from '@/pages/SupplyAnalytics';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
