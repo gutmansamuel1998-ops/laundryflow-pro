@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Droplet, Search, Camera, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Droplet, Search, Camera, Loader2, CheckCircle2, Package, AlertCircle, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const COMMON_STAINS = [
