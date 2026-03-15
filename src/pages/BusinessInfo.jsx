@@ -1,9 +1,14 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Building2, Mail, Sparkles, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Building2, Mail, Sparkles, Info, FileText, Shield, DollarSign } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function BusinessInfo() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
@@ -87,6 +92,42 @@ export default function BusinessInfo() {
                 Your laundry data stays private. We don't sell user data, and we're 
                 committed to transparency in how we handle your information.
               </p>
+            </Card>
+          </section>
+
+          {/* Legal Links */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                Legal
+              </h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm space-y-2">
+              <Button
+                variant="outline"
+                className="w-full rounded-xl justify-start"
+                onClick={() => navigate(createPageUrl("PrivacyPolicy"))}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Privacy Policy
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full rounded-xl justify-start"
+                onClick={() => navigate(createPageUrl("TermsOfService"))}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Terms of Service
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full rounded-xl justify-start"
+                onClick={() => navigate(createPageUrl("RefundPolicy"))}
+              >
+                <DollarSign className="w-4 h-4 mr-2" />
+                Refund Policy
+              </Button>
             </Card>
           </section>
         </motion.div>

@@ -12,6 +12,9 @@ import TagScanner from '@/pages/TagScanner';
 import StainGuidance from '@/pages/StainGuidance';
 import RoutineBuilder from '@/pages/RoutineBuilder';
 import BusinessInfo from '@/pages/BusinessInfo';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfService from '@/pages/TermsOfService';
+import RefundPolicy from '@/pages/RefundPolicy';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -91,6 +94,21 @@ const AuthenticatedApp = () => {
       <Route path="/BusinessInfo" element={
         <LayoutWrapper currentPageName="BusinessInfo">
           <BusinessInfo />
+        </LayoutWrapper>
+      } />
+      <Route path="/PrivacyPolicy" element={
+        <LayoutWrapper currentPageName="PrivacyPolicy">
+          <PrivacyPolicy />
+        </LayoutWrapper>
+      } />
+      <Route path="/TermsOfService" element={
+        <LayoutWrapper currentPageName="TermsOfService">
+          <TermsOfService />
+        </LayoutWrapper>
+      } />
+      <Route path="/RefundPolicy" element={
+        <LayoutWrapper currentPageName="RefundPolicy">
+          <RefundPolicy />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
