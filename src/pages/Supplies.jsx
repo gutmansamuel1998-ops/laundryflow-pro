@@ -240,6 +240,15 @@ export default function Supplies() {
             )}
             <Button
               variant="outline"
+              onClick={() => navigate(createPageUrl("SupplyDashboard"))}
+              className="rounded-xl"
+              size="sm"
+            >
+              <LayoutDashboard className="w-4 h-4 mr-1" />
+              Dashboard
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => navigate(createPageUrl("SupplyAnalytics"))}
               className="rounded-xl"
               size="sm"
