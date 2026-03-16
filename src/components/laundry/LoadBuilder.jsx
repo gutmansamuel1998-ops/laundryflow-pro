@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shirt, Bath, BedDouble, Sparkles, Layers, ArrowRight, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLoadRecommendation } from "@/components/laundry/useLoadRecommendation";
+import AILoadSuggestion from "@/components/laundry/AILoadSuggestion";
 
 const loadTypes = [
   { value: "everyday_clothes", label: "Clothes", icon: Shirt, desc: "Everyday wear", color: "bg-blue-50 text-blue-600 border-blue-200" },
