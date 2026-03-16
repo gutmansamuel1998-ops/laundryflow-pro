@@ -19,6 +19,7 @@ import ThankYou from '@/pages/ThankYou';
 import Supplies from '@/pages/Supplies';
 import ShoppingList from '@/pages/ShoppingList';
 import SupplyAnalytics from '@/pages/SupplyAnalytics';
+import SupplyDashboard from '@/pages/SupplyDashboard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
