@@ -20,6 +20,7 @@ import Supplies from '@/pages/Supplies';
 import ShoppingList from '@/pages/ShoppingList';
 import SupplyAnalytics from '@/pages/SupplyAnalytics';
 import SupplyDashboard from '@/pages/SupplyDashboard';
+import CycleRecommender from '@/pages/CycleRecommender';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
