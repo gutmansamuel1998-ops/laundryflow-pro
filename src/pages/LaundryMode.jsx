@@ -321,23 +321,39 @@ export default function LaundryMode() {
     },
   });
 
-  // Auto-advance state when timers expire
+  // Poll every second to detect timer expiry and show alert / snooze
   useEffect(() => {
     if (!load) return;
-    const { current_state, stage_start_time, wash_timer_minutes, dry_timer_minutes } = load;
-    if (current_state === "washing" && stage_start_time) {
-      const end = new Date(stage_start_time).getTime() + wash_timer_minutes * 60000;
-      if (Date.now() >= end) {
-        updateMutation.mutate({ id: load.id, data: { current_state: "wash_finished", stage_start_time: new Date().toISOString() } });
+    const interval = setInterval(() => {
+      const { current_state, stage_start_time, wash_timer_minutes, dry_timer_minutes } = load;
+
+      if (current_state === "washing" && stage_start_time) {
+        const end = new Date(stage_start_time).getTime() + wash_timer_minutes * 60000;
+        if (Date.now() >= end) {
+          // Show alert instead of auto-advancing (unless snoozed)
+          if (!snoozedUntil || Date.now() >= snoozedUntil) {
+            setWashAlertVisible(true);
+          }
+        }
       }
-    }
-    if (current_state === "drying" && stage_start_time) {
-      const end = new Date(stage_start_time).getTime() + dry_timer_minutes * 60000;
-      if (Date.now() >= end) {
-        updateMutation.mutate({ id: load.id, data: { current_state: "dry_finished", stage_start_time: new Date().toISOString() } });
+
+      if (current_state === "drying" && stage_start_time) {
+        const end = new Date(stage_start_time).getTime() + dry_timer_minutes * 60000;
+        if (Date.now() >= end) {
+          updateMutation.mutate({ id: load.id, data: { current_state: "dry_finished", stage_start_time: new Date().toISOString() } });
+        }
       }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [load, snoozedUntil]);
+
+  // Hide alert once state moves past washing
+  useEffect(() => {
+    if (load?.current_state !== "washing") {
+      setWashAlertVisible(false);
+      setSnoozedUntil(null);
     }
-  }, [load]);
+  }, [load?.current_state]);
 
   const startWash = useCallback(() => {
     const now = new Date().toISOString();
