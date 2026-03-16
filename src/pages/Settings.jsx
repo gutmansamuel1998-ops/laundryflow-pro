@@ -58,6 +58,7 @@ export default function Settings() {
         friction_detection_enabled: u?.friction_detection_enabled !== false,
         idle_threshold_minutes: u?.idle_threshold_minutes ?? 120,
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
+        voice_commands_enabled: u?.voice_commands_enabled || false,
       }));
     }).catch(() => {});
   }, []);
