@@ -28,6 +28,17 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
   const [selected, setSelected] = useState(preselectedType || null);
   const [step, setStep] = useState(preselectedType ? 2 : 1);
   const [showDelicates, setShowDelicates] = useState(false);
+  const { recommendation, isLoading: recLoading } = useLoadRecommendation();
+
+  // Accept the AI suggestion: pre-select it and jump to step 2 with AI timers
+  const handleAcceptSuggestion = (rec) => {
+    setSelected(rec.load_type);
+    setStep(2);
+    // store suggested timers so handleCreate can use them
+    setSuggestedTimers({ wash: rec.wash_minutes, dry: rec.dry_minutes, temp: rec.wash_temp, dryMethod: rec.dry_method });
+  };
+
+  const [suggestedTimers, setSuggestedTimers] = useState(null);
 
   const allTypes = showDelicates
     ? [...loadTypes.slice(0, 3), { value: "delicates", label: "Delicates", icon: Sparkles, desc: "Gentle cycle items", color: "bg-pink-50 text-pink-600 border-pink-200" }, loadTypes[3]]
