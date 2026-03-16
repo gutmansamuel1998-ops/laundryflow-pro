@@ -298,6 +298,17 @@ export default function LaundryMode() {
   const [washAlertVisible, setWashAlertVisible] = useState(false);
   const [snoozedUntil, setSnoozedUntil] = useState(null);
 
+  // Voice commands
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [lastTranscript, setLastTranscript] = useState("");
+
+  // Load voice setting from user profile
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setVoiceEnabled(u?.voice_commands_enabled === true);
+    }).catch(() => {});
+  }, []);
+
   const { data: load, isLoading } = useQuery({
     queryKey: ["load", loadId],
     queryFn: () => base44.entities.Load.filter({ id: loadId }),
