@@ -414,6 +414,27 @@ export default function LaundryMode() {
     setWashAlertVisible(false);
   }, []);
 
+  // Voice command handlers
+  const handleVoiceStartWash = useCallback(() => {
+    if (load?.current_state === "load_created") startWash();
+  }, [load, startWash]);
+
+  const handleVoiceSnooze = useCallback(() => {
+    if (washAlertVisible) handleSnooze(5);
+  }, [washAlertVisible, handleSnooze]);
+
+  const handleVoiceShoppingList = useCallback(() => {
+    navigate(createPageUrl("ShoppingList"));
+  }, [navigate]);
+
+  useVoiceCommands({
+    enabled: voiceEnabled,
+    onStartWash: handleVoiceStartWash,
+    onSnoozeTimer: handleVoiceSnooze,
+    onAddToShopping: handleVoiceShoppingList,
+    onResult: setLastTranscript,
+  });
+
   const resumeLoad = useCallback(() => {
     updateMutation.mutate({ id: load.id, data: { current_state: "load_created", status: "active" } });
   }, [load]);
