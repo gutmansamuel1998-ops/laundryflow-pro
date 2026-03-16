@@ -385,6 +385,22 @@ export default function LaundryMode() {
     }});
   }, [load]);
 
+  const handleAlertMoveNow = useCallback(() => {
+    setWashAlertVisible(false);
+    setSnoozedUntil(null);
+    const now = new Date().toISOString();
+    updateMutation.mutate({ id: load.id, data: {
+      current_state: "wash_finished",
+      stage_start_time: now,
+      state_history: [...(load.state_history || []), { state: "wash_finished", entered_at: now }],
+    }});
+  }, [load]);
+
+  const handleSnooze = useCallback((minutes) => {
+    setSnoozedUntil(Date.now() + minutes * 60000);
+    setWashAlertVisible(false);
+  }, []);
+
   const resumeLoad = useCallback(() => {
     updateMutation.mutate({ id: load.id, data: { current_state: "load_created", status: "active" } });
   }, [load]);
