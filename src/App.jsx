@@ -136,6 +136,11 @@ const AuthenticatedApp = () => {
           <SupplyAnalytics />
         </LayoutWrapper>
       } />
+      <Route path="/SupplyDashboard" element={
+        <LayoutWrapper currentPageName="SupplyDashboard">
+          <SupplyDashboard />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
