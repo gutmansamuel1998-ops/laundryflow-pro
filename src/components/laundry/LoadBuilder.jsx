@@ -50,10 +50,10 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
       load_type: selected,
       current_state: "load_created",
       status: "active",
-      wash_guidance: guidance.temp,
-      dry_guidance: guidance.dry,
-      wash_timer_minutes: 35,
-      dry_timer_minutes: 45,
+      wash_guidance: suggestedTimers?.temp || guidance.temp,
+      dry_guidance: suggestedTimers?.dryMethod || guidance.dry,
+      wash_timer_minutes: suggestedTimers?.wash || 35,
+      dry_timer_minutes: suggestedTimers?.dry || 45,
     });
   };
 
