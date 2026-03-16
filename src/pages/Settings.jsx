@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
