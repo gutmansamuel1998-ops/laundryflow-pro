@@ -423,6 +423,38 @@ export default function Settings() {
             </Card>
           </section>
 
+          {/* Voice Commands */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Mic className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Voice Commands</h2>
+            </div>
+            <Card className="p-4 border-0 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="voice-cmds">Enable hands-free voice commands</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Control laundry actions while moving between machines
+                  </p>
+                </div>
+                <Switch
+                  id="voice-cmds"
+                  checked={settings.voice_commands_enabled}
+                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, voice_commands_enabled: v }))}
+                />
+              </div>
+              {settings.voice_commands_enabled && (
+                <div className="bg-muted/50 rounded-xl p-3 text-xs text-muted-foreground space-y-1">
+                  <p className="font-medium text-foreground mb-1.5">Available commands:</p>
+                  <p>🎙 <span className="font-medium">"Start wash"</span> — begins the wash cycle</p>
+                  <p>🎙 <span className="font-medium">"Snooze timer"</span> — snoozes the wash-complete alert</p>
+                  <p>🎙 <span className="font-medium">"Shopping list"</span> — adds an item prompt</p>
+                  <p className="pt-1 text-muted-foreground/70">Microphone access is required. You can revoke it any time in your browser settings.</p>
+                </div>
+              )}
+            </Card>
+          </section>
+
           {/* Save */}
           <Button
             onClick={handleSave}
