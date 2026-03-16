@@ -142,6 +142,11 @@ const AuthenticatedApp = () => {
           <SupplyDashboard />
         </LayoutWrapper>
       } />
+      <Route path="/CycleRecommender" element={
+        <LayoutWrapper currentPageName="CycleRecommender">
+          <CycleRecommender />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
