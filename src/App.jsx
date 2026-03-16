@@ -148,6 +148,11 @@ const AuthenticatedApp = () => {
           <CycleRecommender />
         </LayoutWrapper>
       } />
+      <Route path="/LaundryCalendar" element={
+        <LayoutWrapper currentPageName="LaundryCalendar">
+          <LaundryCalendar />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
