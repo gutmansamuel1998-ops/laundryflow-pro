@@ -13,6 +13,7 @@ import {
   Shirt, Bath, BedDouble, Sparkles, Layers, AlertCircle,
   Minus, Plus
 } from "lucide-react";
+import WashCompleteAlert from "@/components/laundry/WashCompleteAlert";
 
 // ─── Config ────────────────────────────────────────────────────────────────
 
