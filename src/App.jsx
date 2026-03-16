@@ -21,6 +21,7 @@ import ShoppingList from '@/pages/ShoppingList';
 import SupplyAnalytics from '@/pages/SupplyAnalytics';
 import SupplyDashboard from '@/pages/SupplyDashboard';
 import CycleRecommender from '@/pages/CycleRecommender';
+import LaundryCalendar from '@/pages/LaundryCalendar';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
