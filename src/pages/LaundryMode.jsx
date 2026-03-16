@@ -14,6 +14,8 @@ import {
   Minus, Plus
 } from "lucide-react";
 import WashCompleteAlert from "@/components/laundry/WashCompleteAlert";
+import { useVoiceCommands } from "@/components/laundry/useVoiceCommands";
+import VoiceCommandIndicator from "@/components/laundry/VoiceCommandIndicator";
 
 // ─── Config ────────────────────────────────────────────────────────────────
 

@@ -35,6 +35,7 @@ export default function Settings() {
     friction_detection_enabled: true,
     idle_threshold_minutes: 120,
     max_idle_time_load_created: 240,
+    voice_commands_enabled: false,
   });
 
   useEffect(() => {
