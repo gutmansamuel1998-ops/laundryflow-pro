@@ -72,7 +72,7 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <div className="mb-6">
+            <div className="mb-4">
               <h2 className="text-xl font-semibold mb-1">
                 {isFirstLoad ? "What are you washing today?" : "New Load"}
               </h2>
@@ -80,6 +80,12 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
                 {isFirstLoad ? "Pick one — you can always change settings later." : "Choose your load type."}
               </p>
             </div>
+
+            <AILoadSuggestion
+              recommendation={recommendation}
+              isLoading={recLoading}
+              onAccept={handleAcceptSuggestion}
+            />
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               {allTypes.map((type) => {
