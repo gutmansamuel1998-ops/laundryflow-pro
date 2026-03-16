@@ -481,6 +481,7 @@ export default function LaundryMode() {
         onSnooze={handleSnooze}
         snoozedUntil={snoozedUntil}
       />
+      <VoiceCommandIndicator enabled={voiceEnabled} lastTranscript={lastTranscript} />
       <div className="max-w-lg mx-auto px-5 pt-6">
 
         {/* Back */}
