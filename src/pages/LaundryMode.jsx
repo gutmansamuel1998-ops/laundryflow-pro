@@ -440,6 +440,13 @@ export default function LaundryMode() {
 
   return (
     <div className="min-h-screen pb-24">
+      <WashCompleteAlert
+        visible={washAlertVisible}
+        loadType={load?.load_type}
+        onMoveNow={handleAlertMoveNow}
+        onSnooze={handleSnooze}
+        snoozedUntil={snoozedUntil}
+      />
       <div className="max-w-lg mx-auto px-5 pt-6">
 
         {/* Back */}
