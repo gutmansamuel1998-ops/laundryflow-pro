@@ -292,6 +292,10 @@ export default function LaundryMode() {
   const [dryMinutes, setDryMinutes]   = useState(45);
   const [initialised, setInitialised] = useState(false);
 
+  // Wash-complete alert + snooze
+  const [washAlertVisible, setWashAlertVisible] = useState(false);
+  const [snoozedUntil, setSnoozedUntil] = useState(null);
+
   const { data: load, isLoading } = useQuery({
     queryKey: ["load", loadId],
     queryFn: () => base44.entities.Load.filter({ id: loadId }),
