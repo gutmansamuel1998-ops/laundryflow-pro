@@ -150,29 +150,36 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
               <ChevronLeft className="w-4 h-4" /> Back
             </button>
 
-            <h2 className="text-xl font-semibold mb-1">Quick Tips</h2>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-xl font-semibold">Quick Tips</h2>
+              {suggestedTimers && (
+                <span className="flex items-center gap-1 text-xs text-primary font-medium bg-primary/10 px-2 py-0.5 rounded-full">
+                  <Sparkles className="w-3 h-3" /> AI-tuned
+                </span>
+              )}
+            </div>
             <p className="text-muted-foreground text-sm mb-6">Here's what we suggest for this load.</p>
 
             <Card className="p-5 border-0 shadow-sm mb-4">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Water temp</span>
-                  <span className="font-medium text-sm">{tempLabels[washGuidance[selected]?.temp]}</span>
+                  <span className="font-medium text-sm">{tempLabels[suggestedTimers?.temp || washGuidance[selected]?.temp]}</span>
                 </div>
                 <div className="h-px bg-border" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Drying</span>
-                  <span className="font-medium text-sm">{dryLabels[washGuidance[selected]?.dry]}</span>
+                  <span className="font-medium text-sm">{dryLabels[suggestedTimers?.dryMethod || washGuidance[selected]?.dry]}</span>
                 </div>
                 <div className="h-px bg-border" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Wash time</span>
-                  <span className="font-medium text-sm">~35 min</span>
+                  <span className="font-medium text-sm">~{suggestedTimers?.wash || 35} min</span>
                 </div>
                 <div className="h-px bg-border" />
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Dry time</span>
-                  <span className="font-medium text-sm">~45 min</span>
+                  <span className="font-medium text-sm">~{suggestedTimers?.dry || 45} min</span>
                 </div>
               </div>
             </Card>
