@@ -23,6 +23,7 @@ import SupplyDashboard from '@/pages/SupplyDashboard';
 import CycleRecommender from '@/pages/CycleRecommender';
 import LaundryCalendar from '@/pages/LaundryCalendar';
 import Premium from '@/pages/Premium';
+import SmartWash from '@/pages/SmartWash';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -157,6 +158,11 @@ const AuthenticatedApp = () => {
       <Route path="/Premium" element={
         <LayoutWrapper currentPageName="Premium">
           <Premium />
+        </LayoutWrapper>
+      } />
+      <Route path="/SmartWash" element={
+        <LayoutWrapper currentPageName="SmartWash">
+          <SmartWash />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
