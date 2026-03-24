@@ -3,8 +3,27 @@ import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Upload, Loader2, Image as ImageIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Camera, Upload, Loader2, Thermometer, Wind, Droplets, Sun, Scissors, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const CATEGORY_ICONS = {
+  washing: Droplets,
+  drying: Wind,
+  ironing: Thermometer,
+  bleaching: AlertTriangle,
+  dry_cleaning: Scissors,
+  general: Sun,
+};
+
+const CATEGORY_LABELS = {
+  washing: "Washing",
+  drying: "Drying",
+  ironing: "Ironing",
+  bleaching: "Bleaching",
+  dry_cleaning: "Dry Cleaning",
+  general: "General Care",
+};
 
 export default function TagScanner() {
   const [imageUrl, setImageUrl] = useState(null);
@@ -18,21 +37,34 @@ export default function TagScanner() {
     setLoading(true);
     setResult(null);
 
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setImageUrl(file_url);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setImageUrl(file_url);
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are analyzing a clothing care tag. Identify the care symbols and provide simple, easy-to-follow washing instructions. Keep your response concise and actionable. If the image is unclear, mention that and provide your best interpretation.`,
-        file_urls: [file_url]
-      });
+    const response = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract every care symbol/instruction visible. For each instruction, provide a plain-English description (e.g. 'Do not bleach', 'Tumble dry on low heat', 'Hand wash in cold water'). Categorize each instruction. If the image is unclear, do your best and note any uncertainty.`,
+      file_urls: [file_url],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          instructions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                category: { type: "string", enum: ["washing", "drying", "ironing", "bleaching", "dry_cleaning", "general"] },
+                instruction: { type: "string" },
+                is_warning: { type: "boolean" }
+              }
+            }
+          },
+          summary: { type: "string" },
+          confidence: { type: "string", enum: ["high", "medium", "low"] }
+        }
+      }
+    });
 
-      setResult(response);
-    } catch (error) {
-      setResult("I couldn't process this image. Please try again with a clearer photo.");
-    } finally {
-      setLoading(false);
-    }
+    setResult(response);
+    setLoading(false);
   };
 
   return (
@@ -102,12 +134,44 @@ export default function TagScanner() {
                 </Card>
 
                 {result && (
-                  <Card className="p-5 border-0 shadow-sm bg-primary/5">
-                    <h3 className="font-medium mb-2">Care Instructions</h3>
-                    <p className="text-sm text-foreground whitespace-pre-wrap">
-                      {result}
-                    </p>
-                  </Card>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-foreground">Care Instructions</h3>
+                      {result.confidence && (
+                        <Badge variant={result.confidence === 'high' ? 'default' : 'secondary'} className="text-xs">
+                          {result.confidence === 'high' ? 'Clear tag' : result.confidence === 'medium' ? 'Partial read' : 'Unclear tag'}
+                        </Badge>
+                      )}
+                    </div>
+
+                    {Object.entries(CATEGORY_LABELS).map(([ key, label]) => {
+                      const items = result.instructions?.filter(i => i.category === key);
+                      if (!items?.length) return null;
+                      const Icon = CATEGORY_ICONS[key];
+                      return (
+                        <Card key={key} className="p-4 border shadow-none">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icon className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-medium">{label}</span>
+                          </div>
+                          <ul className="space-y-1">
+                            {items.map((item, i) => (
+                              <li key={i} className={`flex items-start gap-2 text-sm ${ item.is_warning ? 'text-destructive' : 'text-foreground'}` }>
+                                <span className="mt-0.5">{item.is_warning ? '⚠️' : '•'}</span>
+                                <span>{item.instruction}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </Card>
+                      );
+                    })}
+
+                    {result.summary && (
+                      <Card className="p-4 bg-primary/5 border-0">
+                        <p className="text-sm text-muted-foreground">{result.summary}</p>
+                      </Card>
+                    )}
+                  </div>
                 )}
 
                 <Button
