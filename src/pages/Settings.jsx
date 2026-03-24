@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic, MessageSquare, Smartphone, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
@@ -36,6 +36,10 @@ export default function Settings() {
     idle_threshold_minutes: 120,
     max_idle_time_load_created: 240,
     voice_commands_enabled: false,
+    alert_channels: {
+      wash_finished: { sms: false, push: true, email: false },
+      dryer_finished: { sms: false, push: true, email: false },
+    },
   });
 
   useEffect(() => {
@@ -59,6 +63,10 @@ export default function Settings() {
         idle_threshold_minutes: u?.idle_threshold_minutes ?? 120,
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
         voice_commands_enabled: u?.voice_commands_enabled || false,
+        alert_channels: u?.alert_channels || {
+          wash_finished: { sms: false, push: true, email: false },
+          dryer_finished: { sms: false, push: true, email: false },
+        },
       }));
     }).catch(() => {});
   }, []);
@@ -225,6 +233,54 @@ export default function Settings() {
                   checked={settings.enable_supply_alerts}
                   onCheckedChange={(v) => setSettings(prev => ({ ...prev, enable_supply_alerts: v }))}
                 />
+              </div>
+
+              {/* Cycle alert channels */}
+              <div className="pt-2 border-t border-border/50">
+                <p className="text-sm font-medium mb-3">Cycle status alerts</p>
+                <p className="text-xs text-muted-foreground mb-4">Choose how you want to be notified when each cycle finishes.</p>
+                {[
+                  { key: "wash_finished", label: "Wash Finished" },
+                  { key: "dryer_finished", label: "Dryer Finished" },
+                ].map(({ key, label }) => (
+                  <div key={key} className="mb-4">
+                    <p className="text-sm font-medium mb-2">{label}</p>
+                    <div className="flex gap-3">
+                      {[
+                        { id: "sms",   Icon: MessageSquare, label: "SMS" },
+                        { id: "push",  Icon: Smartphone,    label: "Push" },
+                        { id: "email", Icon: Mail,           label: "Email" },
+                      ].map(({ id, Icon, label: chanLabel }) => {
+                        const active = settings.alert_channels[key]?.[id] ?? false;
+                        return (
+                          <button
+                            key={id}
+                            onClick={() =>
+                              setSettings(prev => ({
+                                ...prev,
+                                alert_channels: {
+                                  ...prev.alert_channels,
+                                  [key]: {
+                                    ...prev.alert_channels[key],
+                                    [id]: !active,
+                                  },
+                                },
+                              }))
+                            }
+                            className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
+                              active
+                                ? "bg-primary/10 border-primary/40 text-primary"
+                                : "bg-secondary border-transparent text-muted-foreground"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4" />
+                            {chanLabel}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </Card>
           </section>
