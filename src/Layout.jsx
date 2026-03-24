@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import FeedbackModal from "@/components/FeedbackModal";
 import { createPageUrl } from "@/utils";
 import { Home, Play, Layers, BookOpen, Sparkles, Settings, Package } from "lucide-react";
 
@@ -20,6 +21,7 @@ export default function Layout({ children, currentPageName }) {
     <div className="min-h-screen bg-background">
       <main>{children}</main>
 
+      <FeedbackModal />
       {!hideNav && (
         <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-border/50 z-50 safe-area-pb">
           <div className="max-w-lg mx-auto flex items-center justify-around py-2 px-2">
