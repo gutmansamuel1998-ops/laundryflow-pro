@@ -24,6 +24,7 @@ import CycleRecommender from '@/pages/CycleRecommender';
 import LaundryCalendar from '@/pages/LaundryCalendar';
 import Premium from '@/pages/Premium';
 import SmartWash from '@/pages/SmartWash';
+import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -82,7 +83,7 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/AIAssistant" element={
         <LayoutWrapper currentPageName="AIAssistant">
-          <AIAssistant />
+          <PremiumGuard><AIAssistant /></PremiumGuard>
         </LayoutWrapper>
       } />
       <Route path="/TagScanner" element={
@@ -137,12 +138,12 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/SupplyAnalytics" element={
         <LayoutWrapper currentPageName="SupplyAnalytics">
-          <SupplyAnalytics />
+          <PremiumGuard><SupplyAnalytics /></PremiumGuard>
         </LayoutWrapper>
       } />
       <Route path="/SupplyDashboard" element={
         <LayoutWrapper currentPageName="SupplyDashboard">
-          <SupplyDashboard />
+          <PremiumGuard><SupplyDashboard /></PremiumGuard>
         </LayoutWrapper>
       } />
       <Route path="/CycleRecommender" element={
@@ -162,7 +163,7 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/SmartWash" element={
         <LayoutWrapper currentPageName="SmartWash">
-          <SmartWash />
+          <PremiumGuard><SmartWash /></PremiumGuard>
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
