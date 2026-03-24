@@ -2,14 +2,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
 import { createPageUrl } from "@/utils";
-import { Home, Play, Layers, BookOpen, Sparkles, Settings, Package } from "lucide-react";
+import { Home, Play, Layers, Sparkles, Settings, Package, Star } from "lucide-react";
 
 const navItems = [
   { page: "Home", label: "Home", icon: Home },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Loads", label: "Loads", icon: Layers },
   { page: "Supplies", label: "Supplies", icon: Package },
-  { page: "Assistant", label: "Assistant", icon: Sparkles },
+  { page: "Premium", label: "Premium", icon: Star },
   { page: "Settings", label: "Settings", icon: Settings },
 ];
 
