@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Sparkles, Brain, CalendarClock, BarChart2, Package,
-  ShieldCheck, Zap, CheckCircle2, ArrowRight, Star
+  ShieldCheck, Zap, CheckCircle2, ArrowRight, Star, MessageCircle
 } from "lucide-react";
 
 const FEATURES = [
@@ -41,6 +41,13 @@ const FEATURES = [
     description: "Automatically detects abandoned or forgotten loads and gently nudges you back on track.",
     color: "from-orange-500/20 to-red-500/10",
     iconColor: "text-orange-500",
+  },
+  {
+    icon: MessageCircle,
+    title: "AI Laundry Assistant",
+    description: "Chat with your personal AI assistant for laundry tips, stain removal advice, fabric care guidance, and more — anytime.",
+    color: "from-sky-500/20 to-indigo-500/10",
+    iconColor: "text-sky-500",
   },
   {
     icon: ShieldCheck,
