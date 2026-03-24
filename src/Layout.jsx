@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
+import NotificationPermissionBanner from "@/components/notifications/NotificationPermissionBanner";
+import LowSupplyNotifier from "@/components/notifications/LowSupplyNotifier";
 import { createPageUrl } from "@/utils";
 import { Home, Play, Layers, Sparkles, Settings, Package, Star } from "lucide-react";
 
@@ -19,7 +21,9 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <main>{children}</main>
+      <NotificationPermissionBanner />
+      <LowSupplyNotifier />
+      <main className="pt-0">{children}</main>
 
       <FeedbackModal />
       {!hideNav && (
