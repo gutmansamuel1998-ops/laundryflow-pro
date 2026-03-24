@@ -15,6 +15,7 @@ import EnvironmentalAnchorPrompt from "@/components/laundry/EnvironmentalAnchorP
 import FrictionAlert from "@/components/laundry/FrictionAlert";
 import ShoppingList from "@/components/laundry/ShoppingList";
 import SmartSupplySuggestion from "@/components/laundry/SmartSupplySuggestion";
+import SmartSchedule from "@/components/laundry/SmartSchedule";
 import OptimalTimePrompt from "@/components/laundry/OptimalTimePrompt";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -120,6 +121,7 @@ export default function Home() {
               ) : activeLoads.length === 0 ? (
                 <div>
                   <OptimalTimePrompt />
+                  <SmartSchedule />
                   <ReadinessPrompt user={user} />
                   <SmartSupplySuggestion />
                   <ShoppingList />
@@ -130,6 +132,7 @@ export default function Home() {
               ) : (
                 <div className="mt-6 space-y-4">
                   <OptimalTimePrompt />
+                  <SmartSchedule />
                   <SmartSupplySuggestion />
                   <ShoppingList />
                   <LowSupplyAlert />
