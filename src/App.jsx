@@ -22,6 +22,7 @@ import SupplyAnalytics from '@/pages/SupplyAnalytics';
 import SupplyDashboard from '@/pages/SupplyDashboard';
 import CycleRecommender from '@/pages/CycleRecommender';
 import LaundryCalendar from '@/pages/LaundryCalendar';
+import Premium from '@/pages/Premium';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -151,6 +152,11 @@ const AuthenticatedApp = () => {
       <Route path="/LaundryCalendar" element={
         <LayoutWrapper currentPageName="LaundryCalendar">
           <LaundryCalendar />
+        </LayoutWrapper>
+      } />
+      <Route path="/Premium" element={
+        <LayoutWrapper currentPageName="Premium">
+          <Premium />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
