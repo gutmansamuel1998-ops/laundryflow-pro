@@ -14,6 +14,7 @@ import LowSupplyAlert from "@/components/laundry/LowSupplyAlert";
 import EnvironmentalAnchorPrompt from "@/components/laundry/EnvironmentalAnchorPrompt";
 import FrictionAlert from "@/components/laundry/FrictionAlert";
 import ShoppingList from "@/components/laundry/ShoppingList";
+import SmartSupplySuggestion from "@/components/laundry/SmartSupplySuggestion";
 import OptimalTimePrompt from "@/components/laundry/OptimalTimePrompt";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -120,6 +121,7 @@ export default function Home() {
                 <div>
                   <OptimalTimePrompt />
                   <ReadinessPrompt user={user} />
+                  <SmartSupplySuggestion />
                   <ShoppingList />
                   <LowSupplyAlert />
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
@@ -128,6 +130,7 @@ export default function Home() {
               ) : (
                 <div className="mt-6 space-y-4">
                   <OptimalTimePrompt />
+                  <SmartSupplySuggestion />
                   <ShoppingList />
                   <LowSupplyAlert />
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
