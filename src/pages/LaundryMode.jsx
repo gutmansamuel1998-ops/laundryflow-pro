@@ -346,7 +346,15 @@ export default function LaundryMode() {
         if (Date.now() >= end) {
           // Show alert instead of auto-advancing (unless snoozed)
           if (!snoozedUntil || Date.now() >= snoozedUntil) {
-            setWashAlertVisible(true);
+            setWashAlertVisible(prev => {
+              if (!prev) {
+                sendNotification("🫧 Wash Cycle Done!", {
+                  body: "Your laundry is done washing — time to move it to the dryer.",
+                  tag: "wash-done",
+                });
+              }
+              return true;
+            });
           }
         }
       }
@@ -354,6 +362,10 @@ export default function LaundryMode() {
       if (current_state === "drying" && stage_start_time) {
         const end = new Date(stage_start_time).getTime() + dry_timer_minutes * 60000;
         if (Date.now() >= end) {
+          sendNotification("✅ Dryer Done!", {
+            body: "Your laundry is ready — remove it and put it away.",
+            tag: "dry-done",
+          });
           updateMutation.mutate({ id: load.id, data: { current_state: "dry_finished", stage_start_time: new Date().toISOString() } });
         }
       }
