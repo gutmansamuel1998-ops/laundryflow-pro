@@ -16,6 +16,7 @@ import {
 import WashCompleteAlert from "@/components/laundry/WashCompleteAlert";
 import { useVoiceCommands } from "@/components/laundry/useVoiceCommands";
 import VoiceCommandIndicator from "@/components/laundry/VoiceCommandIndicator";
+import { useNotifications } from "@/hooks/useNotifications";
 
 // ─── Config ────────────────────────────────────────────────────────────────
 
@@ -413,6 +414,8 @@ export default function LaundryMode() {
     setSnoozedUntil(Date.now() + minutes * 60000);
     setWashAlertVisible(false);
   }, []);
+
+  const { sendNotification } = useNotifications();
 
   // Voice command handlers
   const handleVoiceStartWash = useCallback(() => {
