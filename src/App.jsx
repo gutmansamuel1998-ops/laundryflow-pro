@@ -25,6 +25,7 @@ import LaundryCalendar from '@/pages/LaundryCalendar';
 import Premium from '@/pages/Premium';
 import SmartWash from '@/pages/SmartWash';
 import SmartPredictions from '@/pages/SmartPredictions';
+import SmartPlanner from '@/pages/SmartPlanner';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -170,6 +171,11 @@ const AuthenticatedApp = () => {
       <Route path="/SmartPredictions" element={
         <LayoutWrapper currentPageName="SmartPredictions">
           <PremiumGuard><SmartPredictions /></PremiumGuard>
+        </LayoutWrapper>
+      } />
+      <Route path="/SmartPlanner" element={
+        <LayoutWrapper currentPageName="SmartPlanner">
+          <PremiumGuard><SmartPlanner /></PremiumGuard>
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
