@@ -1,109 +1,114 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Gather laundry history (last 90 days) and current supplies
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    const [allLoads, supplies, existingItems] = await Promise.all([
+      base44.entities.Load.filter({ status: 'completed', created_by: user.email }),
+      base44.entities.Supply.filter({ created_by: user.email }),
+      base44.entities.ShoppingItem.filter({ created_by: user.email, status: 'pending' })
+    ]);
+
+    const recentLoads = allLoads.filter(l => new Date(l.created_date) >= ninetyDaysAgo);
+
+    // Build analysis context for LLM
+    const supplyContext = supplies.map(s => ({
+      name: s.name,
+      current_level: s.current_level,
+      low_threshold: s.low_threshold || 20,
+      unit: s.unit || 'loads',
+      last_restocked: s.last_restocked,
+      estimated_days_remaining: s.estimated_days_remaining
+    }));
+
+    const loadsByWeek = {};
+    recentLoads.forEach(load => {
+      const week = Math.floor((Date.now() - new Date(load.created_date).getTime()) / (7 * 24 * 60 * 60 * 1000));
+      loadsByWeek[week] = (loadsByWeek[week] || 0) + 1;
+    });
+    const avgLoadsPerWeek = recentLoads.length > 0
+      ? (recentLoads.length / Math.max(1, Object.keys(loadsByWeek).length)).toFixed(1)
+      : 0;
+
+    if (supplies.length === 0) {
+      return Response.json({ predictions: [], summary: 'No supplies tracked yet.', loadsPerWeek: avgLoadsPerWeek });
     }
 
-    // Get all completed loads from the last 60 days
-    const sixtyDaysAgo = new Date();
-    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    const today = new Date().toISOString().split('T')[0];
 
-    const loads = await base44.entities.Load.filter({
-      status: 'completed',
-      created_by: user.email
-    });
+    const analysis = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `You are a laundry supply analyst. Today is ${today}.
 
-    const recentLoads = loads.filter(load => 
-      new Date(load.created_date) >= sixtyDaysAgo
-    );
+The user does about ${avgLoadsPerWeek} loads per week based on ${recentLoads.length} completed loads in the past 90 days.
 
-    if (recentLoads.length === 0) {
-      return Response.json({ 
-        message: 'Not enough data to predict supply usage',
-        predictions: []
-      });
-    }
+Current supplies:
+${JSON.stringify(supplyContext, null, 2)}
 
-    // Calculate average loads per week
-    const daysSinceOldest = (Date.now() - new Date(recentLoads[recentLoads.length - 1].created_date).getTime()) / (1000 * 60 * 60 * 24);
-    const weeksOfData = Math.max(1, daysSinceOldest / 7);
-    const loadsPerWeek = recentLoads.length / weeksOfData;
+For each supply, predict:
+1. How many days until it runs out (based on current_level percentage and usage rate)
+2. Whether it should be added to the shopping list now (if predicted to run out within 21 days or already below low_threshold)
+3. A short plain-English insight about usage pattern
 
-    // Get current supply levels
-    const supplies = await base44.entities.Supply.filter({
-      created_by: user.email
-    });
-
-    const predictions = [];
-    const now = new Date();
-
-    for (const supply of supplies) {
-      let loadsRemaining;
-      
-      // Estimate loads remaining based on supply level
-      if (supply.level === 'full') {
-        loadsRemaining = 30; // Assume full bottle = ~30 loads
-      } else if (supply.level === 'low') {
-        loadsRemaining = 5; // Low = ~5 loads left
-      } else {
-        loadsRemaining = 0; // Out = 0 loads
-      }
-
-      if (loadsRemaining === 0) {
-        // Already out - add to shopping list immediately
-        predictions.push({
-          supply_name: supply.name,
-          predicted_depletion_date: now.toISOString(),
-          status: 'pending',
-          added_reason: `Currently out of stock`
-        });
-      } else if (loadsPerWeek > 0) {
-        // Calculate when it will run out
-        const weeksUntilEmpty = loadsRemaining / loadsPerWeek;
-        const daysUntilEmpty = weeksUntilEmpty * 7;
-        
-        const depletionDate = new Date(now);
-        depletionDate.setDate(depletionDate.getDate() + daysUntilEmpty);
-
-        // Add to shopping list if running out within 2 weeks
-        if (daysUntilEmpty <= 14) {
-          predictions.push({
-            supply_name: supply.name,
-            predicted_depletion_date: depletionDate.toISOString(),
-            status: 'pending',
-            added_reason: `Based on ${loadsPerWeek.toFixed(1)} loads/week, runs out in ${Math.ceil(daysUntilEmpty)} days`
-          });
+Assume a supply at 100% lasts ~40 loads for detergent/softener/bleach type items, or ~60 for dryer sheets. Scale linearly.`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          predictions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                supply_name: { type: 'string' },
+                days_remaining: { type: 'number' },
+                depletion_date: { type: 'string' },
+                urgency: { type: 'string', enum: ['critical', 'soon', 'ok'] },
+                should_add_to_shopping: { type: 'boolean' },
+                reason: { type: 'string' },
+                insight: { type: 'string' }
+              }
+            }
+          },
+          summary: { type: 'string' },
+          weekly_usage_note: { type: 'string' }
         }
       }
-    }
-
-    // Create shopping items for predictions (avoid duplicates)
-    const existingItems = await base44.entities.ShoppingItem.filter({
-      created_by: user.email,
-      status: 'pending'
     });
 
-    const existingSupplyNames = new Set(existingItems.map(item => item.supply_name));
+    // Auto-add to shopping list (avoid duplicates)
+    const existingNames = new Set(existingItems.map(i => i.supply_name));
+    const added = [];
 
-    for (const prediction of predictions) {
-      if (!existingSupplyNames.has(prediction.supply_name)) {
-        await base44.entities.ShoppingItem.create(prediction);
+    for (const pred of (analysis.predictions || [])) {
+      if (pred.should_add_to_shopping && !existingNames.has(pred.supply_name)) {
+        await base44.entities.ShoppingItem.create({
+          supply_name: pred.supply_name,
+          predicted_depletion_date: pred.depletion_date ? new Date(pred.depletion_date).toISOString() : new Date().toISOString(),
+          status: 'pending',
+          added_reason: pred.reason
+        });
+        added.push(pred.supply_name);
+        console.log(`Auto-added to shopping list: ${pred.supply_name}`);
       }
     }
 
     return Response.json({
-      loadsPerWeek: loadsPerWeek.toFixed(2),
+      predictions: analysis.predictions || [],
+      summary: analysis.summary,
+      weekly_usage_note: analysis.weekly_usage_note,
+      loadsPerWeek: avgLoadsPerWeek,
       totalLoadsAnalyzed: recentLoads.length,
-      weeksOfData: weeksOfData.toFixed(1),
-      predictions
+      autoAdded: added
     });
 
   } catch (error) {
+    console.error('Predict supply depletion error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
