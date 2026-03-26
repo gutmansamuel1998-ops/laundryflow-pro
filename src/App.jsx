@@ -30,6 +30,7 @@ import StainScanner from '@/pages/StainScanner';
 import SmartScheduler from '@/pages/SmartScheduler';
 import FabricCareLibrary from '@/pages/FabricCareLibrary';
 import LoadPlanner from '@/pages/LoadPlanner';
+import DigitalCloset from '@/pages/DigitalCloset';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -200,6 +201,11 @@ const AuthenticatedApp = () => {
       <Route path="/LoadPlanner" element={
         <LayoutWrapper currentPageName="LoadPlanner">
           <LoadPlanner />
+        </LayoutWrapper>
+      } />
+      <Route path="/DigitalCloset" element={
+        <LayoutWrapper currentPageName="DigitalCloset">
+          <DigitalCloset />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
