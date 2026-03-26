@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -67,7 +67,14 @@ const INCLUDED = [
   "Tag scanner",
 ];
 
+const PLANS = [
+  { id: "month", label: "Monthly",  price: "$1",  sub: "/month",    note: "Billed monthly",           badge: null },
+  { id: "year",  label: "Yearly",   price: "$10", sub: "/year",     note: "Save 17% vs monthly",     badge: "Best Value" },
+  { id: "life",  label: "Lifetime", price: "$15", sub: " one-time", note: "Pay once, own it forever", badge: "🔥 Most Popular" },
+];
+
 export default function Premium() {
+  const [selected, setSelected] = useState("year");
   return (
     <div className="min-h-screen bg-background pb-28">
       {/* Hero */}
@@ -88,27 +95,52 @@ export default function Premium() {
 
       <div className="px-5 max-w-lg mx-auto space-y-6 mt-6">
 
-        {/* Pricing Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-primary text-primary-foreground rounded-3xl p-6 text-center shadow-lg"
-        >
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-80 mb-1">Premium Plan</p>
-          <div className="flex items-end justify-center gap-1 mb-1">
-            <span className="text-4xl font-bold">$4.99</span>
-            <span className="text-sm opacity-70 mb-1.5">/month</span>
-          </div>
-          <p className="text-xs opacity-70 mb-5">or $39.99/year — save 33%</p>
-          <Link
-            to="/ThankYou"
-            className="block w-full bg-white text-primary font-semibold text-sm rounded-2xl py-3 hover:opacity-90 transition-opacity"
-          >
-            Get Premium <ArrowRight className="inline w-4 h-4 ml-1" />
-          </Link>
-          <p className="text-xs opacity-60 mt-3">Cancel anytime. No hidden fees.</p>
-        </motion.div>
+        {/* Pricing Cards */}
+        {(()=>{
+          const plans = PLANS;
+          return (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">Choose your plan</p>
+              {plans.map(plan => (
+                <button
+                  key={plan.id}
+                  onClick={() => setSelected(plan.id)}
+                  className={`w-full flex items-center justify-between rounded-2xl border-2 px-5 py-4 transition-all text-left ${
+                    selected === plan.id ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      selected === plan.id ? "border-primary" : "border-muted-foreground/40"
+                    }`}>
+                      {selected === plan.id && <div className="w-2 h-2 rounded-full bg-primary" />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold">{plan.label}</p>
+                        {plan.badge && <span className="text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">{plan.badge}</span>}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{plan.note}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-foreground">{plan.price}</span>
+                    <span className="text-xs text-muted-foreground">{plan.sub}</span>
+                  </div>
+                </button>
+              ))}
+              <Link
+                to="/ThankYou"
+                className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground font-semibold text-sm rounded-2xl py-3.5 hover:opacity-90 transition-opacity mt-2"
+              >
+                Get Premium <ArrowRight className="w-4 h-4" />
+              </Link>
+              <p className="text-xs text-muted-foreground text-center">
+                {selected === "life" ? "One-time payment. Yours forever." : "Cancel anytime. No hidden fees."}
+              </p>
+            </motion.div>
+          );
+        })()}
 
         {/* Premium Features */}
         <div>
