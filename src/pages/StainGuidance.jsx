@@ -30,8 +30,21 @@ const STAIN_DB = [
 
 const CATEGORIES = [...new Set(STAIN_DB.map(s => s.category))];
 
+const FABRICS = [
+  { name: "Cotton",     emoji: "🌿" },
+  { name: "Polyester",  emoji: "🧵" },
+  { name: "Wool",       emoji: "🐑" },
+  { name: "Silk",       emoji: "✨" },
+  { name: "Linen",      emoji: "🌾" },
+  { name: "Denim",      emoji: "👖" },
+  { name: "Synthetic",  emoji: "⚗️" },
+  { name: "Delicate",   emoji: "🎀" },
+  { name: "Unknown",    emoji: "❓" },
+];
+
 export default function StainGuidance() {
   const [stainType, setStainType] = useState("");
+  const [fabricType, setFabricType] = useState("");
   const [guidance, setGuidance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("Analyzing...");
@@ -48,23 +61,26 @@ export default function StainGuidance() {
     base44.entities.Load.filter({ status: "active" }).then(setActiveLoads).catch(() => {});
   }, []);
 
-  const buildPrompt = (stain, supplyNames) => {
+  const buildPrompt = (stain, supplyNames, fabric) => {
     const supplyList = supplyNames.length > 0 ? supplyNames.join(", ") : "none listed";
     const stainContext = stain ? `The stain type is: "${stain}".` : "Identify the stain type from the image.";
-    return `You are a laundry expert. ${stainContext}
+    const fabricContext = fabric ? `The fabric type is: "${fabric}".` : "Fabric type is unknown — infer from image if possible.";
+    return `You are a laundry expert specializing in stain removal. ${stainContext} ${fabricContext}
 
-Analyze the stain (and image if provided) and return a JSON object with:
-- stain_identified: string (name of the stain you identified or confirmed)
-- fabric_detected: string (fabric type if visible in image, otherwise "Unknown")
+Analyze the stain and fabric combination and return removal instructions specifically tailored to this fabric. Consider: fabric sensitivity, safe water temperature, whether bleach or solvents are safe, and drying method.
+
+Return a JSON object with:
+- stain_identified: string
+- fabric_used: string (the fabric type used for these instructions)
 - confidence: "high" | "medium" | "low"
-- steps: array of objects with { step_number: number, title: string, instruction: string }
-  (4-6 concrete, actionable steps covering pre-treatment, washing, and drying)
-- warnings: array of strings (e.g. avoid heat, test first — max 2)
-- recommended_supplies: array of strings chosen ONLY from this list of supplies the user already owns: [${supplyList}]
-  (return empty array if none are relevant)
-- supply_tips: object mapping each recommended supply name to a short tip on how to use it for this stain
+- safe_for_fabric: boolean (is standard treatment safe for this fabric?)
+- fabric_warning: string (any special note about this fabric, e.g. 'Silk requires extremely gentle handling')
+- steps: array of { step_number, title, instruction } (4-6 steps tailored to this fabric)
+- warnings: array of strings (max 2 — e.g. avoid heat on silk)
+- recommended_supplies: array of strings chosen ONLY from: [${supplyList}]
+- supply_tips: object mapping supply name to usage tip
 
-Be concise, calm, and practical.`;
+Be concise, practical, and fabric-specific.`;
   };
 
   const handleSaveToLoad = async (loadId) => {
@@ -80,8 +96,9 @@ Be concise, calm, and practical.`;
     setSavingLoad(false);
   };
 
-  const handleSearch = async (customStain = null, uploadedUrl = null) => {
+  const handleSearch = async (customStain = null, uploadedUrl = null, customFabric = null) => {
     const stain = customStain || stainType;
+    const fabric = customFabric || fabricType;
     setSavedToLoad(null);
     const imgUrl = uploadedUrl || imageUrl;
     if (!stain.trim() && !imgUrl) return;
@@ -93,13 +110,15 @@ Be concise, calm, and practical.`;
     const supplyNames = supplies.map(s => s.name);
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: buildPrompt(stain, supplyNames),
+      prompt: buildPrompt(stain, supplyNames, fabric),
       response_json_schema: {
         type: "object",
         properties: {
           stain_identified: { type: "string" },
-          fabric_detected: { type: "string" },
+          fabric_used: { type: "string" },
           confidence: { type: "string" },
+          safe_for_fabric: { type: "boolean" },
+          fabric_warning: { type: "string" },
           steps: {
             type: "array",
             items: {
@@ -133,7 +152,7 @@ Be concise, calm, and practical.`;
 
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setImageUrl(file_url);
-    await handleSearch(stainType || null, file_url);
+    await handleSearch(stainType || null, file_url, fabricType || null);
   };
 
   const confidenceColor = { high: "bg-green-100 text-green-700", medium: "bg-yellow-100 text-yellow-700", low: "bg-orange-100 text-orange-700" };
@@ -145,15 +164,15 @@ Be concise, calm, and practical.`;
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-2 mb-1">
             <Droplet className="w-5 h-5 text-primary" />
-            <h1 className="text-2xl font-semibold tracking-tight">Stain Guidance</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Stain Solver</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Upload a photo or describe your stain for AI-powered removal steps
+            Select a stain &amp; fabric — get AI-powered, fabric-specific removal steps
           </p>
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-6 space-y-4">
-          <Card className="p-4 border-0 shadow-sm">
+          <Card className="p-4 border-0 shadow-sm space-y-3">
             <div className="flex gap-2">
               <Input
                 value={stainType}
@@ -167,9 +186,24 @@ Be concise, calm, and practical.`;
               </Button>
             </div>
 
-            <div className="flex items-center gap-2 my-3">
+            {/* Fabric selector */}
+            <div>
+              <p className="text-xs text-muted-foreground mb-1.5 font-medium">Fabric Type <span className="font-normal">(optional but improves results)</span></p>
+              <div className="flex flex-wrap gap-1.5">
+                {FABRICS.map(f => (
+                  <button key={f.name} onClick={() => setFabricType(fabricType === f.name ? "" : f.name)}
+                    className={`px-2.5 py-1 rounded-xl text-xs font-medium border transition-all ${
+                      fabricType === f.name ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border hover:border-primary/40"
+                    }`}>
+                    {f.emoji} {f.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
               <div className="flex-1 h-px bg-border" />
-              <span className="text-xs text-muted-foreground">or upload a photo for AI analysis</span>
+              <span className="text-xs text-muted-foreground">or upload a photo</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
@@ -249,8 +283,8 @@ Be concise, calm, and practical.`;
                         <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">AI Identified</p>
                       </div>
                       <h2 className="text-lg font-semibold">{guidance.stain_identified}</h2>
-                      {guidance.fabric_detected && guidance.fabric_detected !== "Unknown" && (
-                        <p className="text-sm text-muted-foreground mt-0.5">Fabric: {guidance.fabric_detected}</p>
+                      {guidance.fabric_used && guidance.fabric_used !== "Unknown" && (
+                    <p className="text-sm text-muted-foreground mt-0.5">Fabric: {guidance.fabric_used}</p>
                       )}
                     </div>
                     {guidance.confidence && (
@@ -265,6 +299,19 @@ Be concise, calm, and practical.`;
                 </Card>
 
                 {/* Warnings */}
+                {/* Fabric warning */}
+                {guidance.fabric_warning && (
+                  <Card className="p-4 border-0 shadow-sm bg-blue-50 border-blue-100">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-700">Fabric Note</p>
+                        <p className="text-sm text-blue-600">{guidance.fabric_warning}</p>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
                 {guidance.warnings?.length > 0 && (
                   <Card className="p-4 border-0 shadow-sm bg-destructive/5">
                     <div className="flex items-center gap-2 mb-2">
@@ -353,7 +400,7 @@ Be concise, calm, and practical.`;
                   </Card>
                 )}
 
-                <Button variant="outline" className="w-full rounded-xl" onClick={() => { setGuidance(null); setImageUrl(null); setPreviewUrl(null); setStainType(""); setSavedToLoad(null); }}>
+                <Button variant="outline" className="w-full rounded-xl" onClick={() => { setGuidance(null); setImageUrl(null); setPreviewUrl(null); setStainType(""); setFabricType(""); setSavedToLoad(null); }}>
                   Search Another Stain
                 </Button>
               </motion.div>
