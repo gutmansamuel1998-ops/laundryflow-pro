@@ -27,6 +27,7 @@ import SmartWash from '@/pages/SmartWash';
 import SmartPredictions from '@/pages/SmartPredictions';
 import SmartPlanner from '@/pages/SmartPlanner';
 import StainScanner from '@/pages/StainScanner';
+import SmartScheduler from '@/pages/SmartScheduler';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -182,6 +183,11 @@ const AuthenticatedApp = () => {
       <Route path="/StainScanner" element={
         <LayoutWrapper currentPageName="StainScanner">
           <StainScanner />
+        </LayoutWrapper>
+      } />
+      <Route path="/SmartScheduler" element={
+        <LayoutWrapper currentPageName="SmartScheduler">
+          <PremiumGuard><SmartScheduler /></PremiumGuard>
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
