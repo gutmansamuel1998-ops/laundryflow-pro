@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -38,6 +38,8 @@ export default function DigitalCloset() {
   const [checkResult, setCheckResult] = useState(null);
   const [isChecking, setIsChecking] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -53,6 +55,17 @@ export default function DigitalCloset() {
     mutationFn: (id) => base44.entities.ClothingItem.delete(id),
     onSuccess: () => qc.invalidateQueries(["clothing-items"]),
   });
+
+  const editMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ClothingItem.update(id, data),
+    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setEditingItem(null); setEditForm({}); }
+  });
+
+  const startEdit = (item) => {
+    setEditingItem(item.id);
+    setEditForm({ name: item.name, category: item.category, fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "" });
+    setExpandedItem(item.id);
+  };
 
   const toggleSupply = (s) => setSelectedSupplies(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
 
@@ -322,23 +335,65 @@ Then give an overall safety summary and any general tips.`,
                     <AnimatePresence>
                       {expandedItem === item.id && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 pt-3 border-t border-border/50 space-y-2">
-                          {item.fabric_composition && (
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground">Fabric</p>
-                              <p className="text-sm">{item.fabric_composition}</p>
+                          {editingItem === item.id ? (
+                            <div className="space-y-2">
+                              <Input placeholder="Item name" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Category</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {CATEGORIES.map(c => (
+                                    <button key={c} onClick={() => setEditForm(f => ({ ...f, category: c }))}
+                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.category === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                      {CATEGORY_EMOJI[c]} {c}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Color Group</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {COLORS.map(c => (
+                                    <button key={c} onClick={() => setEditForm(f => ({ ...f, color: c }))}
+                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.color === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                      {c}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <Input placeholder="Fabric composition" value={editForm.fabric_composition} onChange={e => setEditForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
+                              <Textarea placeholder="Care instructions" value={editForm.care_instructions} onChange={e => setEditForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[60px]" />
+                              <Textarea placeholder="Notes (optional)" value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
+                              <div className="flex gap-2 pt-1">
+                                <Button onClick={() => editMutation.mutate({ id: item.id, data: editForm })} disabled={!editForm.name || editMutation.isPending} className="flex-1 rounded-xl gap-1.5" size="sm">
+                                  <Save className="w-3.5 h-3.5" /> {editMutation.isPending ? "Saving..." : "Save Changes"}
+                                </Button>
+                                <Button variant="outline" onClick={() => setEditingItem(null)} className="rounded-xl" size="sm">Cancel</Button>
+                              </div>
                             </div>
-                          )}
-                          {item.care_instructions && (
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground">Care Instructions</p>
-                              <p className="text-sm">{item.care_instructions}</p>
-                            </div>
-                          )}
-                          {item.notes && (
-                            <div>
-                              <p className="text-xs font-semibold text-muted-foreground">Notes</p>
-                              <p className="text-sm text-muted-foreground">{item.notes}</p>
-                            </div>
+                          ) : (
+                            <>
+                              {item.fabric_composition && (
+                                <div>
+                                  <p className="text-xs font-semibold text-muted-foreground">Fabric</p>
+                                  <p className="text-sm">{item.fabric_composition}</p>
+                                </div>
+                              )}
+                              {item.care_instructions && (
+                                <div>
+                                  <p className="text-xs font-semibold text-muted-foreground">Care Instructions</p>
+                                  <p className="text-sm">{item.care_instructions}</p>
+                                </div>
+                              )}
+                              {item.notes && (
+                                <div>
+                                  <p className="text-xs font-semibold text-muted-foreground">Notes</p>
+                                  <p className="text-sm text-muted-foreground">{item.notes}</p>
+                                </div>
+                              )}
+                              <Button variant="outline" size="sm" onClick={() => startEdit(item)} className="w-full rounded-xl gap-1.5 mt-1">
+                                <Pencil className="w-3.5 h-3.5" /> Edit Details
+                              </Button>
+                            </>
                           )}
                         </motion.div>
                       )}
