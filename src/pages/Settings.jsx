@@ -453,7 +453,7 @@ export default function Settings() {
                   <p className="text-sm mb-3">
                     Upgrade to Premium for AI laundry help and advanced guidance
                   </p>
-                  <Button variant="outline" className="w-full rounded-xl" size="sm">
+                  <Button variant="outline" className="w-full rounded-xl" size="sm" onClick={() => navigate("/Premium")}>
                     View Premium Features
                   </Button>
                 </div>

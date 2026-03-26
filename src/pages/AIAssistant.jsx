@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Send, Loader2 } from "lucide-react";
+import { Sparkles, Send, Loader2, Lock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SUGGESTED_QUESTIONS = [
@@ -17,6 +18,14 @@ export default function AIAssistant() {
   const [question, setQuestion] = useState("");
   const [conversation, setConversation] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isPremium, setIsPremium] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      setIsPremium(user?.has_premium === true);
+    }).catch(() => setIsPremium(false));
+  }, []);
 
   const handleAsk = async (customQuestion = null) => {
     const q = customQuestion || question;
@@ -41,6 +50,46 @@ export default function AIAssistant() {
       setLoading(false);
     }
   };
+
+  if (isPremium === null) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isPremium) {
+    return (
+      <div className="min-h-screen pb-24">
+        <div className="max-w-lg mx-auto px-5 pt-8">
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h1 className="text-2xl font-semibold tracking-tight">AI Laundry Assistant</h1>
+          </div>
+          <p className="text-sm text-muted-foreground mb-10">Ask any laundry question in plain language</p>
+
+          <div className="flex flex-col items-center text-center gap-5 mt-16">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Premium Feature</h2>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                The AI Assistant is available exclusively to Premium members. Upgrade to get instant laundry answers, fabric tips, and more.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/Settings")}
+              className="mt-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-medium text-sm shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
+            >
+              Upgrade in Settings
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24">

@@ -4,14 +4,14 @@ import FeedbackModal from "@/components/FeedbackModal";
 import NotificationPermissionBanner from "@/components/notifications/NotificationPermissionBanner";
 import LowSupplyNotifier from "@/components/notifications/LowSupplyNotifier";
 import { createPageUrl } from "@/utils";
-import { Home, Play, Layers, Sparkles, Settings, Package, Star } from "lucide-react";
+import { Home, Play, Layers, Sparkles, Settings, Package } from "lucide-react";
 
 const navItems = [
   { page: "Home", label: "Home", icon: Home },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Loads", label: "Loads", icon: Layers },
   { page: "Supplies", label: "Supplies", icon: Package },
-  { page: "Premium", label: "Premium", icon: Star },
+  { page: "AIAssistant", label: "AI Help", icon: Sparkles },
   { page: "Settings", label: "Settings", icon: Settings },
 ];
 

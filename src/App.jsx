@@ -91,7 +91,7 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/AIAssistant" element={
         <LayoutWrapper currentPageName="AIAssistant">
-          <PremiumGuard><AIAssistant /></PremiumGuard>
+          <AIAssistant />
         </LayoutWrapper>
       } />
       <Route path="/TagScanner" element={
