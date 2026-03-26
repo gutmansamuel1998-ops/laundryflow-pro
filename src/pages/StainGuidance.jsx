@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Droplet, Search, Camera, Loader2, CheckCircle2, Package, AlertCircle, Sparkles, Save, Check } from "lucide-react";
+import { Droplet, Search, Camera, Loader2, CheckCircle2, Package, AlertCircle, Sparkles, Save, Check, Shirt, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const STAIN_DB = [
@@ -42,23 +42,35 @@ export default function StainGuidance() {
   const [savedToLoad, setSavedToLoad] = useState(null);
   const [savingLoad, setSavingLoad] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [fabricType, setFabricType] = useState("");
+  const [closetItems, setClosetItems] = useState([]);
+  const [selectedClosetItem, setSelectedClosetItem] = useState(null);
+  const [showClosetPicker, setShowClosetPicker] = useState(false);
 
   useEffect(() => {
     base44.entities.Supply.list().then(setSupplies).catch(() => {});
     base44.entities.Load.filter({ status: "active" }).then(setActiveLoads).catch(() => {});
+    base44.entities.ClothingItem.list().then(setClosetItems).catch(() => {});
   }, []);
+
+  const handleSelectClosetItem = (item) => {
+    setSelectedClosetItem(item);
+    setFabricType(item.fabric_composition || "");
+    setShowClosetPicker(false);
+  };
 
   const buildPrompt = (stain, supplyNames) => {
     const supplyList = supplyNames.length > 0 ? supplyNames.join(", ") : "none listed";
     const stainContext = stain ? `The stain type is: "${stain}".` : "Identify the stain type from the image.";
-    return `You are a laundry expert. ${stainContext}
+    const fabricContext = fabricType ? `The fabric is: "${fabricType}". Tailor ALL instructions specifically for this fabric — adjust temperature, agitation, and chemical recommendations accordingly.` : "";
+    return `You are a laundry expert. ${stainContext} ${fabricContext}
 
 Analyze the stain (and image if provided) and return a JSON object with:
 - stain_identified: string (name of the stain you identified or confirmed)
-- fabric_detected: string (fabric type if visible in image, otherwise "Unknown")
+- fabric_detected: string (use the provided fabric type if given, otherwise detect from image or say "Unknown")
 - confidence: "high" | "medium" | "low"
 - steps: array of objects with { step_number: number, title: string, instruction: string }
-  (4-6 concrete, actionable steps covering pre-treatment, washing, and drying)
+  (4-6 concrete, actionable steps covering pre-treatment, washing, and drying — tailored to the fabric)
 - warnings: array of strings (e.g. avoid heat, test first — max 2)
 - recommended_supplies: array of strings chosen ONLY from this list of supplies the user already owns: [${supplyList}]
   (return empty array if none are relevant)
@@ -153,6 +165,51 @@ Be concise, calm, and practical.`;
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-6 space-y-4">
+
+          {/* Fabric / Closet Selector */}
+          <Card className="p-4 border-0 shadow-sm">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Fabric (optional)</p>
+            {closetItems.length > 0 && (
+              <div className="mb-3">
+                <button
+                  onClick={() => setShowClosetPicker(!showClosetPicker)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-border bg-secondary/40 text-sm hover:border-primary/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Shirt className="w-4 h-4 text-muted-foreground" />
+                    <span className={selectedClosetItem ? "font-medium" : "text-muted-foreground"}>
+                      {selectedClosetItem ? selectedClosetItem.name : "Select from Digital Closet"}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showClosetPicker ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence>
+                  {showClosetPicker && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                      <div className="mt-1 border border-border rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                        {closetItems.map(item => (
+                          <button key={item.id} onClick={() => handleSelectClosetItem(item)}
+                            className={`w-full text-left px-3 py-2.5 text-sm hover:bg-secondary/60 transition-colors border-b border-border/50 last:border-0 ${
+                              selectedClosetItem?.id === item.id ? "bg-primary/5 text-primary font-medium" : ""
+                            }`}>
+                            <span className="font-medium">{item.name}</span>
+                            {item.fabric_composition && <span className="text-muted-foreground ml-2 text-xs">{item.fabric_composition}</span>}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+            <Input
+              value={fabricType}
+              onChange={e => { setFabricType(e.target.value); setSelectedClosetItem(null); }}
+              placeholder="Or type fabric (e.g. 100% cotton, wool blend)"
+              className="rounded-xl"
+            />
+          </Card>
+
           <Card className="p-4 border-0 shadow-sm">
             <div className="flex gap-2">
               <Input
