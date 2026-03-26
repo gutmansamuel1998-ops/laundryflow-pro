@@ -28,6 +28,7 @@ import SmartPredictions from '@/pages/SmartPredictions';
 import SmartPlanner from '@/pages/SmartPlanner';
 import StainScanner from '@/pages/StainScanner';
 import SmartScheduler from '@/pages/SmartScheduler';
+import FabricCareLibrary from '@/pages/FabricCareLibrary';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -188,6 +189,11 @@ const AuthenticatedApp = () => {
       <Route path="/SmartScheduler" element={
         <LayoutWrapper currentPageName="SmartScheduler">
           <PremiumGuard><SmartScheduler /></PremiumGuard>
+        </LayoutWrapper>
+      } />
+      <Route path="/FabricCareLibrary" element={
+        <LayoutWrapper currentPageName="FabricCareLibrary">
+          <FabricCareLibrary />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
