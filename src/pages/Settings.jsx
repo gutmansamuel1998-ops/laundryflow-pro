@@ -431,36 +431,6 @@ export default function Settings() {
             </Card>
           </section>
 
-          {/* Premium */}
-          <section>
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Premium</h2>
-            </div>
-            <Card className="p-4 border-0 shadow-sm">
-              {hasPremium ? (
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-primary" />
-                    <p className="text-sm font-medium">Premium Active</p>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    You have access to AI laundry help and advanced guidance
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <p className="text-sm mb-3">
-                    Upgrade to Premium for AI laundry help and advanced guidance
-                  </p>
-                  <Button variant="outline" className="w-full rounded-xl" size="sm" onClick={() => navigate("/Premium")}>
-                    View Premium Features
-                  </Button>
-                </div>
-              )}
-            </Card>
-          </section>
-
           {/* Business Info */}
           <section>
             <div className="flex items-center gap-2 mb-3">
@@ -509,6 +479,42 @@ export default function Settings() {
                 </div>
               )}
             </Card>
+          </section>
+
+          {/* Premium — prominent, just before Save */}
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-medium uppercase tracking-wider text-primary">Premium</h2>
+            </div>
+            {hasPremium ? (
+              <Card className="p-5 border-2 border-primary/30 bg-primary/5 shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-primary">Premium Active ✓</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">You have full access to AI laundry help and advanced guidance</p>
+                  </div>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-5 border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 shadow-md">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-base">Unlock Premium</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">AI help, smart predictions & advanced guidance</p>
+                  </div>
+                </div>
+                <Button className="w-full rounded-xl" onClick={() => navigate("/Premium")}>
+                  View Premium Features
+                </Button>
+              </Card>
+            )}
           </section>
 
           {/* Save */}
