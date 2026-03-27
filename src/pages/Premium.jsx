@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
 import {
   Sparkles, Brain, CalendarClock, BarChart2, Package,
-  ShieldCheck, Zap, CheckCircle2, ArrowRight, Star, MessageCircle
+  ShieldCheck, Zap, CheckCircle2, ArrowRight, Star, MessageCircle, Loader2
 } from "lucide-react";
 
 const FEATURES = [
@@ -68,13 +68,30 @@ const INCLUDED = [
 ];
 
 const PLANS = [
-  { id: "month", label: "Monthly",  price: "$1",  sub: "/month",    note: "Billed monthly",           badge: null },
-  { id: "year",  label: "Yearly",   price: "$10", sub: "/year",     note: "Save 17% vs monthly",     badge: "Best Value" },
-  { id: "life",  label: "Lifetime", price: "$15", sub: " one-time", note: "Pay once, own it forever", badge: "🔥 Most Popular" },
+  { id: "month", label: "Monthly",  price: "$1",  amount: "1.00",  sub: "/month",    name: "LaundryFlow Pro – Monthly",    note: "Billed monthly",           badge: null },
+  { id: "year",  label: "Yearly",   price: "$10", amount: "10.00", sub: "/year",     name: "LaundryFlow Pro – Yearly",     note: "Save 17% vs monthly",     badge: "Best Value" },
+  { id: "life",  label: "Lifetime", price: "$15", amount: "15.00", sub: " one-time", name: "LaundryFlow Pro – Lifetime",   note: "Pay once, own it forever", badge: "🔥 Most Popular" },
 ];
 
 export default function Premium() {
   const [selected, setSelected] = useState("year");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleCheckout = async () => {
+    const plan = PLANS.find(p => p.id === selected);
+    setLoading(true);
+    setError(null);
+    const res = await base44.functions.invoke("createCheckout", {
+      items: [{ name: plan.name, quantity: 1, price: plan.amount }]
+    });
+    if (res.data?.redirectUrl) {
+      window.location.href = res.data.redirectUrl;
+    } else {
+      setError("Could not start checkout. Please try again.");
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-background pb-28">
       {/* Hero */}
@@ -129,12 +146,14 @@ export default function Premium() {
                   </div>
                 </button>
               ))}
-              <Link
-                to="/ThankYou"
-                className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground font-semibold text-sm rounded-2xl py-3.5 hover:opacity-90 transition-opacity mt-2"
+              {error && <p className="text-xs text-destructive text-center">{error}</p>}
+              <button
+                onClick={handleCheckout}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground font-semibold text-sm rounded-2xl py-3.5 hover:opacity-90 transition-opacity mt-2 disabled:opacity-60"
               >
-                Get Premium <ArrowRight className="w-4 h-4" />
-              </Link>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><span>Get Premium</span><ArrowRight className="w-4 h-4" /></>}
+              </button>
               <p className="text-xs text-muted-foreground text-center">
                 {selected === "life" ? "One-time payment. Yours forever." : "Cancel anytime. No hidden fees."}
               </p>
@@ -185,13 +204,13 @@ export default function Premium() {
         {/* Bottom CTA */}
         <div className="text-center pt-2 pb-4">
           <p className="text-xs text-muted-foreground mb-3">Join thousands of users doing laundry smarter.</p>
-          <Link
-            to="/ThankYou"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold text-sm rounded-2xl px-6 py-3 hover:opacity-90 transition-opacity"
+          <button
+            onClick={handleCheckout}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold text-sm rounded-2xl px-6 py-3 hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            <Sparkles className="w-4 h-4" />
-            Upgrade to Premium
-          </Link>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Sparkles className="w-4 h-4" /><span>Upgrade to Premium</span></>}
+          </button>
         </div>
       </div>
     </div>
