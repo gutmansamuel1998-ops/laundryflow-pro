@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic, MessageSquare, Smartphone } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
@@ -15,7 +15,6 @@ import { motion } from "framer-motion";
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const TIMES = ["Morning", "Afternoon", "Evening"];
 const ALERT_CHANNELS = [
-  { id: "sms", Icon: MessageSquare, label: "SMS" },
   { id: "push", Icon: Smartphone, label: "Push" },
 ];
 
@@ -40,8 +39,8 @@ export default function Settings() {
     max_idle_time_load_created: 240,
     voice_commands_enabled: false,
     alert_channels: {
-      wash_finished: { sms: false, push: true },
-      dryer_finished: { sms: false, push: true },
+      wash_finished: { push: true },
+      dryer_finished: { push: true },
     },
   });
 
@@ -66,8 +65,8 @@ export default function Settings() {
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
         voice_commands_enabled: u?.voice_commands_enabled || false,
         alert_channels: u?.alert_channels || {
-          wash_finished: { sms: false, push: true },
-          dryer_finished: { sms: false, push: true },
+          wash_finished: { push: true },
+          dryer_finished: { push: true },
         },
       }));
     }).catch(() => {});
