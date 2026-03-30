@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic, MessageSquare, Smartphone, Mail } from "lucide-react";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic, MessageSquare, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
@@ -14,10 +14,13 @@ import { motion } from "framer-motion";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const TIMES = ["Morning", "Afternoon", "Evening"];
+const ALERT_CHANNELS = [
+  { id: "sms", Icon: MessageSquare, label: "SMS" },
+  { id: "push", Icon: Smartphone, label: "Push" },
+];
 
 export default function Settings() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [saved, setSaved] = useState(false);
   const [hasPremium, setHasPremium] = useState(false);
   const [settings, setSettings] = useState({
@@ -37,14 +40,13 @@ export default function Settings() {
     max_idle_time_load_created: 240,
     voice_commands_enabled: false,
     alert_channels: {
-      wash_finished: { sms: false, push: true, email: false },
-      dryer_finished: { sms: false, push: true, email: false },
+      wash_finished: { sms: false, push: true },
+      dryer_finished: { sms: false, push: true },
     },
   });
 
   useEffect(() => {
     base44.auth.me().then((u) => {
-      setUser(u);
       setHasPremium(u?.has_premium === true);
       setSettings(prev => ({
         ...prev,
@@ -64,8 +66,8 @@ export default function Settings() {
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
         voice_commands_enabled: u?.voice_commands_enabled || false,
         alert_channels: u?.alert_channels || {
-          wash_finished: { sms: false, push: true, email: false },
-          dryer_finished: { sms: false, push: true, email: false },
+          wash_finished: { sms: false, push: true },
+          dryer_finished: { sms: false, push: true },
         },
       }));
     }).catch(() => {});
@@ -193,7 +195,7 @@ export default function Settings() {
                 <div>
                   <Label htmlFor="reminders">Enable laundry reminders</Label>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Get email alerts during your preferred times when no loads are active
+                    Get alerts during your preferred times when no loads are active
                   </p>
                 </div>
                 <Switch
@@ -246,11 +248,7 @@ export default function Settings() {
                   <div key={key} className="mb-4">
                     <p className="text-sm font-medium mb-2">{label}</p>
                     <div className="flex gap-3">
-                      {[
-                        { id: "sms",   Icon: MessageSquare, label: "SMS" },
-                        { id: "push",  Icon: Smartphone,    label: "Push" },
-                        { id: "email", Icon: Mail,           label: "Email" },
-                      ].map(({ id, Icon, label: chanLabel }) => {
+                      {ALERT_CHANNELS.map(({ id, Icon, label: chanLabel }) => {
                         const active = settings.alert_channels[key]?.[id] ?? false;
                         return (
                           <button
