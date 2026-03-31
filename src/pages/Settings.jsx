@@ -95,6 +95,10 @@ export default function Settings() {
     document.documentElement.style.fontSize = sizeMap[settings.text_size] || "100%";
   }, [settings.text_size]);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("high-contrast", settings.high_contrast);
+  }, [settings.high_contrast]);
+
   const handleSave = async () => {
     await base44.auth.updateMe(settings);
     setSaved(true);

@@ -49,6 +49,17 @@
   border-radius: 3px;
 }
 
+/* High contrast mode */
+.high-contrast {
+  --foreground: 0 0% 0%;
+  --background: 0 0% 100%;
+  --primary: 220 90% 30%;
+  --primary-foreground: 0 0% 100%;
+  --muted-foreground: 0 0% 20%;
+  --border: 0 0% 0%;
+  --card-foreground: 0 0% 0%;
+}
+
 /* Gentle focus states */
 *:focus-visible {
   outline: 2px solid hsl(var(--primary));

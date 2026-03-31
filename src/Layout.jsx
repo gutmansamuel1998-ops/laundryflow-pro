@@ -21,6 +21,7 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.me().then((u) => {
       const sizeMap = { small: "87.5%", normal: "100%", large: "112.5%" };
       document.documentElement.style.fontSize = sizeMap[u?.text_size] || "100%";
+      document.documentElement.classList.toggle("high-contrast", u?.high_contrast === true);
     }).catch(() => {});
   }, []);
   // Hide nav during onboarding-like flows or laundry mode
