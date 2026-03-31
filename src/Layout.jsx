@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
 import NotificationPermissionBanner from "@/components/notifications/NotificationPermissionBanner";
@@ -16,6 +17,12 @@ const navItems = [
 ];
 
 export default function Layout({ children, currentPageName }) {
+  useEffect(() => {
+    base44.auth.me().then((u) => {
+      const sizeMap = { small: "87.5%", normal: "100%", large: "112.5%" };
+      document.documentElement.style.fontSize = sizeMap[u?.text_size] || "100%";
+    }).catch(() => {});
+  }, []);
   // Hide nav during onboarding-like flows or laundry mode
   const hideNav = false;
 

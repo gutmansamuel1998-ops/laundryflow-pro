@@ -90,6 +90,11 @@ export default function Settings() {
     }));
   };
 
+  useEffect(() => {
+    const sizeMap = { small: "87.5%", normal: "100%", large: "112.5%" };
+    document.documentElement.style.fontSize = sizeMap[settings.text_size] || "100%";
+  }, [settings.text_size]);
+
   const handleSave = async () => {
     await base44.auth.updateMe(settings);
     setSaved(true);
