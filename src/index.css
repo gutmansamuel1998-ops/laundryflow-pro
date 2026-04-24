@@ -143,3 +143,20 @@
 :focus:not(:focus-visible) {
   outline: none;
 }
+
+/* Enhanced keyboard navigation mode */
+.keyboard-nav *:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 4px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 6px hsl(var(--primary) / 0.15);
+}
+
+.keyboard-nav button:focus-visible,
+.keyboard-nav a:focus-visible,
+.keyboard-nav [role="switch"]:focus-visible,
+.keyboard-nav [role="button"]:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px hsl(var(--primary) / 0.15);
+}
