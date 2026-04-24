@@ -293,12 +293,13 @@ export default function Supplies() {
                 <h2 className="font-medium mb-4">Add New Supply</h2>
                 
                 <div className="mb-4">
-                  <Label className="text-xs text-muted-foreground mb-2 block">Quick Add</Label>
-                  <div className="flex flex-wrap gap-2">
+                  <p id="quick-add-label" className="text-xs text-muted-foreground mb-2 block">Quick Add</p>
+                  <div className="flex flex-wrap gap-2" role="group" aria-labelledby="quick-add-label">
                     {SUPPLY_PRESETS.map((preset) => (
                       <button
                         key={preset.name}
                         onClick={() => handlePresetSelect(preset)}
+                        aria-label={`Quick add ${preset.name}`}
                         className="px-3 py-1.5 rounded-lg text-xs bg-secondary hover:bg-secondary/80 transition-colors"
                       >
                         {preset.name}

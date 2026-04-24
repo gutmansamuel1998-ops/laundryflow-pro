@@ -102,9 +102,9 @@ export default function OnboardingFlow({ onComplete }) {
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Step 2 of 5</p>
       <h2 className="text-xl font-semibold mb-2">When works best for laundry?</h2>
       <p className="text-muted-foreground text-sm mb-6">We can gently remind you around these times. Pick as many as you like, or skip.</p>
-      <div className="mb-5">
-        <p className="text-sm font-medium mb-3">Days</p>
-        <div className="flex flex-wrap gap-2">
+      <fieldset className="mb-5">
+        <legend className="text-sm font-medium mb-3">Days</legend>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Select preferred laundry days">
           {DAYS.map((day) => (
             <button
               key={day}
@@ -121,10 +121,10 @@ export default function OnboardingFlow({ onComplete }) {
             </button>
           ))}
         </div>
-      </div>
-      <div>
-        <p className="text-sm font-medium mb-3">Time of day</p>
-        <div className="flex flex-wrap gap-2">
+      </fieldset>
+      <fieldset>
+        <legend className="text-sm font-medium mb-3">Time of day</legend>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Select preferred time of day">
           {TIMES.map((time) => (
             <button
               key={time}
@@ -141,7 +141,7 @@ export default function OnboardingFlow({ onComplete }) {
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
       <div className="flex gap-3 mt-8">
         <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl">Back</Button>
         <Button onClick={() => setStep(3)} className="flex-1 rounded-xl py-5">Continue <ArrowRight className="w-4 h-4 ml-2" /></Button>

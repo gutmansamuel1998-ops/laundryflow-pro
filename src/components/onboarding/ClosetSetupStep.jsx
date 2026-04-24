@@ -84,15 +84,15 @@ If this is a care tag, extract exactly what the tag says for care_instructions.`
       <AnimatePresence mode="wait">
         {!form && !scanning && (
           <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-            <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <label htmlFor="closet-upload" className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center" aria-hidden="true">
                 <Camera className="w-6 h-6 text-primary" />
               </div>
               <div className="text-center">
                 <p className="font-medium text-sm">Take a photo or upload</p>
                 <p className="text-xs text-muted-foreground mt-1">Photo of garment or care tag — AI will extract all details</p>
               </div>
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+              <input id="closet-upload" type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} aria-label="Upload garment or care tag photo" />
             </label>
           </motion.div>
         )}
@@ -110,40 +110,53 @@ If this is a care tag, extract exactly what the tag says for care_instructions.`
               <Sparkles className="w-4 h-4 text-primary" />
               <p className="text-sm font-medium text-primary">AI extracted — review & save</p>
             </div>
-            <Input placeholder="Item name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
-            <Input placeholder="Fabric composition" value={form.fabric_composition} onChange={e => setForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
-            <Input placeholder="Care instructions" value={form.care_instructions} onChange={e => setForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl" />
             <div>
-              <p className="text-xs text-muted-foreground mb-1.5">Category</p>
-              <div className="flex flex-wrap gap-1.5">
+              <label htmlFor="closet-name" className="text-xs text-muted-foreground mb-1 block">Item name</label>
+              <Input id="closet-name" placeholder="e.g. Blue cotton t-shirt" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+            </div>
+            <div>
+              <label htmlFor="closet-fabric" className="text-xs text-muted-foreground mb-1 block">Fabric composition</label>
+              <Input id="closet-fabric" placeholder="e.g. 80% cotton, 20% polyester" value={form.fabric_composition} onChange={e => setForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
+            </div>
+            <div>
+              <label htmlFor="closet-care" className="text-xs text-muted-foreground mb-1 block">Care instructions</label>
+              <Input id="closet-care" placeholder="e.g. Machine wash cold, tumble dry low" value={form.care_instructions} onChange={e => setForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl" />
+            </div>
+            <fieldset>
+              <legend className="text-xs text-muted-foreground mb-1.5">Category</legend>
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Select category">
                 {CATEGORIES.map(c => (
                   <button key={c} onClick={() => setForm(f => ({ ...f, category: c }))}
+                    aria-pressed={form.category === c}
+                    aria-label={`Category: ${c}`}
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.category === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                     {c}
                   </button>
                 ))}
               </div>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground mb-1.5">Color Group</p>
-              <div className="flex flex-wrap gap-1.5">
+            </fieldset>
+            <fieldset>
+              <legend className="text-xs text-muted-foreground mb-1.5">Color Group</legend>
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Select color group">
                 {COLORS.map(c => (
                   <button key={c} onClick={() => setForm(f => ({ ...f, color: c }))}
+                    aria-pressed={form.color === c}
+                    aria-label={`Color group: ${c}`}
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.color === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                     {c}
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
             <div className="flex gap-2">
               <Button onClick={handleSave} disabled={!form.name || saving} className="flex-1 rounded-xl gap-1.5">
                 {saving ? "Saving..." : <><Check className="w-4 h-4" /> Save to Closet</>}
               </Button>
               <Button variant="outline" onClick={() => setForm(null)} className="rounded-xl"><X className="w-4 h-4" /></Button>
             </div>
-            <label className="flex items-center justify-center gap-2 text-xs text-primary cursor-pointer hover:underline">
-              <Upload className="w-3.5 h-3.5" /> Scan another item
-              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+            <label htmlFor="closet-rescan" className="flex items-center justify-center gap-2 text-xs text-primary cursor-pointer hover:underline">
+              <Upload className="w-3.5 h-3.5" aria-hidden="true" /> Scan another item
+              <input id="closet-rescan" type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} aria-label="Scan another garment or care tag" />
             </label>
           </motion.div>
         )}

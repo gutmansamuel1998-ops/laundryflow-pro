@@ -63,8 +63,9 @@ export default function PreciseTimePreferences({ value = [], onChange }) {
                 size="icon"
                 className="h-7 w-7"
                 onClick={() => handleRemove(index)}
+                aria-label={`Remove time block ${index + 1}`}
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3.5 h-3.5" aria-hidden="true" />
               </Button>
             </div>
 
