@@ -51,10 +51,15 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
         <div className="space-y-3 mb-4">
           {schedules.map((s) => (
             <div key={s.id} className="flex items-start gap-3 p-3 rounded-xl bg-secondary/60">
-              <button onClick={() => onUpdate(s.id, { completed: !s.completed })} className="mt-0.5">
+              <button
+                onClick={() => onUpdate(s.id, { completed: !s.completed })}
+                aria-label={s.completed ? "Mark as incomplete" : "Mark as complete"}
+                aria-pressed={s.completed}
+                className="mt-0.5"
+              >
                 {s.completed
-                  ? <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  : <Circle className="w-5 h-5 text-muted-foreground" />}
+                  ? <CheckCircle2 className="w-5 h-5 text-green-500" aria-hidden="true" />
+                  : <Circle className="w-5 h-5 text-muted-foreground" aria-hidden="true" />}
               </button>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-medium ${s.completed ? "line-through text-muted-foreground" : ""}`}>
@@ -74,8 +79,12 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
                     : <BellOff className="w-3 h-3 text-muted-foreground ml-1 mt-0.5" />}
                 </div>
               </div>
-              <button onClick={() => onDelete(s.id)} className="text-muted-foreground hover:text-destructive transition-colors">
-                <Trash2 className="w-4 h-4" />
+              <button
+                onClick={() => onDelete(s.id)}
+                aria-label={`Delete ${s.label || "Laundry Day"} session`}
+                className="text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <Trash2 className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           ))}
@@ -87,43 +96,56 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
         {/* Add form */}
         {adding ? (
           <div className="space-y-3 border-t border-border/50 pt-4">
-            <Input
-              placeholder="Label (optional, e.g. Bedding day)"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              className="rounded-xl"
-            />
-            <div className="flex flex-wrap gap-1.5">
-              {LOAD_OPTIONS.map((o) => (
-                <button
-                  key={o.value}
-                  onClick={() => toggleLoad(o.value)}
-                  className={`px-3 py-1 rounded-lg text-xs transition-colors ${loadTypes.includes(o.value) ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/70"}`}
-                >
-                  {o.label}
-                </button>
-              ))}
+            <div>
+              <label htmlFor="session-label" className="text-xs text-muted-foreground mb-1 block">Session label (optional)</label>
+              <Input
+                id="session-label"
+                placeholder="e.g. Bedding day"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                className="rounded-xl"
+              />
             </div>
+            <fieldset>
+              <legend className="text-xs text-muted-foreground mb-1.5">Load types</legend>
+              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Select load types">
+                {LOAD_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    onClick={() => toggleLoad(o.value)}
+                    aria-pressed={loadTypes.includes(o.value)}
+                    aria-label={o.label}
+                    className={`px-3 py-1 rounded-lg text-xs transition-colors ${loadTypes.includes(o.value) ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/70"}`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <div className="flex gap-2">
-              <Select value={recurring} onValueChange={setRecurring}>
-                <SelectTrigger className="rounded-xl flex-1">
-                  <SelectValue placeholder="Repeat" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No repeat</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="biweekly">Every 2 weeks</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex-1">
+                <label htmlFor="session-recurring" className="sr-only">Repeat schedule</label>
+                <Select value={recurring} onValueChange={setRecurring}>
+                  <SelectTrigger id="session-recurring" className="rounded-xl">
+                    <SelectValue placeholder="Repeat" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No repeat</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="biweekly">Every 2 weeks</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button
                 variant="outline"
                 size="icon"
                 className="rounded-xl"
                 onClick={() => setReminder((r) => !r)}
-                title={reminder ? "Reminder on" : "Reminder off"}
+                aria-label={reminder ? "Disable reminder" : "Enable reminder"}
+                aria-pressed={reminder}
               >
-                {reminder ? <Bell className="w-4 h-4 text-primary" /> : <BellOff className="w-4 h-4" />}
+                {reminder ? <Bell className="w-4 h-4 text-primary" aria-hidden="true" /> : <BellOff className="w-4 h-4" aria-hidden="true" />}
               </Button>
             </div>
             <div className="flex gap-2">
