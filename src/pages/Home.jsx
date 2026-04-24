@@ -76,7 +76,7 @@ export default function Home() {
   if (onboardingDone === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" role="status" aria-label="Loading" />
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" role="status" aria-label="Loading your profile" />
       </div>
     );
   }
@@ -116,7 +116,7 @@ export default function Home() {
             <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {isLoading ? (
                 <div className="flex justify-center py-20">
-                  <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                  <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" role="status" aria-label="Loading your laundry loads" />
                 </div>
               ) : activeLoads.length === 0 ? (
                 <div>
@@ -143,11 +143,11 @@ export default function Home() {
                     <NextAction load={actionableLoad} onAction={handleAction} />
                   )}
 
-                  <div>
+                  <section aria-label="Active laundry loads">
                     <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
                       Active Loads
                     </h2>
-                    <div className="space-y-4">
+                    <div className="space-y-4" role="list" aria-label="Active loads">
                       {activeLoads.map((load) => (
                         <LoadCard
                           key={load.id}
@@ -156,7 +156,7 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                  </div>
+                  </section>
 
                   <motion.div
                     className="pt-4"

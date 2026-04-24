@@ -66,7 +66,7 @@ export default function LoadCard({ load, onClick }) {
       <Card
         role="button"
         tabIndex={0}
-        aria-label={`${config.label} load — ${stateLabels[load.current_state]}`}
+        aria-label={`${config.label} load — ${stateLabels[load.current_state]}${isTimerActive && minutesLeft !== null ? `, ${minutesLeft > 0 ? minutesLeft + " minutes remaining" : "finished"}` : ""}`}
         className="p-5 cursor-pointer hover:shadow-md transition-all duration-300 border-0 shadow-sm focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
         onClick={() => onClick?.(load)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(load); } }}

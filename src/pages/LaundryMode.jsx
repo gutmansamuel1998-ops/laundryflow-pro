@@ -82,9 +82,17 @@ function ProgressBar({ currentState }) {
     { key: "completed",    label: "Done" },
   ];
   const idx = steps.findIndex(s => s.key === currentState);
+  const currentLabel = steps[idx]?.label ?? currentState;
 
   return (
-    <div className="flex items-start gap-0">
+    <div
+      role="progressbar"
+      aria-label={`Laundry progress: ${currentLabel}, step ${idx + 1} of ${steps.length}`}
+      aria-valuenow={idx + 1}
+      aria-valuemin={1}
+      aria-valuemax={steps.length}
+      className="flex items-start gap-0"
+    >
       {steps.map((step, i) => {
         const done    = i < idx;
         const current = i === idx;
@@ -116,7 +124,7 @@ function NoLoadState({ onGoHome }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center pb-24">
       <div className="w-16 h-16 rounded-3xl bg-muted flex items-center justify-center mb-5" aria-hidden="true">
-        <span className="text-3xl">🧺</span>
+        <span className="text-3xl" aria-hidden="true">🧺</span>
       </div>
       <h2 className="text-xl font-semibold mb-2">No load selected</h2>
       <p className="text-muted-foreground text-sm mb-8">
@@ -244,8 +252,9 @@ function StateCompleted({ onHome, onNewLoad }) {
         transition={{ type: "spring", stiffness: 180, damping: 14 }}
         className="w-24 h-24 rounded-3xl bg-emerald-50 flex items-center justify-center"
         aria-hidden="true"
+        role="img"
       >
-        <span className="text-5xl">🎉</span>
+        <span className="text-5xl" aria-hidden="true">🎉</span>
       </motion.div>
       <div>
         <h1 className="text-2xl font-semibold mb-1">All Done!</h1>
@@ -470,7 +479,7 @@ export default function LaundryMode() {
   if (isLoading || !load) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" role="status" aria-label="Loading laundry load" />
       </div>
     );
   }
@@ -519,6 +528,21 @@ export default function LaundryMode() {
             <config.icon className="w-3 h-3 mr-1.5" aria-hidden="true" />
             {config.label}
           </Badge>
+        </div>
+
+        {/* Live region announces state changes to screen readers */}
+        <div
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {load.current_state === "load_created" && "Ready to wash. Load the machine and set your timer."}
+          {load.current_state === "washing" && "Washer is running."}
+          {load.current_state === "wash_finished" && "Wash cycle complete. Time to transfer to the dryer."}
+          {load.current_state === "drying" && "Dryer is running."}
+          {load.current_state === "dry_finished" && "Drying complete. Remove clothes and put them away."}
+          {load.current_state === "completed" && "Load finished. Great job!"}
+          {load.current_state === "abandoned" && "Load set aside."}
         </div>
 
         {/* State content */}

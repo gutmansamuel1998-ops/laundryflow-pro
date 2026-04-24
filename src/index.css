@@ -119,6 +119,19 @@
   font-family: var(--font-lexend) !important;
 }
 
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* WCAG focus-visible — applies to all interactive elements */
 :focus-visible {
   outline: 3px solid hsl(var(--primary));
