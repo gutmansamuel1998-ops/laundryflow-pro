@@ -41,9 +41,18 @@ export default function DigitalCloset() {
   const [editingItem, setEditingItem] = useState(null);
   const [editForm, setEditForm] = useState({});
 
+  const [filterColor, setFilterColor] = useState("all");
+  const [filterFabric, setFilterFabric] = useState("");
+
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
     queryFn: () => base44.entities.ClothingItem.list("-created_date"),
+  });
+
+  const filteredItems = items.filter(item => {
+    const colorMatch = filterColor === "all" || item.color === filterColor;
+    const fabricMatch = !filterFabric || (item.fabric_composition || "").toLowerCase().includes(filterFabric.toLowerCase());
+    return colorMatch && fabricMatch;
   });
 
   const addMutation = useMutation({
@@ -295,6 +304,31 @@ Then give an overall safety summary and any general tips.`,
           </Card>
         )}
 
+        {/* Filters */}
+        {items.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Filter</p>
+            <div className="flex flex-wrap gap-1.5">
+              <button onClick={() => setFilterColor("all")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterColor === "all" ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                All Colors
+              </button>
+              {COLORS.map(c => (
+                <button key={c} onClick={() => setFilterColor(filterColor === c ? "all" : c)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterColor === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                  {c}
+                </button>
+              ))}
+            </div>
+            <Input
+              placeholder="Search by fabric (e.g. cotton, wool...)"
+              value={filterFabric}
+              onChange={e => setFilterFabric(e.target.value)}
+              className="rounded-xl text-sm"
+            />
+          </div>
+        )}
+
         {/* Clothing items list */}
         {isLoading ? (
           <p className="text-center text-sm text-muted-foreground pt-4">Loading your closet...</p>
@@ -306,8 +340,11 @@ Then give an overall safety summary and any general tips.`,
           </div>
         ) : (
           <div className="space-y-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{items.length} Garment{items.length > 1 ? "s" : ""}</h2>
-            {items.map((item, i) => (
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{filteredItems.length} Garment{filteredItems.length !== 1 ? "s" : ""}{filteredItems.length !== items.length ? ` (of ${items.length})` : ""}</h2>
+            {filteredItems.length === 0 && (
+              <p className="text-sm text-center text-muted-foreground py-4">No garments match your filters.</p>
+            )}
+            {filteredItems.map((item, i) => (
               <motion.div key={item.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
                 <Card className="border-border/50">
                   <CardContent className="p-4">
