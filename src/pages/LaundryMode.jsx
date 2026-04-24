@@ -42,12 +42,12 @@ function TimerStepper({ value, onChange, label }) {
     <div className="flex flex-col items-center gap-2">
       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
       <div className="flex items-center gap-4 bg-muted/60 rounded-2xl px-4 py-3">
-        <button onClick={() => step(-1)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white transition-colors">
-          <Minus className="w-4 h-4" />
+        <button onClick={() => step(-1)} aria-label={`Decrease ${label} by 5 minutes`} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white transition-colors">
+          <Minus className="w-4 h-4" aria-hidden="true" />
         </button>
-        <span className="text-xl font-semibold w-20 text-center tabular-nums">{value} min</span>
-        <button onClick={() => step(1)} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white transition-colors">
-          <Plus className="w-4 h-4" />
+        <span className="text-xl font-semibold w-20 text-center tabular-nums" aria-live="polite">{value} min</span>
+        <button onClick={() => step(1)} aria-label={`Increase ${label} by 5 minutes`} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white transition-colors">
+          <Plus className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -115,7 +115,7 @@ function ProgressBar({ currentState }) {
 function NoLoadState({ onGoHome }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center pb-24">
-      <div className="w-16 h-16 rounded-3xl bg-muted flex items-center justify-center mb-5">
+      <div className="w-16 h-16 rounded-3xl bg-muted flex items-center justify-center mb-5" aria-hidden="true">
         <span className="text-3xl">🧺</span>
       </div>
       <h2 className="text-xl font-semibold mb-2">No load selected</h2>
@@ -149,9 +149,10 @@ function StateCreated({ load, washMinutes, onChangeWash, onStart, isPending }) {
         onClick={onStart}
         disabled={isPending}
         size="lg"
+        aria-label="Start the washer"
         className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
       >
-        <Play className="w-5 h-5 mr-2" />
+        <Play className="w-5 h-5 mr-2" aria-hidden="true" />
         Start Washer
       </Button>
     </motion.div>
@@ -187,9 +188,10 @@ function StateWashFinished({ load, dryMinutes, onChangeDry, onStart, isPending }
         onClick={onStart}
         disabled={isPending}
         size="lg"
+        aria-label="Move clothes to the dryer and start drying"
         className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
       >
-        <ArrowRight className="w-5 h-5 mr-2" />
+        <ArrowRight className="w-5 h-5 mr-2" aria-hidden="true" />
         Move to Dryer
       </Button>
     </motion.div>
@@ -223,10 +225,11 @@ function StateDryFinished({ onFinish, isPending }) {
         onClick={onFinish}
         disabled={isPending}
         size="lg"
+        aria-label="Mark this load as finished"
         className="w-full rounded-2xl py-6 text-base shadow-lg shadow-primary/20"
       >
         Finish Load
-        <ArrowRight className="w-4 h-4 ml-2" />
+        <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
       </Button>
     </motion.div>
   );
@@ -240,6 +243,7 @@ function StateCompleted({ onHome, onNewLoad }) {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 180, damping: 14 }}
         className="w-24 h-24 rounded-3xl bg-emerald-50 flex items-center justify-center"
+        aria-hidden="true"
       >
         <span className="text-5xl">🎉</span>
       </motion.div>
@@ -273,10 +277,11 @@ function StateAbandoned({ onResume, isPending }) {
         onClick={onResume}
         disabled={isPending}
         size="lg"
+        aria-label="Resume this load"
         className="w-full rounded-2xl py-6 text-base"
       >
         Resume Load
-        <ArrowRight className="w-4 h-4 ml-2" />
+        <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
       </Button>
     </motion.div>
   );
@@ -502,15 +507,16 @@ export default function LaundryMode() {
         {/* Back */}
         <button
           onClick={() => navigate(createPageUrl("Home"))}
+          aria-label="Back to Home"
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
-          <ChevronLeft className="w-4 h-4" /> Home
+          <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Home
         </button>
 
         {/* Load type badge */}
         <div className="flex items-center justify-between mb-8">
-          <Badge variant="secondary" className={`rounded-full px-3 py-1 text-xs font-medium ${config.color}`}>
-            <config.icon className="w-3 h-3 mr-1.5" />
+          <Badge variant="secondary" className={`rounded-full px-3 py-1 text-xs font-medium ${config.color}`} aria-label={`Load type: ${config.label}`}>
+            <config.icon className="w-3 h-3 mr-1.5" aria-hidden="true" />
             {config.label}
           </Badge>
         </div>
@@ -532,6 +538,7 @@ export default function LaundryMode() {
           <div className="flex justify-center mt-6">
             <button
               onClick={handleAbandon}
+              aria-label="Set this load aside for now"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Set aside for now

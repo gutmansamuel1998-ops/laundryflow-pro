@@ -150,6 +150,8 @@ export default function Settings() {
                     <button
                       key={day}
                       onClick={() => handleDayToggle(index)}
+                      aria-label={`${settings.preferred_days_of_week.includes(index) ? "Deselect" : "Select"} ${day}`}
+                      aria-pressed={settings.preferred_days_of_week.includes(index)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                         settings.preferred_days_of_week.includes(index)
                           ? "bg-primary text-white"
@@ -168,6 +170,8 @@ export default function Settings() {
                     <button
                       key={time}
                       onClick={() => handleTimeToggle(time.toLowerCase())}
+                      aria-label={`${settings.preferred_time_windows.includes(time.toLowerCase()) ? "Deselect" : "Select"} ${time}`}
+                      aria-pressed={settings.preferred_time_windows.includes(time.toLowerCase())}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                         settings.preferred_time_windows.includes(time.toLowerCase())
                           ? "bg-primary text-white"
@@ -273,13 +277,15 @@ export default function Settings() {
                                 },
                               }))
                             }
+                            aria-label={`${active ? "Disable" : "Enable"} ${chanLabel} notifications for ${label}`}
+                            aria-pressed={active}
                             className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                               active
                                 ? "bg-primary/10 border-primary/40 text-primary"
                                 : "bg-secondary border-transparent text-muted-foreground"
                             }`}
                           >
-                            <Icon className="w-4 h-4" />
+                            <Icon className="w-4 h-4" aria-hidden="true" />
                             {chanLabel}
                           </button>
                         );

@@ -122,6 +122,8 @@ export default function Premium() {
                 <button
                   key={plan.id}
                   onClick={() => setSelected(plan.id)}
+                  aria-label={`Select ${plan.label} plan — ${plan.price}${plan.sub}. ${plan.note}`}
+                  aria-pressed={selected === plan.id}
                   className={`w-full flex items-center justify-between rounded-2xl border-2 px-5 py-4 transition-all text-left ${
                     selected === plan.id ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
                   }`}
@@ -150,9 +152,10 @@ export default function Premium() {
               <button
                 onClick={handleCheckout}
                 disabled={loading}
+                aria-label={loading ? "Processing checkout..." : "Proceed to checkout and get Premium"}
                 className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground font-semibold text-sm rounded-2xl py-3.5 hover:opacity-90 transition-opacity mt-2 disabled:opacity-60"
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><span>Get Premium</span><ArrowRight className="w-4 h-4" /></>}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <><span>Get Premium</span><ArrowRight className="w-4 h-4" aria-hidden="true" /></>}
               </button>
               <p className="text-xs text-muted-foreground text-center">
                 {selected === "life" ? "One-time payment. Yours forever." : "Cancel anytime. No hidden fees."}
@@ -207,9 +210,10 @@ export default function Premium() {
           <button
             onClick={handleCheckout}
             disabled={loading}
+            aria-label={loading ? "Processing checkout..." : "Upgrade to Premium"}
             className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold text-sm rounded-2xl px-6 py-3 hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Sparkles className="w-4 h-4" /><span>Upgrade to Premium</span></>}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <><Sparkles className="w-4 h-4" aria-hidden="true" /><span>Upgrade to Premium</span></>}
           </button>
         </div>
       </div>

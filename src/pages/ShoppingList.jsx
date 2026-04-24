@@ -88,6 +88,7 @@ export default function ShoppingList() {
               variant="outline"
               size="sm"
               onClick={handleClearPurchased}
+              aria-label="Clear all purchased items from the list"
               className="rounded-xl"
             >
               Clear Purchased
@@ -164,9 +165,10 @@ export default function ShoppingList() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleDismiss(item)}
+                                aria-label={`Dismiss ${item.supply_name} from shopping list`}
                                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </Button>
                             </div>
                           </Card>
@@ -227,9 +229,10 @@ export default function ShoppingList() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleDismiss(item)}
+                                aria-label={`Dismiss ${item.supply_name} from shopping list`}
                                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </Button>
                             </div>
                           </Card>

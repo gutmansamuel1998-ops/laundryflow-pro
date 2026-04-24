@@ -228,12 +228,13 @@ export default function Supplies() {
               <Button
                 variant="outline"
                 onClick={() => navigate(createPageUrl("ShoppingList"))}
+                aria-label={`View Shopping List (${shoppingItems.length} items)`}
                 className="rounded-xl relative"
                 size="sm"
               >
-                <ShoppingCart className="w-4 h-4 mr-1" />
+                <ShoppingCart className="w-4 h-4 mr-1" aria-hidden="true" />
                 List
-                <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-destructive text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" aria-hidden="true">
                   {shoppingItems.length}
                 </span>
               </Button>
@@ -241,36 +242,40 @@ export default function Supplies() {
             <Button
               variant="outline"
               onClick={() => navigate(createPageUrl("SupplyDashboard"))}
+              aria-label="Go to Supply Dashboard"
               className="rounded-xl"
               size="sm"
             >
-              <LayoutDashboard className="w-4 h-4 mr-1" />
+              <LayoutDashboard className="w-4 h-4 mr-1" aria-hidden="true" />
               Dashboard
             </Button>
             <Button
               variant="outline"
               onClick={() => navigate(createPageUrl("SupplyAnalytics"))}
+              aria-label="View Supply Usage Trends"
               className="rounded-xl"
               size="sm"
             >
-              <BarChart2 className="w-4 h-4 mr-1" />
+              <BarChart2 className="w-4 h-4 mr-1" aria-hidden="true" />
               Trends
             </Button>
             <Button
               variant="outline"
               onClick={() => setShowScanner(true)}
+              aria-label="Scan product barcode"
               className="rounded-xl"
               size="sm"
             >
-              <ScanLine className="w-4 h-4 mr-1" />
+              <ScanLine className="w-4 h-4 mr-1" aria-hidden="true" />
               Scan
             </Button>
             <Button
               onClick={() => setShowAddForm(!showAddForm)}
+              aria-label={showAddForm ? "Hide add supply form" : "Add a new supply"}
               className="rounded-xl"
               size="sm"
             >
-              <Plus className="w-4 h-4 mr-1" />
+              <Plus className="w-4 h-4 mr-1" aria-hidden="true" />
               Add
             </Button>
           </div>
@@ -406,9 +411,10 @@ export default function Supplies() {
                         variant="ghost"
                         size="icon"
                         onClick={() => deleteMutation.mutate(supply.id)}
+                        aria-label={`Delete ${supply.name}`}
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
 
@@ -445,14 +451,16 @@ export default function Supplies() {
                         max="100"
                         value={supply.current_level}
                         onChange={(e) => handleUpdateLevel(supply, Number(e.target.value))}
+                        aria-label={`Update current level of ${supply.name} (percentage)`}
                         className="rounded-xl flex-1"
                       />
                       <Button
                         variant="outline"
                         onClick={() => handleRestock(supply)}
+                        aria-label={`Restock ${supply.name} to 100%`}
                         className="rounded-xl"
                       >
-                        <RefreshCw className="w-4 h-4 mr-1" />
+                        <RefreshCw className="w-4 h-4 mr-1" aria-hidden="true" />
                         Restock
                       </Button>
                     </div>

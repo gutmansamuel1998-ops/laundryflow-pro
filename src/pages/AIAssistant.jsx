@@ -70,8 +70,8 @@ export default function AIAssistant() {
           <p className="text-sm text-muted-foreground mb-10">Ask any laundry question in plain language</p>
 
           <div className="flex flex-col items-center text-center gap-5 mt-16">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Lock className="w-8 h-8 text-primary" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center" aria-hidden="true">
+            <Lock className="w-8 h-8 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-semibold mb-2">Premium Feature</h2>
@@ -81,6 +81,7 @@ export default function AIAssistant() {
             </div>
             <button
               onClick={() => navigate("/Settings")}
+              aria-label="Go to Settings to upgrade to Premium"
               className="mt-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-medium text-sm shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
             >
               Upgrade in Settings
@@ -116,6 +117,7 @@ export default function AIAssistant() {
                 <Button
                   key={index}
                   variant="outline"
+                  aria-label={`Ask: ${q}`}
                   className="w-full text-left justify-start h-auto py-3 px-4 rounded-xl"
                   onClick={() => handleAsk(q)}
                 >
@@ -175,9 +177,10 @@ export default function AIAssistant() {
               onClick={() => handleAsk()}
               disabled={!question.trim() || loading}
               size="icon"
+              aria-label="Send message"
               className="h-auto w-12 rounded-xl"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-4 h-4" aria-hidden="true" />
             </Button>
           </div>
         </div>

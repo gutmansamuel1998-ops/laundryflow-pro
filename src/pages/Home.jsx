@@ -76,7 +76,7 @@ export default function Home() {
   if (onboardingDone === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" role="status" aria-label="Loading" />
       </div>
     );
   }
@@ -166,6 +166,7 @@ export default function Home() {
                   >
                     <button
                       onClick={() => setShowBuilder(true)}
+                      aria-label="Start another laundry load"
                       className="w-full py-4 rounded-2xl border-2 border-dashed border-border text-muted-foreground text-sm font-medium hover:border-primary/30 hover:text-foreground transition-all"
                     >
                       + Start another load
