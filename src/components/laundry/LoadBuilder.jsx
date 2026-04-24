@@ -94,12 +94,17 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
                 return (
                   <Card
                     key={type.value}
-                    className={`p-4 cursor-pointer transition-all duration-200 border-2 ${
+                    role="radio"
+                    tabIndex={0}
+                    aria-checked={isSelected}
+                    aria-label={`${type.label} — ${type.desc}`}
+                    className={`p-4 cursor-pointer transition-all duration-200 border-2 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
                       isSelected
                         ? "border-primary shadow-md scale-[1.02]"
                         : "border-transparent hover:border-border shadow-sm"
                     }`}
                     onClick={() => setSelected(type.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(type.value); } }}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${type.color}`}>
                       <Icon className="w-5 h-5" />

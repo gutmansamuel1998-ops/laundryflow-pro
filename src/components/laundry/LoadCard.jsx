@@ -64,8 +64,12 @@ export default function LoadCard({ load, onClick }) {
       transition={{ duration: 0.3 }}
     >
       <Card
-        className="p-5 cursor-pointer hover:shadow-md transition-all duration-300 border-0 shadow-sm"
+        role="button"
+        tabIndex={0}
+        aria-label={`${config.label} load — ${stateLabels[load.current_state]}`}
+        className="p-5 cursor-pointer hover:shadow-md transition-all duration-300 border-0 shadow-sm focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
         onClick={() => onClick?.(load)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(load); } }}
       >
         <div className="flex items-center gap-4">
           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${config.color}`}>

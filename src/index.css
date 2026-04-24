@@ -118,3 +118,15 @@
 .dyslexia-font * {
   font-family: var(--font-lexend) !important;
 }
+
+/* WCAG focus-visible — applies to all interactive elements */
+:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Remove default outline only when focus-visible is supported */
+:focus:not(:focus-visible) {
+  outline: none;
+}

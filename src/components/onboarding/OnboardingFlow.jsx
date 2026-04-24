@@ -67,10 +67,15 @@ export default function OnboardingFlow({ onComplete }) {
         ].map((opt) => (
           <Card
             key={opt.value}
-            className={`p-4 cursor-pointer transition-all border-2 ${
+            role="radio"
+            tabIndex={0}
+            aria-checked={preferences.environment === opt.value}
+            aria-label={`${opt.label} — ${opt.desc}`}
+            className={`p-4 cursor-pointer transition-all border-2 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
               preferences.environment === opt.value ? "border-primary shadow-sm" : "border-transparent"
             }`}
             onClick={() => setPreferences(prev => ({ ...prev, environment: opt.value }))}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPreferences(prev => ({ ...prev, environment: opt.value })); } }}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -104,6 +109,8 @@ export default function OnboardingFlow({ onComplete }) {
             <button
               key={day}
               onClick={() => handleDayToggle(day)}
+              aria-label={day}
+              aria-pressed={preferences.anchor_days.includes(day)}
               className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
                 preferences.anchor_days.includes(day)
                   ? "bg-primary text-white shadow-sm"
@@ -122,6 +129,8 @@ export default function OnboardingFlow({ onComplete }) {
             <button
               key={time}
               onClick={() => handleTimeToggle(time)}
+              aria-label={`${time} time window`}
+              aria-pressed={preferences.anchor_times.includes(time)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 preferences.anchor_times.includes(time)
                   ? "bg-primary text-white shadow-sm"
