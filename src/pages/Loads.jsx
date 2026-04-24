@@ -35,9 +35,14 @@ export default function Loads() {
   return (
     <div className="min-h-screen pb-28">
       <div className="max-w-lg mx-auto px-6 pt-10">
+        {/* Live region: announces tab switch and load counts */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {tab === "active" ? `Active loads tab. ${activeLoads.length} active load${activeLoads.length !== 1 ? 's' : ''}.` : `History tab. ${completedLoads.length} completed load${completedLoads.length !== 1 ? 's' : ''}.`}
+        </div>
+
         <h1 className="text-2xl font-semibold tracking-tight mb-8">Loads</h1>
 
-        <Tabs value={tab} onValueChange={setTab} className="mb-8">
+        <Tabs value={tab} onValueChange={setTab} className="mb-8" aria-busy={isLoading}>
           <TabsList className="w-full bg-muted/50 rounded-2xl p-1">
             <TabsTrigger value="active" className="flex-1 rounded-xl data-[state=active]:shadow-sm">
               Active ({activeLoads.length})
@@ -49,11 +54,11 @@ export default function Loads() {
         </Tabs>
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <div className="flex justify-center py-20" role="status">
+            <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" aria-label="Loading loads" />
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4" aria-live="polite" aria-atomic="false">
             {tab === "active" && (
               <>
                 {activeLoads.length === 0 ? (

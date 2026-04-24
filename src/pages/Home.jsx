@@ -102,6 +102,11 @@ export default function Home() {
           </h1>
         </motion.div>
 
+        {/* Live region: announces load count changes and builder state */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {showBuilder ? "Load builder opened." : isLoading ? "Loading your laundry loads." : activeLoads.length === 0 ? "No active loads." : `You have ${activeLoads.length} active load${activeLoads.length !== 1 ? 's' : ''}.`}
+        </div>
+
         <AnimatePresence mode="wait">
           {showBuilder ? (
             <motion.div key="builder" className="mt-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -113,7 +118,7 @@ export default function Home() {
               />
             </motion.div>
           ) : (
-            <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} aria-busy={isLoading}>
               {isLoading ? (
                 <div className="flex justify-center py-20">
                   <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" role="status" aria-label="Loading your laundry loads" />
@@ -143,17 +148,18 @@ export default function Home() {
                     <NextAction load={actionableLoad} onAction={handleAction} />
                   )}
 
-                  <section aria-label="Active laundry loads">
+                  <section aria-label="Active laundry loads" aria-live="polite" aria-atomic="false">
                     <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
                       Active Loads
                     </h2>
-                    <div className="space-y-4" role="list" aria-label="Active loads">
+                    <div className="space-y-4" role="list" aria-label={`${activeLoads.length} active load${activeLoads.length !== 1 ? 's' : ''}`}>
                       {activeLoads.map((load) => (
-                        <LoadCard
-                          key={load.id}
-                          load={load}
-                          onClick={(l) => navigate(createPageUrl("LaundryMode") + `?loadId=${l.id}`)}
-                        />
+                        <div key={load.id} role="listitem">
+                          <LoadCard
+                            load={load}
+                            onClick={(l) => navigate(createPageUrl("LaundryMode") + `?loadId=${l.id}`)}
+                          />
+                        </div>
                       ))}
                     </div>
                   </section>

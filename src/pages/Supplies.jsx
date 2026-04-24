@@ -212,6 +212,11 @@ export default function Supplies() {
 
   return (
     <div className="min-h-screen pb-24">
+      {/* Live region: announces supply loading and form state */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {showAddForm ? "Add supply form opened." : isLoading ? "Loading supplies." : supplies.length === 0 ? "No supplies tracked." : `${supplies.length} supply item${supplies.length !== 1 ? 's' : ''} displayed.`}
+      </div>
+
       <AnimatePresence>
         {showScanner && (
           <BarcodeScanner
@@ -220,7 +225,7 @@ export default function Supplies() {
           />
         )}
       </AnimatePresence>
-      <div className="max-w-2xl mx-auto px-5 pt-8">
+      <div className="max-w-2xl mx-auto px-5 pt-8" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Supply Inventory</h1>
@@ -396,18 +401,18 @@ export default function Supplies() {
         <AdvancedPredictionPanel isPremium={isPremium} />
 
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading supplies...</div>
+          <div className="text-center py-12 text-muted-foreground" role="status">Loading supplies...</div>
         ) : supplies.length === 0 ? (
           <Card className="p-12 text-center border-0 shadow-sm">
-            <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
+            <Package className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" aria-hidden="true" />
             <p className="text-muted-foreground mb-4">No supplies tracked yet</p>
             <Button onClick={() => setShowAddForm(true)} variant="outline" className="rounded-xl">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
               Add Your First Supply
             </Button>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3" aria-live="polite" aria-atomic="false">
             <AnimatePresence>
               {supplies.map((supply) => (
                 <motion.div
