@@ -108,25 +108,28 @@ export default function BusinessInfo() {
                 variant="outline"
                 className="w-full rounded-xl justify-start"
                 onClick={() => navigate(createPageUrl("PrivacyPolicy"))}
+                aria-label="Read our Privacy Policy to learn how we protect your laundry data"
               >
-                <Shield className="w-4 h-4 mr-2" />
-                Privacy Policy
+                <Shield className="w-4 h-4 mr-2" aria-hidden="true" />
+                Read Privacy Policy
               </Button>
               <Button
                 variant="outline"
                 className="w-full rounded-xl justify-start"
                 onClick={() => navigate(createPageUrl("TermsOfService"))}
+                aria-label="Review our Terms of Service for LaundryFlow Pro"
               >
-                <FileText className="w-4 h-4 mr-2" />
-                Terms of Service
+                <FileText className="w-4 h-4 mr-2" aria-hidden="true" />
+                Review Terms of Service
               </Button>
               <Button
                 variant="outline"
                 className="w-full rounded-xl justify-start"
                 onClick={() => navigate(createPageUrl("RefundPolicy"))}
+                aria-label="View our Refund Policy for purchase guarantees"
               >
-                <DollarSign className="w-4 h-4 mr-2" />
-                Refund Policy
+                <DollarSign className="w-4 h-4 mr-2" aria-hidden="true" />
+                View Refund Policy
               </Button>
             </Card>
           </section>

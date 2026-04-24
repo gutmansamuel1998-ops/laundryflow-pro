@@ -319,20 +319,22 @@ export default function Settings() {
             </div>
             <Card className="p-4 border-0 shadow-sm space-y-2">
               <Button
-                variant="outline"
-                className="w-full rounded-xl justify-start"
-                onClick={() => navigate(createPageUrl("Supplies"))}
+               variant="outline"
+               className="w-full rounded-xl justify-start"
+               onClick={() => navigate(createPageUrl("Supplies"))}
+               aria-label="Navigate to Supplies page to manage your laundry supply inventory"
               >
-                <Package className="w-4 h-4 mr-2" />
-                Manage Supply Inventory
+               <Package className="w-4 h-4 mr-2" aria-hidden="true" />
+               Manage Supply Inventory
               </Button>
               <Button
-                variant="outline"
-                className="w-full rounded-xl justify-start"
-                onClick={() => navigate(createPageUrl("ShoppingList"))}
+               variant="outline"
+               className="w-full rounded-xl justify-start"
+               onClick={() => navigate(createPageUrl("ShoppingList"))}
+               aria-label="Navigate to Shopping List page to view supplies to purchase"
               >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Shopping List
+               <ShoppingCart className="w-4 h-4 mr-2" aria-hidden="true" />
+               View Shopping List
               </Button>
             </Card>
           </section>
@@ -508,12 +510,13 @@ export default function Settings() {
             </div>
             <Card className="p-4 border-0 shadow-sm">
               <Button
-                variant="outline"
-                className="w-full rounded-xl justify-start"
-                onClick={() => navigate(createPageUrl("BusinessInfo"))}
+               variant="outline"
+               className="w-full rounded-xl justify-start"
+               onClick={() => navigate(createPageUrl("BusinessInfo"))}
+               aria-label="Navigate to Business Info page to learn about LaundryFlow Pro and contact support"
               >
-                <Building2 className="w-4 h-4 mr-2" />
-                Business Info & Contact
+               <Building2 className="w-4 h-4 mr-2" aria-hidden="true" />
+               Business Info & Contact
               </Button>
             </Card>
           </section>
@@ -579,9 +582,13 @@ export default function Settings() {
                     <p className="text-xs text-muted-foreground mt-0.5">AI help, smart predictions & advanced guidance</p>
                   </div>
                 </div>
-                <Button className="w-full rounded-xl" onClick={() => navigate("/Premium")}>
-                  View Premium Features
-                </Button>
+                <Button 
+                  className="w-full rounded-xl" 
+                  onClick={() => navigate("/Premium")}
+                  aria-label="Navigate to Premium page to upgrade and unlock AI laundry help and advanced features"
+                >
+                   View Premium Features
+                 </Button>
               </Card>
             )}
           </section>
