@@ -511,19 +511,19 @@ export default function LaundryMode() {
         snoozedUntil={snoozedUntil}
       />
       <VoiceCommandIndicator enabled={voiceEnabled} lastTranscript={lastTranscript} />
-      <div className="max-w-lg mx-auto px-5 pt-6">
+      <div className="max-w-lg mx-auto px-5 pt-8">
 
         {/* Back */}
         <button
           onClick={() => navigate(createPageUrl("Home"))}
           aria-label="Back to Home"
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
         >
           <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Home
         </button>
 
         {/* Load type badge */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-10">
           <Badge variant="secondary" className={`rounded-full px-3 py-1 text-xs font-medium ${config.color}`} aria-label={`Load type: ${config.label}`}>
             <config.icon className="w-3 h-3 mr-1.5" aria-hidden="true" />
             {config.label}
@@ -552,14 +552,14 @@ export default function LaundryMode() {
 
         {/* Progress tracker */}
         {!isCompleted && (
-          <div className="mt-10">
+          <div className="mt-14">
             <ProgressBar currentState={load.current_state} />
           </div>
         )}
 
         {/* Non-judgmental abandon */}
         {showAbandon && (
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-10">
             <button
               onClick={handleAbandon}
               aria-label="Set this load aside for now"

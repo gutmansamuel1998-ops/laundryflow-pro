@@ -92,7 +92,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-28">
-      <div className="max-w-lg mx-auto px-6 pt-10">
+      <div className="max-w-lg mx-auto px-6 pt-12">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-sm text-muted-foreground mb-1">
             {user?.full_name ? `Hi, ${user.full_name.split(" ")[0]}` : "Hi there"}
@@ -109,7 +109,7 @@ export default function Home() {
 
         <AnimatePresence mode="wait">
           {showBuilder ? (
-            <motion.div key="builder" className="mt-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="builder" className="mt-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <LoadBuilder
                 onCreateLoad={(data) => { setPreselectedLoadType(null); createMutation.mutate(data); }}
                 onCancel={() => { setPreselectedLoadType(null); setShowBuilder(false); }}
@@ -135,7 +135,7 @@ export default function Home() {
                   <EmptyState onStartLoad={() => setShowBuilder(true)} />
                 </div>
               ) : (
-                <div className="mt-8 space-y-5">
+                <div className="mt-10 space-y-6">
                   <OptimalTimePrompt />
                   <SmartSchedule />
                   <SmartSupplySuggestion />
@@ -148,11 +148,11 @@ export default function Home() {
                     <NextAction load={actionableLoad} onAction={handleAction} />
                   )}
 
-                  <section aria-label="Active laundry loads" aria-live="polite" aria-atomic="false">
-                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
-                      Active Loads
-                    </h2>
-                    <div className="space-y-4" role="list" aria-label={`${activeLoads.length} active load${activeLoads.length !== 1 ? 's' : ''}`}>
+                  <section aria-label="Active laundry loads" aria-live="polite" aria-atomic="false" className="pt-4">
+                   <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-5">
+                     Active Loads
+                   </h2>
+                   <div className="space-y-5" role="list" aria-label={`${activeLoads.length} active load${activeLoads.length !== 1 ? 's' : ''}`}>
                       {activeLoads.map((load) => (
                         <div key={load.id} role="listitem">
                           <LoadCard
@@ -165,18 +165,18 @@ export default function Home() {
                   </section>
 
                   <motion.div
-                    className="pt-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
+                   className="pt-8"
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   transition={{ delay: 0.2 }}
                   >
-                    <button
-                      onClick={() => setShowBuilder(true)}
-                      aria-label="Start another laundry load"
-                      className="w-full py-4 rounded-2xl border-2 border-dashed border-border text-muted-foreground text-sm font-medium hover:border-primary/30 hover:text-foreground transition-all"
-                    >
-                      + Start another load
-                    </button>
+                   <button
+                     onClick={() => setShowBuilder(true)}
+                     aria-label="Start another laundry load"
+                     className="w-full py-5 rounded-2xl border-2 border-dashed border-border text-muted-foreground text-sm font-medium hover:border-primary/30 hover:text-foreground transition-all"
+                   >
+                     + Start another load
+                   </button>
                   </motion.div>
                 </div>
               )}
