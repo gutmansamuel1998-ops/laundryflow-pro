@@ -33,11 +33,11 @@ export default function Loads() {
   const abandonedLoads = allLoads.filter(l => l.status === "abandoned");
 
   return (
-    <div className="min-h-screen pb-24">
-      <div className="max-w-lg mx-auto px-5 pt-8">
-        <h1 className="text-2xl font-semibold tracking-tight mb-6">Loads</h1>
+    <div className="min-h-screen pb-28">
+      <div className="max-w-lg mx-auto px-6 pt-10">
+        <h1 className="text-2xl font-semibold tracking-tight mb-8">Loads</h1>
 
-        <Tabs value={tab} onValueChange={setTab} className="mb-6">
+        <Tabs value={tab} onValueChange={setTab} className="mb-8">
           <TabsList className="w-full bg-muted/50 rounded-2xl p-1">
             <TabsTrigger value="active" className="flex-1 rounded-xl data-[state=active]:shadow-sm">
               Active ({activeLoads.length})
@@ -53,7 +53,7 @@ export default function Loads() {
             <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             {tab === "active" && (
               <>
                 {activeLoads.length === 0 ? (
@@ -68,8 +68,8 @@ export default function Loads() {
                   ))
                 )}
                 {abandonedLoads.length > 0 && (
-                  <div className="pt-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
+                  <div className="pt-6">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
                       Set Aside
                     </h3>
                     {abandonedLoads.map(load => (
@@ -93,9 +93,9 @@ export default function Loads() {
                     const config = loadTypeConfig[load.load_type] || loadTypeConfig.mixed;
                     const Icon = config.icon;
                     return (
-                      <Card key={load.id} className="p-4 border-0 shadow-sm">
+                      <Card key={load.id} className="p-5 border-0 shadow-sm">
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${config.color}`}>
+                          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${config.color}`}>
                             <Icon className="w-4 h-4" />
                           </div>
                           <div className="flex-1">
@@ -109,7 +109,7 @@ export default function Loads() {
                           </Badge>
                         </div>
                         {load.notes && (
-                          <p className="text-sm text-muted-foreground mt-2 pl-14">{load.notes}</p>
+                          <p className="text-sm text-muted-foreground mt-3 pl-14">{load.notes}</p>
                         )}
                       </Card>
                     );

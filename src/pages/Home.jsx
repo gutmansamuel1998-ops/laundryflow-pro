@@ -91,8 +91,8 @@ export default function Home() {
   ) || activeLoads[0];
 
   return (
-    <div className="min-h-screen pb-24">
-      <div className="max-w-lg mx-auto px-5 pt-8">
+    <div className="min-h-screen pb-28">
+      <div className="max-w-lg mx-auto px-6 pt-10">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-sm text-muted-foreground mb-1">
             {user?.full_name ? `Hi, ${user.full_name.split(" ")[0]}` : "Hi there"}
@@ -130,7 +130,7 @@ export default function Home() {
                   <EmptyState onStartLoad={() => setShowBuilder(true)} />
                 </div>
               ) : (
-                <div className="mt-6 space-y-4">
+                <div className="mt-8 space-y-5">
                   <OptimalTimePrompt />
                   <SmartSchedule />
                   <SmartSupplySuggestion />
@@ -144,10 +144,10 @@ export default function Home() {
                   )}
 
                   <div>
-                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
+                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
                       Active Loads
                     </h2>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {activeLoads.map((load) => (
                         <LoadCard
                           key={load.id}
@@ -159,7 +159,7 @@ export default function Home() {
                   </div>
 
                   <motion.div
-                    className="pt-2"
+                    className="pt-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
