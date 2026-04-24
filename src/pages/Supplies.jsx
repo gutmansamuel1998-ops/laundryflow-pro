@@ -290,7 +290,7 @@ export default function Supplies() {
               className="mb-6"
             >
               <Card className="p-5 border-0 shadow-lg">
-                <h3 className="font-medium mb-4">Add New Supply</h3>
+                <h2 className="font-medium mb-4">Add New Supply</h2>
                 
                 <div className="mb-4">
                   <Label className="text-xs text-muted-foreground mb-2 block">Quick Add</Label>

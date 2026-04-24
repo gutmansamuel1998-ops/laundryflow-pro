@@ -265,14 +265,14 @@ export default function Settings() {
 
               {/* Cycle alert channels */}
               <div className="pt-2 border-t border-border/50">
-                <p className="text-sm font-medium mb-3">Cycle status alerts</p>
+                <h3 className="text-sm font-medium mb-3">Cycle status alerts</h3>
                 <p className="text-xs text-muted-foreground mb-4">Choose how you want to be notified when each cycle finishes.</p>
                 {[
                   { key: "wash_finished", label: "Wash Finished" },
                   { key: "dryer_finished", label: "Dryer Finished" },
                 ].map(({ key, label }) => (
                   <div key={key} className="mb-4">
-                    <p className="text-sm font-medium mb-2">{label}</p>
+                    <h4 className="text-sm font-medium mb-2">{label}</h4>
                     <div className="flex gap-3">
                       {ALERT_CHANNELS.map(({ id, Icon, label: chanLabel }) => {
                         const active = settings.alert_channels[key]?.[id] ?? false;

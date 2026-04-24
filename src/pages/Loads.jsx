@@ -69,9 +69,9 @@ export default function Loads() {
                 )}
                 {abandonedLoads.length > 0 && (
                   <div className="pt-6">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
                       Set Aside
-                    </h3>
+                    </h2>
                     {abandonedLoads.map(load => (
                       <LoadCard
                         key={load.id}
