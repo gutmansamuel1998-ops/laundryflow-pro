@@ -22,6 +22,7 @@ export default function Layout({ children, currentPageName }) {
       const sizeMap = { small: "87.5%", normal: "100%", large: "112.5%" };
       document.documentElement.style.fontSize = sizeMap[u?.text_size] || "100%";
       document.documentElement.classList.toggle("high-contrast", u?.high_contrast === true);
+      document.documentElement.classList.toggle("dyslexia-font", u?.dyslexia_font === true);
     }).catch(() => {});
   }, []);
   // Hide nav during onboarding-like flows or laundry mode

@@ -33,6 +33,7 @@ export default function Settings() {
     text_size: "normal",
     reduced_motion: false,
     high_contrast: false,
+    dyslexia_font: false,
     environmental_anchors: [],
     friction_detection_enabled: true,
     idle_threshold_minutes: 120,
@@ -59,6 +60,7 @@ export default function Settings() {
         text_size: u?.text_size || "normal",
         reduced_motion: u?.reduced_motion || false,
         high_contrast: u?.high_contrast || false,
+        dyslexia_font: u?.dyslexia_font || false,
         environmental_anchors: u?.environmental_anchors || [],
         friction_detection_enabled: u?.friction_detection_enabled !== false,
         idle_threshold_minutes: u?.idle_threshold_minutes ?? 120,
@@ -98,6 +100,10 @@ export default function Settings() {
   useEffect(() => {
     document.documentElement.classList.toggle("high-contrast", settings.high_contrast);
   }, [settings.high_contrast]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dyslexia-font", settings.dyslexia_font);
+  }, [settings.dyslexia_font]);
 
   const handleSave = async () => {
     await base44.auth.updateMe(settings);
@@ -358,6 +364,19 @@ export default function Settings() {
                   id="contrast"
                   checked={settings.high_contrast}
                   onCheckedChange={(v) => setSettings(prev => ({ ...prev, high_contrast: v }))}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="dyslexia-font">Dyslexia-friendly font</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Switches to Lexend — designed for easier reading
+                  </p>
+                </div>
+                <Switch
+                  id="dyslexia-font"
+                  checked={settings.dyslexia_font}
+                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, dyslexia_font: v }))}
                 />
               </div>
             </Card>
