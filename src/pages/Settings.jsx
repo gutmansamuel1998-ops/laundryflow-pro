@@ -93,7 +93,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    const sizeMap = { small: "87.5%", normal: "100%", large: "112.5%" };
+    const sizeMap = { small: "87.5%", normal: "100%", large: "118.75%", xlarge: "137.5%" };
     document.documentElement.style.fontSize = sizeMap[settings.text_size] || "100%";
   }, [settings.text_size]);
 
@@ -338,17 +338,34 @@ export default function Settings() {
             <Card className="p-4 border-0 shadow-sm space-y-4">
               <div>
                 <Label className="text-sm mb-2 block">Text Size</Label>
-                <Select
-                  value={settings.text_size}
-                  onValueChange={(v) => setSettings(prev => ({ ...prev, text_size: v }))}
-                >
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="small">Small</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="large">Large</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { value: "small", label: "A", sizeClass: "text-xs" },
+                    { value: "normal", label: "A", sizeClass: "text-sm" },
+                    { value: "large", label: "A", sizeClass: "text-base" },
+                    { value: "xlarge", label: "A", sizeClass: "text-lg" },
+                  ].map(({ value, label, sizeClass }) => (
+                    <button
+                      key={value}
+                      onClick={() => setSettings(prev => ({ ...prev, text_size: value }))}
+                      aria-label={`Set text size to ${value}`}
+                      aria-pressed={settings.text_size === value}
+                      className={`flex-1 py-3 rounded-xl border-2 font-semibold transition-all ${sizeClass} ${
+                        settings.text_size === value
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-secondary text-muted-foreground hover:border-primary/40"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {settings.text_size === "small" && "Small — compact layout"}
+                  {settings.text_size === "normal" && "Normal — default size"}
+                  {settings.text_size === "large" && "Large — easier to read"}
+                  {settings.text_size === "xlarge" && "Extra Large — maximum readability"}
+                </p>
               </div>
               <div className="flex items-center justify-between">
                 <Label htmlFor="motion">Reduced motion</Label>
