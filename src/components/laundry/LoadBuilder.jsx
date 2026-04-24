@@ -28,6 +28,7 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
   const [selected, setSelected] = useState(preselectedType || null);
   const [step, setStep] = useState(preselectedType ? 2 : 1);
   const [showDelicates, setShowDelicates] = useState(false);
+  const [showSelectionError, setShowSelectionError] = useState(false);
   const { recommendation, isLoading: recLoading } = useLoadRecommendation();
 
   // Accept the AI suggestion: pre-select it and jump to step 2 with AI timers
@@ -98,13 +99,14 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
                     tabIndex={0}
                     aria-checked={isSelected}
                     aria-label={`${type.label} — ${type.desc}`}
+                    aria-required="true"
                     className={`p-4 cursor-pointer transition-all duration-200 border-2 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
                       isSelected
                         ? "border-primary shadow-md scale-[1.02]"
                         : "border-transparent hover:border-border shadow-sm"
                     }`}
-                    onClick={() => setSelected(type.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(type.value); } }}
+                    onClick={() => { setSelected(type.value); setShowSelectionError(false); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(type.value); setShowSelectionError(false); } }}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${type.color}`}>
                       <Icon className="w-5 h-5" />
@@ -125,13 +127,18 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
               </button>
             )}
 
-            <div className="flex gap-3 mt-6">
+            {showSelectionError && (
+              <p role="alert" className="text-sm text-destructive flex items-center gap-1.5 mt-4">
+                <span aria-hidden="true">⚠</span> Please select a load type to continue.
+              </p>
+            )}
+            <div className="flex gap-3 mt-3">
               <Button variant="ghost" onClick={onCancel} className="rounded-xl">
                 Cancel
               </Button>
               <Button
-                onClick={() => setStep(2)}
-                disabled={!selected}
+                onClick={() => { if (!selected) { setShowSelectionError(true); } else { setShowSelectionError(false); setStep(2); } }}
+                aria-describedby={showSelectionError ? "load-type-error" : undefined}
                 className="flex-1 rounded-xl py-5"
               >
                 Continue

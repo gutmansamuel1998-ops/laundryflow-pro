@@ -29,6 +29,7 @@ export default function Supplies() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     base44.auth.me().then(u => setIsPremium(u?.has_premium || false)).catch(() => {});
@@ -74,7 +75,11 @@ export default function Supplies() {
   });
 
   const handleCreate = () => {
-    if (!newSupply.name.trim()) return;
+    const errors = {};
+    if (!newSupply.name.trim()) errors.name = "Supply name is required.";
+    if (newSupply.low_threshold < 0 || newSupply.low_threshold > 100) errors.low_threshold = "Must be between 0 and 100.";
+    if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
+    setFormErrors({});
     createMutation.mutate({
       ...newSupply,
       last_restocked: new Date().toISOString(),
@@ -310,22 +315,33 @@ export default function Supplies() {
 
                 <div className="space-y-3">
                   <div>
-                    <Label>Supply Name</Label>
+                    <Label htmlFor="supply-name">
+                      Supply Name <span aria-hidden="true" className="text-destructive">*</span>
+                    </Label>
                     <Input
+                      id="supply-name"
                       value={newSupply.name}
-                      onChange={(e) => setNewSupply({ ...newSupply, name: e.target.value })}
+                      onChange={(e) => { setNewSupply({ ...newSupply, name: e.target.value }); setFormErrors(p => ({ ...p, name: undefined })); }}
                       placeholder="e.g., Laundry Detergent"
-                      className="rounded-xl"
+                      className={`rounded-xl ${formErrors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                      aria-required="true"
+                      aria-invalid={!!formErrors.name}
+                      aria-describedby={formErrors.name ? "supply-name-error" : undefined}
                     />
+                    {formErrors.name && (
+                      <p id="supply-name-error" role="alert" className="text-xs text-destructive mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" aria-hidden="true" />{formErrors.name}
+                      </p>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label>Unit</Label>
+                      <Label htmlFor="supply-unit">Unit</Label>
                       <Select
                         value={newSupply.unit}
                         onValueChange={(v) => setNewSupply({ ...newSupply, unit: v })}
                       >
-                        <SelectTrigger className="rounded-xl">
+                        <SelectTrigger id="supply-unit" className="rounded-xl">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -338,16 +354,25 @@ export default function Supplies() {
                       </Select>
                     </div>
                     <div>
-                      <Label>Low Alert at</Label>
+                      <Label htmlFor="supply-threshold">Low Alert at</Label>
                       <Input
+                        id="supply-threshold"
                         type="number"
                         min="0"
                         max="100"
                         value={newSupply.low_threshold}
-                        onChange={(e) => setNewSupply({ ...newSupply, low_threshold: Number(e.target.value) })}
-                        className="rounded-xl"
+                        onChange={(e) => { setNewSupply({ ...newSupply, low_threshold: Number(e.target.value) }); setFormErrors(p => ({ ...p, low_threshold: undefined })); }}
+                        className={`rounded-xl ${formErrors.low_threshold ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                        aria-invalid={!!formErrors.low_threshold}
+                        aria-describedby={formErrors.low_threshold ? "supply-threshold-error" : "supply-threshold-hint"}
                       />
-                      <p className="text-xs text-muted-foreground mt-1">% remaining</p>
+                      {formErrors.low_threshold ? (
+                        <p id="supply-threshold-error" role="alert" className="text-xs text-destructive mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" aria-hidden="true" />{formErrors.low_threshold}
+                        </p>
+                      ) : (
+                        <p id="supply-threshold-hint" className="text-xs text-muted-foreground mt-1">% remaining</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex gap-2 pt-2">

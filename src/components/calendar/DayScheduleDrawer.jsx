@@ -29,11 +29,14 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
   const [loadTypes, setLoadTypes] = useState([]);
   const [reminder, setReminder] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const toggleLoad = (val) =>
     setLoadTypes((prev) => prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]);
 
   const handleAdd = () => {
+    if (loadTypes.length === 0) { setSaveError("Please select at least one load type."); return; }
+    setSaveError("");
     onAdd({ date: format(day, "yyyy-MM-dd"), label, recurring, load_types: loadTypes, reminder_enabled: reminder, completed: false });
     setLabel(""); setRecurring("none"); setLoadTypes([]); setReminder(true); setAdding(false);
   };
@@ -148,9 +151,14 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
                 {reminder ? <Bell className="w-4 h-4 text-primary" aria-hidden="true" /> : <BellOff className="w-4 h-4" aria-hidden="true" />}
               </Button>
             </div>
+            {saveError && (
+              <p role="alert" className="text-xs text-destructive flex items-center gap-1">
+                <span aria-hidden="true">⚠</span> {saveError}
+              </p>
+            )}
             <div className="flex gap-2">
               <Button className="flex-1 rounded-xl" onClick={handleAdd}>Save</Button>
-              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setAdding(false)}>Cancel</Button>
+              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => { setAdding(false); setSaveError(""); }}>Cancel</Button>
             </div>
           </div>
         ) : (
