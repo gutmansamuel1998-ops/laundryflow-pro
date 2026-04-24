@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine, BarChart2, LayoutDashboard, MinusCircle } from "lucide-react";
+import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine, BarChart2, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -178,12 +178,6 @@ export default function Supplies() {
     const daysRemaining = Math.round(currentLevel / dailyUsage);
 
     return daysRemaining > 0 ? daysRemaining : null;
-  };
-
-  const handleMarkUsed = (supply) => {
-    const usageAmount = 5; // deduct 5% per use
-    const newLevel = Math.max(0, supply.current_level - usageAmount);
-    handleUpdateLevel(supply, newLevel);
   };
 
   const handleBarcodeProduct = (product) => {
@@ -453,15 +447,6 @@ export default function Supplies() {
                         onChange={(e) => handleUpdateLevel(supply, Number(e.target.value))}
                         className="rounded-xl flex-1"
                       />
-                      <Button
-                        variant="outline"
-                        onClick={() => handleMarkUsed(supply)}
-                        disabled={supply.current_level === 0}
-                        className="rounded-xl"
-                      >
-                        <MinusCircle className="w-4 h-4 mr-1" />
-                        Used
-                      </Button>
                       <Button
                         variant="outline"
                         onClick={() => handleRestock(supply)}
