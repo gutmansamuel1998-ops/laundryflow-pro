@@ -54,16 +54,22 @@ export default function Guides() {
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">Laundry Guides</h1>
-        <p className="text-muted-foreground text-sm mb-6">Quick reference for common laundry questions.</p>
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">Laundry Guides</h1>
+          <p className="text-muted-foreground text-sm mb-6">Quick reference for common laundry questions.</p>
+        </header>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="space-y-3"
+          role="list"
+          aria-label="Laundry guide topics"
         >
           {guides.map((guide) => (
-            <GuideCard key={guide.title} {...guide} />
+            <article key={guide.title} role="listitem">
+              <GuideCard {...guide} />
+            </article>
           ))}
         </motion.div>
       </div>

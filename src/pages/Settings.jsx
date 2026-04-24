@@ -120,7 +120,9 @@ export default function Settings() {
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
-        <h1 className="text-2xl font-semibold tracking-tight mb-6">Settings</h1>
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight mb-6">Settings</h1>
+        </header>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
           {/* Environment */}
