@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ImageIcon
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -41,6 +41,8 @@ export default function DigitalCloset() {
   const [editingItem, setEditingItem] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [scanningTag, setScanningTag] = useState(false); // "add" | "edit" | false
+  const [tagScanTarget, setTagScanTarget] = useState(null); // "add" | "edit"
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -72,6 +74,41 @@ export default function DigitalCloset() {
       setEditForm(f => ({ ...f, image_url: file_url }));
     }
     setUploadingPhoto(false);
+  };
+
+  const handleTagScan = async (file, target) => {
+    if (!file) return;
+    setScanningTag(true);
+    setTagScanTarget(target);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract all care instructions. Return the fabric composition if visible, and a plain-English summary of care instructions.`,
+      file_urls: [file_url],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          fabric_composition: { type: "string" },
+          care_instructions: { type: "string" },
+        }
+      }
+    });
+    if (target === "add") {
+      setForm(f => ({
+        ...f,
+        image_url: f.image_url || file_url,
+        fabric_composition: result.fabric_composition || f.fabric_composition,
+        care_instructions: result.care_instructions || f.care_instructions,
+      }));
+    } else {
+      setEditForm(f => ({
+        ...f,
+        image_url: f.image_url || file_url,
+        fabric_composition: result.fabric_composition || f.fabric_composition,
+        care_instructions: result.care_instructions || f.care_instructions,
+      }));
+    }
+    setScanningTag(false);
+    setTagScanTarget(null);
   };
 
   const startEdit = (item) => {
@@ -193,6 +230,18 @@ Then give an overall safety summary and any general tips.`,
                       )}
                       <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : form.image_url ? "Change photo" : "Upload photo"}</span>
                       <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={e => handlePhotoUpload(e.target.files[0], "add")} />
+                    </label>
+                  </div>
+                  {/* Scan care tag */}
+                  <div>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-primary/50 bg-primary/5 w-full">
+                        {scanningTag && tagScanTarget === "add"
+                          ? <><RefreshCw className="w-4 h-4 text-primary animate-spin" /><span className="text-xs text-primary font-medium">Scanning tag...</span></>
+                          : <><ScanLine className="w-4 h-4 text-primary" /><span className="text-xs text-primary font-medium">Scan care tag to auto-fill details</span></>
+                        }
+                      </div>
+                      <input type="file" accept="image/*" className="hidden" disabled={scanningTag} onChange={e => handleTagScan(e.target.files[0], "add")} />
                     </label>
                   </div>
                   <Input placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
@@ -394,6 +443,18 @@ Then give an overall safety summary and any general tips.`,
                                   )}
                                   <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : editForm.image_url ? "Change photo" : "Upload photo"}</span>
                                   <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={e => handlePhotoUpload(e.target.files[0], "edit")} />
+                                </label>
+                              </div>
+                              {/* Scan care tag in edit */}
+                              <div>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-primary/50 bg-primary/5 w-full">
+                                    {scanningTag && tagScanTarget === "edit"
+                                      ? <><RefreshCw className="w-4 h-4 text-primary animate-spin" /><span className="text-xs text-primary font-medium">Scanning tag...</span></>
+                                      : <><ScanLine className="w-4 h-4 text-primary" /><span className="text-xs text-primary font-medium">Scan care tag to auto-fill details</span></>
+                                    }
+                                  </div>
+                                  <input type="file" accept="image/*" className="hidden" disabled={scanningTag} onChange={e => handleTagScan(e.target.files[0], "edit")} />
                                 </label>
                               </div>
                               <Input placeholder="Item name" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
