@@ -15,6 +15,16 @@ import {
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
 const COLORS = ["white", "light", "dark", "color", "mixed"];
+const LIFESTYLES = [
+  { id: "casual", label: "Casual", emoji: "😊" },
+  { id: "gym", label: "Gym", emoji: "💪" },
+  { id: "beach", label: "Beach", emoji: "🏖️" },
+  { id: "business_casual", label: "Business Casual", emoji: "👔" },
+  { id: "formal", label: "Formal", emoji: "🎩" },
+  { id: "lounge", label: "Lounge", emoji: "🛋️" },
+  { id: "outdoor", label: "Outdoor", emoji: "🏕️" },
+  { id: "other", label: "Other", emoji: "📦" },
+];
 const WASH_CYCLES = [
   { id: "cold_delicate", label: "Cold / Delicate" },
   { id: "cold_normal", label: "Cold / Normal" },
@@ -35,7 +45,8 @@ export default function DigitalCloset() {
   const [showAdd, setShowAdd] = useState(false);
   const [basketMode, setBasketMode] = useState(false);
   const [basketSelected, setBasketSelected] = useState([]);
-  const [form, setForm] = useState({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" });
+  const [form, setForm] = useState({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" });
+  const [filterLifestyle, setFilterLifestyle] = useState("all");
   const [checkMode, setCheckMode] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("");
   const [selectedSupplies, setSelectedSupplies] = useState([]);
@@ -64,7 +75,7 @@ export default function DigitalCloset() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.ClothingItem.create(data),
-    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" }); }
+    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" }); }
   });
 
   const deleteMutation = useMutation({
@@ -126,7 +137,7 @@ export default function DigitalCloset() {
 
   const startEdit = (item) => {
     setEditingItem(item.id);
-    setEditForm({ name: item.name, category: item.category, fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "" });
+    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "" });
     setExpandedItem(item.id);
   };
 
@@ -263,10 +274,11 @@ Give each outfit a fun short name and a brief styling tip.`,
       item.notes?.toLowerCase().includes(q);
     const matchesCategory = filterCategory === "all" || item.category === filterCategory;
     const matchesColor = filterColor === "all" || item.color === filterColor;
-    return matchesSearch && matchesCategory && matchesColor;
+    const matchesLifestyle = filterLifestyle === "all" || item.lifestyle === filterLifestyle;
+    return matchesSearch && matchesCategory && matchesColor && matchesLifestyle;
   });
 
-  const activeFilterCount = (filterCategory !== "all" ? 1 : 0) + (filterColor !== "all" ? 1 : 0);
+  const activeFilterCount = (filterCategory !== "all" ? 1 : 0) + (filterColor !== "all" ? 1 : 0) + (filterLifestyle !== "all" ? 1 : 0);
 
   const SAFETY_STYLES = {
     safe: { badge: "bg-emerald-100 text-emerald-700", icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> },
@@ -343,6 +355,18 @@ Give each outfit a fun short name and a brief styling tip.`,
                     </label>
                   </div>
                   <Input placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+                  {/* Lifestyle */}
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Lifestyle / Occasion</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {LIFESTYLES.map(l => (
+                        <button key={l.id} onClick={() => setForm(f => ({ ...f, lifestyle: form.lifestyle === l.id ? "" : l.id }))}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.lifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                          {l.emoji} {l.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-xs text-muted-foreground mb-1.5">Category</p>
@@ -625,8 +649,19 @@ Give each outfit a fun short name and a brief styling tip.`,
                       ))}
                     </div>
                   </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Lifestyle</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[{ id: "all", label: "All", emoji: "✨" }, ...LIFESTYLES].map(l => (
+                        <button key={l.id} onClick={() => setFilterLifestyle(l.id)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterLifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                          {l.emoji} {l.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   {activeFilterCount > 0 && (
-                    <button onClick={() => { setFilterCategory("all"); setFilterColor("all"); }} className="text-xs text-primary font-medium">
+                    <button onClick={() => { setFilterCategory("all"); setFilterColor("all"); setFilterLifestyle("all"); }} className="text-xs text-primary font-medium">
                       Clear filters
                     </button>
                   )}
@@ -674,6 +709,7 @@ Give each outfit a fun short name and a brief styling tip.`,
                           <div className="flex flex-wrap gap-1.5 mt-1">
                             <Badge variant="secondary" className="text-xs">{item.category}</Badge>
                             {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
+                            {item.lifestyle && (() => { const l = LIFESTYLES.find(x => x.id === item.lifestyle); return l ? <Badge variant="outline" className="text-xs">{l.emoji} {l.label}</Badge> : null; })()}
                           </div>
                           <div className="flex gap-2 mt-1">
                             {(item.wear_count > 0) && (
@@ -770,6 +806,17 @@ Give each outfit a fun short name and a brief styling tip.`,
                                     <button key={c} onClick={() => setEditForm(f => ({ ...f, color: c }))}
                                       className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.color === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                                       {c}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Lifestyle / Occasion</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {LIFESTYLES.map(l => (
+                                    <button key={l.id} onClick={() => setEditForm(f => ({ ...f, lifestyle: editForm.lifestyle === l.id ? "" : l.id }))}
+                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.lifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                      {l.emoji} {l.label}
                                     </button>
                                   ))}
                                 </div>

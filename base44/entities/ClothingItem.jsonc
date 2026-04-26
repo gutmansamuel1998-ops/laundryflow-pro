@@ -21,6 +21,20 @@
       ],
       "description": "Clothing category"
     },
+    "lifestyle": {
+      "type": "string",
+      "enum": [
+        "casual",
+        "gym",
+        "beach",
+        "business_casual",
+        "formal",
+        "lounge",
+        "outdoor",
+        "other"
+      ],
+      "description": "Lifestyle / occasion tag for the item"
+    },
     "fabric_composition": {
       "type": "string",
       "description": "Fabric content e.g. '80% cotton, 20% polyester'"
