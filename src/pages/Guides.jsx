@@ -1,6 +1,6 @@
 import React from "react";
 import GuideCard from "@/components/laundry/GuideCard";
-import { Thermometer, Palette, Droplets, Wind, ShieldAlert } from "lucide-react";
+import { Thermometer, Palette, Droplets, Wind, ShieldAlert, Minimize2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const guides = [
@@ -51,6 +51,23 @@ const guides = [
       { label: "HE machines", text: "High Efficiency machines need HE detergent. Using regular detergent makes too many suds." },
       { label: "Pods", text: "Place pods at the bottom of the drum before adding clothes." },
       { text: "Liquid detergent works well in cold water. Powder may not dissolve fully in cold." },
+    ],
+  },
+  {
+    title: "Preventing Shrinkage in the Dryer",
+    icon: Minimize2,
+    color: "bg-orange-50 text-orange-500",
+    highlight: true,
+    intro: "Heat and agitation are the two main causes of shrinkage. These tips will keep your clothes fitting the way they should.",
+    items: [
+      { label: "Always check the care label", text: "Look for symbols like a square with a circle (tumble dry) or an X through it (do not tumble dry). When in doubt, air dry." },
+      { label: "Use low or no heat", text: "High heat causes fibers to contract. Use the lowest heat setting that still dries your clothes effectively." },
+      { label: "Remove clothes while slightly damp", text: "Taking clothes out before they're bone dry prevents over-shrinking and reduces wrinkles. Hang to finish air drying." },
+      { label: "Use a mesh laundry bag", text: "Mesh bags reduce agitation and friction in the dryer, which is especially important for knitwear and delicates." },
+      { label: "Dry synthetics on low or air-only", text: "Polyester, nylon, and spandex are heat-sensitive. Even 'medium' heat can warp or shrink them over time." },
+      { label: "Never over-dry", text: "Over-drying is the #1 cause of gradual shrinkage. Use timed dry instead of 'auto dry' if your machine runs hot." },
+      { label: "Air dry cotton, wool & linen", text: "These natural fibers shrink the most in heat. Lay flat or hang to dry whenever possible." },
+      { label: "Don't overload the dryer", text: "Overcrowding creates more friction and uneven heat distribution, both of which accelerate shrinkage." },
     ],
   },
   {
