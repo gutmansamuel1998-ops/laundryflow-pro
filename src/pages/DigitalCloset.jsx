@@ -280,7 +280,15 @@ Give each outfit a fun short name and a brief styling tip.`,
 
   const activeFilterCount = (filterCategory !== "all" ? 1 : 0) + (filterColor !== "all" ? 1 : 0) + (filterLifestyle !== "all" ? 1 : 0);
 
-  const SAFETY_STYLES = {
+  const SHRINK_PRONE_FABRICS = ["cotton", "wool", "linen", "cashmere", "rayon", "bamboo", "silk"];
+const isShrinkRisk = (item) => {
+  const fabric = (item.fabric_composition || "").toLowerCase();
+  const care = (item.care_instructions || "").toLowerCase();
+  return SHRINK_PRONE_FABRICS.some(f => fabric.includes(f)) ||
+    care.includes("do not tumble") || care.includes("hang dry") || care.includes("air dry") || care.includes("lay flat");
+};
+
+const SAFETY_STYLES = {
     safe: { badge: "bg-emerald-100 text-emerald-700", icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> },
     risky: { badge: "bg-amber-100 text-amber-700", icon: <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> },
     damaging: { badge: "bg-red-100 text-red-700", icon: <X className="w-3.5 h-3.5 text-red-600" /> },
@@ -726,6 +734,7 @@ Give each outfit a fun short name and a brief styling tip.`,
                             {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
                             {item.lifestyle && (() => { const l = LIFESTYLES.find(x => x.id === item.lifestyle); return l ? <Badge variant="outline" className="text-xs">{l.emoji} {l.label}</Badge> : null; })()}
                             {item.is_new_garment && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-200 border">🆕 New — First wash</Badge>}
+                            {isShrinkRisk(item) && <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200 border">⚠️ Air dry recommended</Badge>}
                           </div>
                           <div className="flex gap-2 mt-1">
                             {(item.wear_count > 0) && (
