@@ -1,0 +1,37 @@
+{
+  "name": "IroningSession",
+  "type": "object",
+  "properties": {
+    "item_names": {
+      "type": "string",
+      "description": "Names of items queued for ironing (comma-separated)"
+    },
+    "scheduled_for": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the user plans to iron (YYYY-MM-DD)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "done"
+      ],
+      "default": "pending",
+      "description": "Whether this ironing session is still pending or completed"
+    },
+    "notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a reminder email has been sent for this session"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes for this ironing session"
+    }
+  },
+  "required": [
+    "item_names",
+    "scheduled_for"
+  ]
+}
