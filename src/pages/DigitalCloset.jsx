@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square, LayoutList
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square, LayoutList, Wand2, Sun, Cloud, Snowflake, Briefcase, Heart, Zap
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -51,6 +51,11 @@ export default function DigitalCloset() {
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterColor, setFilterColor] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [outfitMode, setOutfitMode] = useState(false);
+  const [outfitOccasion, setOutfitOccasion] = useState("casual");
+  const [outfitWeather, setOutfitWeather] = useState("mild");
+  const [outfitResult, setOutfitResult] = useState(null);
+  const [isGeneratingOutfit, setIsGeneratingOutfit] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -202,6 +207,51 @@ Then give an overall safety summary and any general tips.`,
 
     setCheckResult(result);
     setIsChecking(false);
+  };
+
+  const generateOutfit = async () => {
+    if (items.length < 2) return;
+    setIsGeneratingOutfit(true);
+    setOutfitResult(null);
+    const wardrobe = items.map(i => ({
+      id: i.id,
+      name: i.name,
+      category: i.category,
+      color: i.color || "unknown",
+      fabric: i.fabric_composition || "unknown",
+      notes: i.notes || "",
+    }));
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are a personal stylist. Based on the user's wardrobe below, suggest 3 complete outfit combinations.
+
+Occasion: ${outfitOccasion}
+Weather: ${outfitWeather}
+Wardrobe:
+${JSON.stringify(wardrobe, null, 2)}
+
+For each outfit, pick 2-4 items that go well together. Consider color coordination, fabric appropriateness for the weather, and suitability for the occasion.
+Give each outfit a fun short name and a brief styling tip.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          outfits: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                items: { type: "array", items: { type: "string" } },
+                tip: { type: "string" },
+                color_palette: { type: "string" }
+              }
+            }
+          },
+          overall_tip: { type: "string" }
+        }
+      }
+    });
+    setOutfitResult(result);
+    setIsGeneratingOutfit(false);
   };
 
   const filteredItems = items.filter(item => {
@@ -413,6 +463,104 @@ Then give an overall safety summary and any general tips.`,
                                   <CheckCircle className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" /> {tip}
                                 </div>
                               ))}
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Outfit Suggestions */}
+        {items.length >= 2 && (
+          <Card className="border-border/50">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Wand2 className="w-4 h-4 text-primary" /> Outfit Suggestions
+                </p>
+                <button onClick={() => { setOutfitMode(!outfitMode); setOutfitResult(null); }} className="text-xs text-primary font-medium">
+                  {outfitMode ? "Hide" : "Get Ideas"}
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {outfitMode && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
+                    {/* Occasion */}
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1.5">Occasion</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { id: "casual", label: "Casual", icon: <Heart className="w-3 h-3" /> },
+                          { id: "work", label: "Work", icon: <Briefcase className="w-3 h-3" /> },
+                          { id: "active", label: "Active", icon: <Zap className="w-3 h-3" /> },
+                          { id: "formal", label: "Formal", icon: <Sparkles className="w-3 h-3" /> },
+                        ].map(o => (
+                          <button key={o.id} onClick={() => setOutfitOccasion(o.id)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${outfitOccasion === o.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                            {o.icon} {o.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Weather */}
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1.5">Weather</p>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { id: "hot", label: "Hot", icon: <Sun className="w-3 h-3" /> },
+                          { id: "mild", label: "Mild", icon: <Cloud className="w-3 h-3" /> },
+                          { id: "cold", label: "Cold", icon: <Snowflake className="w-3 h-3" /> },
+                        ].map(w => (
+                          <button key={w.id} onClick={() => setOutfitWeather(w.id)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${outfitWeather === w.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                            {w.icon} {w.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button onClick={generateOutfit} disabled={isGeneratingOutfit} className="w-full gap-2 rounded-xl">
+                      {isGeneratingOutfit
+                        ? <><RefreshCw className="w-4 h-4 animate-spin" /> Styling your closet...</>
+                        : <><Wand2 className="w-4 h-4" /> Suggest Outfits</>}
+                    </Button>
+
+                    <AnimatePresence>
+                      {outfitResult && (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+                          {outfitResult.outfits?.map((outfit, i) => (
+                            <Card key={i} className="border-border/50 bg-secondary/30">
+                              <CardContent className="p-3 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-semibold text-sm">{outfit.name}</p>
+                                  {outfit.color_palette && (
+                                    <span className="text-xs text-muted-foreground italic">{outfit.color_palette}</span>
+                                  )}
+                                </div>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {outfit.items?.map((itemName, j) => (
+                                    <Badge key={j} variant="secondary" className="text-xs gap-1">
+                                      <Shirt className="w-3 h-3" /> {itemName}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                {outfit.tip && (
+                                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                                    <Sparkles className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" /> {outfit.tip}
+                                  </p>
+                                )}
+                              </CardContent>
+                            </Card>
+                          ))}
+                          {outfitResult.overall_tip && (
+                            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-xs text-primary font-medium flex items-start gap-2">
+                              <Wand2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" /> {outfitResult.overall_tip}
                             </div>
                           )}
                         </motion.div>
