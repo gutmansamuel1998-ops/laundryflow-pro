@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -119,6 +119,11 @@ export default function DigitalCloset() {
     setEditingItem(item.id);
     setEditForm({ name: item.name, category: item.category, fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "" });
     setExpandedItem(item.id);
+  };
+
+  const markWorn = (item) => {
+    const today = new Date().toISOString().split("T")[0];
+    editMutation.mutate({ id: item.id, data: { wear_count: (item.wear_count || 0) + 1, last_worn: today } });
   };
 
   const toggleSupply = (s) => setSelectedSupplies(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
@@ -497,15 +502,32 @@ Then give an overall safety summary and any general tips.`,
                             <Badge variant="secondary" className="text-xs">{item.category}</Badge>
                             {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
                           </div>
+                          <div className="flex gap-2 mt-1">
+                            {(item.wear_count > 0) && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Repeat2 className="w-3 h-3" /> {item.wear_count} wear{item.wear_count > 1 ? "s" : ""}
+                              </span>
+                            )}
+                            {item.last_worn && (
+                              <span className="text-xs text-muted-foreground">· Last worn {item.last_worn}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <button onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)} className="p-1 text-muted-foreground hover:text-foreground">
-                          {expandedItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </button>
-                        <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <button
+                        onClick={() => markWorn(item)}
+                        title="Mark as worn today"
+                        className="p-1 text-muted-foreground hover:text-primary"
+                      >
+                        <Repeat2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)} className="p-1 text-muted-foreground hover:text-foreground">
+                        {expandedItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+                      <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                       </div>
                     </div>
 

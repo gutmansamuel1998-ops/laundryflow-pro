@@ -1,0 +1,66 @@
+{
+  "name": "ClothingItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name or label for the clothing item (e.g. 'Blue wool sweater')"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "tops",
+        "bottoms",
+        "outerwear",
+        "underwear",
+        "activewear",
+        "delicates",
+        "bedding",
+        "towels",
+        "other"
+      ],
+      "description": "Clothing category"
+    },
+    "fabric_composition": {
+      "type": "string",
+      "description": "Fabric content e.g. '80% cotton, 20% polyester'"
+    },
+    "care_instructions": {
+      "type": "string",
+      "description": "Raw care label instructions from the garment tag"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "white",
+        "light",
+        "dark",
+        "color",
+        "mixed"
+      ],
+      "description": "Color group for sorting"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Optional photo of the garment or tag"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any personal notes about this item"
+    },
+    "wear_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this item has been worn"
+    },
+    "last_worn": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this item was last worn (YYYY-MM-DD)"
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ]
+}
