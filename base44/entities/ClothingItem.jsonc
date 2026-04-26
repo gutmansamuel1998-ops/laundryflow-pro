@@ -88,6 +88,35 @@
       "type": "string",
       "format": "date",
       "description": "Date this item was last worn (YYYY-MM-DD)"
+    },
+    "requires_ironing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item requires ironing after washing"
+    },
+    "ironing_heat": {
+      "type": "string",
+      "enum": [
+        "no_iron",
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "Recommended iron heat setting for this garment"
+    },
+    "ironing_notes": {
+      "type": "string",
+      "description": "Specific ironing instructions for this item (e.g. 'iron inside out', 'use steam')"
+    },
+    "needs_ironing_now": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item is currently in the ironing queue"
+    },
+    "last_ironed": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this item was last ironed (YYYY-MM-DD)"
     }
   },
   "required": [
