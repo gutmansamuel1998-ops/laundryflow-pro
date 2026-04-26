@@ -180,7 +180,56 @@ function StateWashing({ load }) {
   );
 }
 
-function StateWashFinished({ load, dryMinutes, onChangeDry, onStart, isPending }) {
+function ShrinkRiskDryerAlert({ closetItems }) {
+  const SHRINK_FABRICS = ["cotton", "wool", "linen", "cashmere", "rayon", "bamboo", "silk"];
+  const AIR_DRY_METHODS = ["hang_dry", "lay_flat", "air_dry"];
+
+  const shrinkItems = closetItems.filter(item => {
+    const fabric = (item.fabric_composition || "").toLowerCase();
+    const care = (item.care_instructions || "").toLowerCase();
+    return SHRINK_FABRICS.some(f => fabric.includes(f))
+      || care.includes("do not tumble") || care.includes("hang dry") || care.includes("air dry") || care.includes("lay flat")
+      || AIR_DRY_METHODS.includes(item.preferred_dry_method);
+  });
+
+  if (shrinkItems.length === 0) return null;
+
+  const hasNoHeat = shrinkItems.some(i =>
+    ["lay_flat", "air_dry"].includes(i.preferred_dry_method) ||
+    (i.care_instructions || "").toLowerCase().includes("lay flat") ||
+    (i.care_instructions || "").toLowerCase().includes("do not tumble")
+  );
+
+  return (
+    <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="w-full text-left">
+      <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-orange-600 flex-shrink-0" />
+          <p className="text-sm font-semibold text-orange-800">
+            Shrink Risk — Check These Before the Dryer
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {shrinkItems.map(i => (
+            <Badge key={i.id} className="bg-orange-100 text-orange-800 border border-orange-300 text-xs">
+              ⚠️ {i.name}
+            </Badge>
+          ))}
+        </div>
+        <ul className="space-y-1">
+          <li className="text-xs text-orange-700 flex items-start gap-1.5">
+            <span>•</span>
+            <span><strong>Recommended:</strong> {hasNoHeat ? "Lay flat or air dry — skip the dryer entirely." : "Hang dry or tumble on lowest heat setting."}</span>
+          </li>
+          <li className="text-xs text-orange-700 flex items-start gap-1.5"><span>•</span> Remove shrink-prone items before starting the dryer cycle.</li>
+          <li className="text-xs text-orange-700 flex items-start gap-1.5"><span>•</span> Wool and cashmere must always be laid flat to keep their shape.</li>
+        </ul>
+      </div>
+    </motion.div>
+  );
+}
+
+function StateWashFinished({ load, dryMinutes, onChangeDry, onStart, isPending, closetItems }) {
   return (
     <motion.div key="wash_finished" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
       <div className="w-20 h-20 rounded-3xl bg-amber-50 flex items-center justify-center">
@@ -191,6 +240,7 @@ function StateWashFinished({ load, dryMinutes, onChangeDry, onStart, isPending }
         <p className="text-muted-foreground">Move clothes to the dryer when you're ready.</p>
       </div>
       <GuidancePills washGuidance={null} dryGuidance={load.dry_guidance} />
+      {closetItems.length > 0 && <ShrinkRiskDryerAlert closetItems={closetItems} />}
       <TimerStepper value={dryMinutes} onChange={onChangeDry} label="Dry cycle duration" />
       <Button
         onClick={onStart}
@@ -323,6 +373,11 @@ export default function LaundryMode() {
       setVoiceEnabled(u?.voice_commands_enabled === true);
     }).catch(() => {});
   }, []);
+
+  const { data: closetItems = [] } = useQuery({
+    queryKey: ["clothing-items"],
+    queryFn: () => base44.entities.ClothingItem.list("-created_date"),
+  });
 
   const { data: load, isLoading } = useQuery({
     queryKey: ["load", loadId],
@@ -492,7 +547,7 @@ export default function LaundryMode() {
     switch (load.current_state) {
       case "load_created":  return <StateCreated       load={load} washMinutes={washMinutes} onChangeWash={setWashMinutes} onStart={startWash}  isPending={updateMutation.isPending} />;
       case "washing":       return <StateWashing        load={load} />;
-      case "wash_finished": return <StateWashFinished   load={load} dryMinutes={dryMinutes}  onChangeDry={setDryMinutes}  onStart={startDry}   isPending={updateMutation.isPending} />;
+      case "wash_finished": return <StateWashFinished   load={load} dryMinutes={dryMinutes}  onChangeDry={setDryMinutes}  onStart={startDry}   isPending={updateMutation.isPending} closetItems={closetItems} />;
       case "drying":        return <StateDrying         load={load} />;
       case "dry_finished":  return <StateDryFinished    onFinish={finishLoad} isPending={updateMutation.isPending} />;
       case "completed":     return <StateCompleted      onHome={() => navigate(createPageUrl("Home"))} onNewLoad={() => navigate(createPageUrl("Home"))} />;
