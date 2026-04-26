@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Thermometer, Wind, Shirt, AlertTriangle, CheckCircle, RefreshCw, Package } from "lucide-react";
+import { Sparkles, Thermometer, Wind, Shirt, AlertTriangle, CheckCircle, RefreshCw, Package, ShoppingBasket, CheckSquare, Square, ChevronDown, ChevronUp } from "lucide-react";
 
 const TEMP_COLORS = {
   cold: "bg-blue-100 text-blue-700",
@@ -20,15 +20,61 @@ const DRY_COLORS = {
   hang_dry: "bg-green-100 text-green-700",
 };
 
+const CATEGORY_EMOJI = {
+  tops: "👕", bottoms: "👖", outerwear: "🧥", underwear: "🩲",
+  activewear: "🏃", delicates: "👗", bedding: "🛏️", towels: "🏖️", other: "📦"
+};
+
 export default function LoadPlanner() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedIds = urlParams.getAll("ids");
+
   const [garments, setGarments] = useState("");
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showClosetPicker, setShowClosetPicker] = useState(false);
+  const [pickerSelected, setPickerSelected] = useState(new Set(preselectedIds));
 
   const { data: supplies = [] } = useQuery({
     queryKey: ["supplies"],
     queryFn: () => base44.entities.Supply.list(),
   });
+
+  const { data: closetItems = [] } = useQuery({
+    queryKey: ["clothing-items"],
+    queryFn: () => base44.entities.ClothingItem.list("-created_date"),
+  });
+
+  // Auto-populate from URL params (coming from Digital Closet)
+  useEffect(() => {
+    if (preselectedIds.length > 0 && closetItems.length > 0) {
+      const selected = closetItems.filter(i => preselectedIds.includes(i.id));
+      if (selected.length > 0) {
+        const text = selected.map(i =>
+          `${i.name}${i.fabric_composition ? ` (${i.fabric_composition})` : ""}${i.color ? ` [${i.color}]` : ""}`
+        ).join(", ");
+        setGarments(text);
+        setShowClosetPicker(true);
+      }
+    }
+  }, [closetItems]);
+
+  const togglePickerItem = (id) => {
+    setPickerSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const applyClosetSelection = () => {
+    const selected = closetItems.filter(i => pickerSelected.has(i.id));
+    const text = selected.map(i =>
+      `${i.name}${i.fabric_composition ? ` (${i.fabric_composition})` : ""}${i.color ? ` [${i.color}]` : ""}`
+    ).join(", ");
+    setGarments(text);
+    setShowClosetPicker(false);
+  };
 
   const analyze = async () => {
     if (!garments.trim()) return;
@@ -110,6 +156,71 @@ Respond with a JSON matching the schema exactly.`,
             </div>
           </div>
         </motion.div>
+
+        {/* Closet Picker */}
+        {closetItems.length > 0 && (
+          <Card className="border-border/50">
+            <CardContent className="p-4">
+              <button
+                onClick={() => setShowClosetPicker(!showClosetPicker)}
+                className="flex items-center justify-between w-full text-sm font-medium"
+              >
+                <span className="flex items-center gap-2">
+                  <ShoppingBasket className="w-4 h-4 text-primary" />
+                  Pick from Digital Closet
+                  {pickerSelected.size > 0 && (
+                    <Badge variant="secondary" className="text-xs">{pickerSelected.size} selected</Badge>
+                  )}
+                </span>
+                {showClosetPicker ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+
+              <AnimatePresence>
+                {showClosetPicker && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-2 mt-3">
+                      {closetItems.map(item => {
+                        const sel = pickerSelected.has(item.id);
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => togglePickerItem(item.id)}
+                            className={`w-full text-left flex items-center gap-3 rounded-xl border p-2.5 transition-all ${sel ? "border-primary bg-primary/5" : "border-border bg-card"}`}
+                          >
+                            <span className="text-lg">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.name}</p>
+                              <div className="flex gap-1 mt-0.5">
+                                <Badge variant="secondary" className="text-xs">{item.category}</Badge>
+                                {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
+                              </div>
+                            </div>
+                            {sel
+                              ? <CheckSquare className="w-4 h-4 text-primary flex-shrink-0" />
+                              : <Square className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                          </button>
+                        );
+                      })}
+                      <Button
+                        onClick={applyClosetSelection}
+                        disabled={pickerSelected.size === 0}
+                        size="sm"
+                        className="w-full rounded-xl gap-1.5 mt-1"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Use {pickerSelected.size} Selected Item{pickerSelected.size !== 1 ? "s" : ""}
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Input */}
         <Card className="border-border/50">

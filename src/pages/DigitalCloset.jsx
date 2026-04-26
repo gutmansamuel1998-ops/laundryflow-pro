@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square, LayoutList
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -133,6 +133,12 @@ export default function DigitalCloset() {
     const params = new URLSearchParams();
     basketSelected.forEach(id => params.append("ids", id));
     navigate(`/LaundryBasket?${params.toString()}`);
+  };
+
+  const sendToLoadPlanner = () => {
+    const params = new URLSearchParams();
+    basketSelected.forEach(id => params.append("ids", id));
+    navigate(`/LoadPlanner?${params.toString()}`);
   };
 
   const markWorn = (item) => {
@@ -679,15 +685,26 @@ Then give an overall safety summary and any general tips.`,
               <span className="text-sm font-medium">
                 {basketSelected.length === 0 ? "Tap items to select" : `${basketSelected.length} item${basketSelected.length > 1 ? "s" : ""} selected`}
               </span>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={basketSelected.length === 0}
-                onClick={sendToBasket}
-                className="gap-1.5 rounded-xl"
-              >
-                <ShoppingBasket className="w-4 h-4" /> Send to Basket
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={basketSelected.length === 0}
+                  onClick={sendToBasket}
+                  className="gap-1 rounded-xl text-xs"
+                >
+                  <ShoppingBasket className="w-3.5 h-3.5" /> Basket
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={basketSelected.length === 0}
+                  onClick={sendToLoadPlanner}
+                  className="gap-1 rounded-xl text-xs"
+                >
+                  <LayoutList className="w-3.5 h-3.5" /> Planner
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
