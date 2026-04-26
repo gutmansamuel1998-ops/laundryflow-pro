@@ -106,13 +106,15 @@ export default function DigitalCloset() {
     setTagScanTarget(target);
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract all care instructions. Return the fabric composition if visible, and a plain-English summary of care instructions.`,
+      prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract all care instructions.
+Return the fabric composition if visible, a plain-English summary of care instructions, and whether the tag explicitly indicates the item is "Non-Iron", "Wrinkle-Free", "No Iron", "Easy Care", "Permanent Press", or similar — i.e. the item does not need ironing.`,
       file_urls: [file_url],
       response_json_schema: {
         type: "object",
         properties: {
           fabric_composition: { type: "string" },
           care_instructions: { type: "string" },
+          is_wrinkle_free: { type: "boolean" },
         }
       }
     });
@@ -122,6 +124,7 @@ export default function DigitalCloset() {
         image_url: f.image_url || file_url,
         fabric_composition: result.fabric_composition || f.fabric_composition,
         care_instructions: result.care_instructions || f.care_instructions,
+        is_wrinkle_free: result.is_wrinkle_free ?? f.is_wrinkle_free,
       }));
     } else {
       setEditForm(f => ({
@@ -129,7 +132,33 @@ export default function DigitalCloset() {
         image_url: f.image_url || file_url,
         fabric_composition: result.fabric_composition || f.fabric_composition,
         care_instructions: result.care_instructions || f.care_instructions,
+        is_wrinkle_free: result.is_wrinkle_free ?? f.is_wrinkle_free,
       }));
+    }
+    setScanningTag(false);
+    setTagScanTarget(null);
+  };
+
+  const handleWrinkleTagScan = async (file, target) => {
+    if (!file) return;
+    setScanningTag(true);
+    setTagScanTarget(target === "add" ? "wrinkle-add" : "wrinkle-edit");
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Look at this clothing tag image. Does it say "Non-Iron", "Wrinkle-Free", "No Iron", "Easy Care", "Permanent Press", "Wrinkle Resistant", or any equivalent phrase indicating no ironing is needed? Answer yes or no and explain briefly what you see on the tag.`,
+      file_urls: [file_url],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          is_wrinkle_free: { type: "boolean" },
+          detected_text: { type: "string" },
+        }
+      }
+    });
+    if (target === "add") {
+      setForm(f => ({ ...f, is_wrinkle_free: result.is_wrinkle_free ?? f.is_wrinkle_free }));
+    } else {
+      setEditForm(f => ({ ...f, is_wrinkle_free: result.is_wrinkle_free ?? f.is_wrinkle_free }));
     }
     setScanningTag(false);
     setTagScanTarget(null);
@@ -397,20 +426,31 @@ const SAFETY_STYLES = {
                     </div>
                   </button>
                   {/* Wrinkle-free toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
-                  >
-                    <span className="text-lg">✨</span>
-                    <div className="flex-1 text-left">
-                      <p className="font-medium text-sm">{form.is_wrinkle_free ? "Wrinkle-Free / Non-Iron" : "Is this wrinkle-free or non-iron?"}</p>
-                      {form.is_wrinkle_free && <p className="text-xs font-normal text-sky-700 mt-0.5">No ironing needed — will be excluded from ironing queue</p>}
-                    </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_wrinkle_free ? "bg-sky-500 border-sky-500" : "border-border"}`}>
-                      {form.is_wrinkle_free && <span className="text-white text-xs">✓</span>}
-                    </div>
-                  </button>
+                  <div className="space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
+                    >
+                      <span className="text-lg">✨</span>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-sm">{form.is_wrinkle_free ? "Wrinkle-Free / Non-Iron" : "Is this wrinkle-free or non-iron?"}</p>
+                        {form.is_wrinkle_free && <p className="text-xs font-normal text-sky-700 mt-0.5">No ironing needed — will be excluded from ironing queue</p>}
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_wrinkle_free ? "bg-sky-500 border-sky-500" : "border-border"}`}>
+                        {form.is_wrinkle_free && <span className="text-white text-xs">✓</span>}
+                      </div>
+                    </button>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-dashed border-sky-400/60 bg-sky-50/50 w-full">
+                        {scanningTag && tagScanTarget === "wrinkle-add"
+                          ? <><RefreshCw className="w-3.5 h-3.5 text-sky-600 animate-spin" /><span className="text-xs text-sky-700 font-medium">Reading tag...</span></>
+                          : <><Camera className="w-3.5 h-3.5 text-sky-600" /><span className="text-xs text-sky-700 font-medium">📷 Scan Non-Iron / Wrinkle-Free tag to auto-detect</span></>
+                        }
+                      </div>
+                      <input type="file" accept="image/*" capture="environment" className="hidden" disabled={scanningTag} onChange={e => handleWrinkleTagScan(e.target.files[0], "add")} />
+                    </label>
+                  </div>
                   {/* Lifestyle */}
                   <div>
                     <p className="text-xs text-muted-foreground mb-1.5">Lifestyle / Occasion</p>
@@ -877,20 +917,31 @@ const SAFETY_STYLES = {
                                  {editForm.is_new_garment && <span className="text-white text-xs">✓</span>}
                                </div>
                               </button>
-                              <button
-                               type="button"
-                               onClick={() => setEditForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
-                               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
-                              >
-                               <span className="text-lg">✨</span>
-                               <div className="flex-1 text-left">
-                                 <p className="font-medium text-sm">{editForm.is_wrinkle_free ? "Wrinkle-Free / Non-Iron" : "Is this wrinkle-free or non-iron?"}</p>
-                                 {editForm.is_wrinkle_free && <p className="text-xs font-normal text-sky-700 mt-0.5">No ironing needed — excluded from ironing queue</p>}
-                               </div>
-                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editForm.is_wrinkle_free ? "bg-sky-500 border-sky-500" : "border-border"}`}>
-                                 {editForm.is_wrinkle_free && <span className="text-white text-xs">✓</span>}
-                               </div>
-                              </button>
+                              <div className="space-y-1.5">
+                               <button
+                                 type="button"
+                                 onClick={() => setEditForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
+                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
+                               >
+                                 <span className="text-lg">✨</span>
+                                 <div className="flex-1 text-left">
+                                   <p className="font-medium text-sm">{editForm.is_wrinkle_free ? "Wrinkle-Free / Non-Iron" : "Is this wrinkle-free or non-iron?"}</p>
+                                   {editForm.is_wrinkle_free && <p className="text-xs font-normal text-sky-700 mt-0.5">No ironing needed — excluded from ironing queue</p>}
+                                 </div>
+                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editForm.is_wrinkle_free ? "bg-sky-500 border-sky-500" : "border-border"}`}>
+                                   {editForm.is_wrinkle_free && <span className="text-white text-xs">✓</span>}
+                                 </div>
+                               </button>
+                               <label className="flex items-center gap-2 cursor-pointer">
+                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-dashed border-sky-400/60 bg-sky-50/50 w-full">
+                                   {scanningTag && tagScanTarget === "wrinkle-edit"
+                                     ? <><RefreshCw className="w-3.5 h-3.5 text-sky-600 animate-spin" /><span className="text-xs text-sky-700 font-medium">Reading tag...</span></>
+                                     : <><Camera className="w-3.5 h-3.5 text-sky-600" /><span className="text-xs text-sky-700 font-medium">📷 Scan Non-Iron / Wrinkle-Free tag to auto-detect</span></>
+                                   }
+                                 </div>
+                                 <input type="file" accept="image/*" capture="environment" className="hidden" disabled={scanningTag} onChange={e => handleWrinkleTagScan(e.target.files[0], "edit")} />
+                               </label>
+                              </div>
                               <div>
                                 <p className="text-xs text-muted-foreground mb-1">Category</p>
                                 <div className="flex flex-wrap gap-1.5">
