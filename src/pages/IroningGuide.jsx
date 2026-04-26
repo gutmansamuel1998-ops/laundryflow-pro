@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Flame, Droplets, Wind, AlertTriangle, CheckCircle, Info } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 const fabricGuides = [
   {
@@ -118,23 +117,17 @@ const fabricGuides = [
   },
 ];
 
-const heatColors = {
-  high: "bg-red-100 text-red-700 border-red-200",
-  medium: "bg-orange-100 text-orange-700 border-orange-200",
-  low: "bg-blue-100 text-blue-700 border-blue-200",
-};
-
-const heatDots = {
-  high: 3,
-  medium: 2,
-  low: 1,
+const heatConfig = {
+  high:   { dots: 3, dotColor: "bg-red-400",    badge: "bg-red-100 text-red-700 border-red-200" },
+  medium: { dots: 2, dotColor: "bg-orange-400", badge: "bg-orange-100 text-orange-700 border-orange-200" },
+  low:    { dots: 1, dotColor: "bg-blue-400",   badge: "bg-blue-100 text-blue-700 border-blue-200" },
 };
 
 const generalTips = [
-  { icon: Droplets, tip: "Always check the care label before ironing.", color: "text-blue-500" },
-  { icon: Flame, tip: "Start with lower heat and increase gradually if needed.", color: "text-orange-500" },
-  { icon: Wind, tip: "Let garments cool completely before folding or hanging.", color: "text-teal-500" },
-  { icon: AlertTriangle, tip: "Never leave a hot iron face-down on fabric — always stand it upright.", color: "text-red-500" },
+  { icon: Droplets,      tip: "Always check the care label before ironing.",                              color: "text-blue-500" },
+  { icon: Flame,         tip: "Start with lower heat and increase gradually if needed.",                  color: "text-orange-500" },
+  { icon: Wind,          tip: "Let garments cool completely before folding or hanging.",                  color: "text-teal-500" },
+  { icon: AlertTriangle, tip: "Never leave a hot iron face-down on fabric — always stand it upright.",   color: "text-red-500" },
 ];
 
 export default function IroningGuide() {
@@ -174,45 +167,45 @@ export default function IroningGuide() {
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">By Fabric Type</p>
           <div className="grid grid-cols-2 gap-3">
-            {fabricGuides.map((guide) => (
-              <button
-                key={guide.fabric}
-                onClick={() => setSelected(selected?.fabric === guide.fabric ? null : guide)}
-                className={`text-left rounded-2xl border p-4 transition-all ${
-                  selected?.fabric === guide.fabric
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border bg-card hover:border-primary/40"
-                }`}
-              >
-                <div className="text-2xl mb-2">{guide.emoji}</div>
-                <p className="font-medium text-sm text-foreground">{guide.fabric}</p>
-                <div className="flex items-center gap-1 mt-1.5">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full ${
-                        i < heatDots[guide.heat]
-                          ? guide.heat === "high" ? "bg-red-400" : guide.heat === "medium" ? "bg-orange-400" : "bg-blue-400"
-                          : "bg-muted-foreground/20"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-[10px] text-muted-foreground ml-1">{guide.heatLabel}</span>
-                </div>
-              </button>
-            ))}
+            {fabricGuides.map((guide) => {
+              const cfg = heatConfig[guide.heat];
+              const isSelected = selected?.fabric === guide.fabric;
+              return (
+                <button
+                  key={guide.fabric}
+                  onClick={() => setSelected(isSelected ? null : guide)}
+                  className={`text-left rounded-2xl border p-4 transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border bg-card hover:border-primary/40"
+                  }`}
+                >
+                  <div className="text-2xl mb-2">{guide.emoji}</div>
+                  <p className="font-medium text-sm text-foreground">{guide.fabric}</p>
+                  <div className="flex items-center gap-1 mt-1.5">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-2 rounded-full ${i < cfg.dots ? cfg.dotColor : "bg-muted-foreground/20"}`}
+                      />
+                    ))}
+                    <span className="text-[10px] text-muted-foreground ml-1">{guide.heatLabel}</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Expanded Detail */}
         {selected && (
-          <div className="rounded-2xl border border-primary/20 bg-card p-5 space-y-4 animate-in slide-in-from-bottom-2 duration-200">
+          <div className="rounded-2xl border border-primary/20 bg-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-3xl">{selected.emoji}</span>
                 <div>
                   <h2 className="font-semibold text-foreground">{selected.fabric}</h2>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${heatColors[selected.heat]}`}>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${heatConfig[selected.heat].badge}`}>
                     {selected.heatLabel}
                   </span>
                 </div>
