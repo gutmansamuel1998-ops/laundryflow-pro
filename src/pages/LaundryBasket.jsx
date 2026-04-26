@@ -51,12 +51,13 @@ export default function LaundryBasket() {
       fabric: i.fabric_composition || "unknown",
       care: i.care_instructions || "not provided",
       color: i.color,
+      is_new_garment: i.is_new_garment || false,
     }));
 
     const supplyList = supplies.map(s => s.name).join(", ") || "standard detergent";
 
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a laundry expert. The user is about to wash the following items together.
+      prompt: `You are a laundry expert. The user is about to wash the following items together. Items marked "is_new_garment: true" are brand-new and may bleed color — factor this into your warnings and recommendations.
 
 Items:
 ${JSON.stringify(garments, null, 2)}
@@ -168,6 +169,35 @@ Be concise and practical.`,
                 })}
               </div>
             </div>
+
+            {/* New garment color bleed warning */}
+            {(() => {
+              const newItems = selectedItems.filter(i => i.is_new_garment);
+              if (newItems.length === 0) return null;
+              return (
+                <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 space-y-2">
+                    <p className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" /> Color Bleed Warning
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      These items are brand-new and may bleed dye onto other clothes:
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {newItems.map(i => (
+                        <Badge key={i.id} className="bg-amber-100 text-amber-800 border border-amber-300 text-xs">🆕 {i.name}</Badge>
+                      ))}
+                    </div>
+                    <ul className="space-y-1 pt-1">
+                      <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Wash new items alone or with similar dark colors only.</li>
+                      <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Use cold water to minimize dye release.</li>
+                      <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Add a color catcher sheet to trap bleeding dye.</li>
+                      <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Turn the garment inside out before washing.</li>
+                    </ul>
+                  </div>
+                </motion.div>
+              );
+            })()}
 
             {/* Analyze button */}
             <Button

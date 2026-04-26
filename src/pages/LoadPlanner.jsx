@@ -70,7 +70,7 @@ export default function LoadPlanner() {
   const applyClosetSelection = () => {
     const selected = closetItems.filter(i => pickerSelected.has(i.id));
     const text = selected.map(i =>
-      `${i.name}${i.fabric_composition ? ` (${i.fabric_composition})` : ""}${i.color ? ` [${i.color}]` : ""}`
+      `${i.name}${i.fabric_composition ? ` (${i.fabric_composition})` : ""}${i.color ? ` [${i.color}]` : ""}${i.is_new_garment ? " [NEW - first wash, may bleed color]" : ""}`
     ).join(", ");
     setGarments(text);
     setShowClosetPicker(false);
@@ -221,6 +221,37 @@ Respond with a JSON matching the schema exactly.`,
             </CardContent>
           </Card>
         )}
+
+        {/* New garment color bleed warning */}
+        {(() => {
+          const newItems = closetItems.filter(i => pickerSelected.has(i.id) && i.is_new_garment);
+          if (newItems.length === 0) return null;
+          return (
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-amber-300 bg-amber-50">
+                <CardContent className="p-4">
+                  <p className="text-sm font-semibold text-amber-800 flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-4 h-4" /> Color Bleed Warning — New Garment{newItems.length > 1 ? "s" : ""}
+                  </p>
+                  <p className="text-xs text-amber-700 mb-2">
+                    The following items are brand-new and may bleed color onto other clothes during their first wash:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {newItems.map(i => (
+                      <Badge key={i.id} className="bg-amber-100 text-amber-800 border border-amber-300 text-xs">🆕 {i.name}</Badge>
+                    ))}
+                  </div>
+                  <ul className="space-y-1">
+                    <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Wash new garments alone or only with similar dark colors for the first wash.</li>
+                    <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Use cold water to minimize dye release.</li>
+                    <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Add a color catcher sheet to trap any bleeding dye.</li>
+                    <li className="text-xs text-amber-700 flex items-start gap-1.5"><span>•</span> Turn the garment inside out to protect the outer surface.</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })()}
 
         {/* Input */}
         <Card className="border-border/50">
