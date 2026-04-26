@@ -222,6 +222,58 @@ Respond with a JSON matching the schema exactly.`,
           </Card>
         )}
 
+        {/* Shrink-risk alert */}
+        {(() => {
+          const SHRINK_FABRICS = ["cotton", "wool", "linen", "cashmere", "rayon", "bamboo", "silk"];
+          const AIR_DRY_METHODS = ["hang_dry", "lay_flat", "air_dry"];
+          const shrinkItems = closetItems.filter(i => {
+            if (!pickerSelected.has(i.id)) return false;
+            const fabric = (i.fabric_composition || "").toLowerCase();
+            const care = (i.care_instructions || "").toLowerCase();
+            const hasShrinkFabric = SHRINK_FABRICS.some(f => fabric.includes(f));
+            const hasCareWarning = care.includes("do not tumble") || care.includes("hang dry") || care.includes("air dry") || care.includes("lay flat");
+            const hasAirDryPref = AIR_DRY_METHODS.includes(i.preferred_dry_method);
+            return hasShrinkFabric || hasCareWarning || hasAirDryPref;
+          });
+          if (shrinkItems.length === 0) return null;
+
+          // Find the most conservative drying recommendation across all shrink-risk items
+          const hasNoHeat = shrinkItems.some(i => {
+            const care = (i.care_instructions || "").toLowerCase();
+            return i.preferred_dry_method === "lay_flat" || i.preferred_dry_method === "air_dry" ||
+              care.includes("lay flat") || care.includes("do not tumble");
+          });
+          const recommendedDry = hasNoHeat ? "Lay flat or air dry" : "Hang dry or tumble low heat";
+
+          return (
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-orange-300 bg-orange-50">
+                <CardContent className="p-4">
+                  <p className="text-sm font-semibold text-orange-800 flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-4 h-4" /> Shrink Risk — {shrinkItems.length} Item{shrinkItems.length > 1 ? "s" : ""} Need Gentle Drying
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {shrinkItems.map(i => {
+                      const method = i.preferred_dry_method ? i.preferred_dry_method.replace(/_/g, " ") : null;
+                      return (
+                        <Badge key={i.id} className="bg-orange-100 text-orange-800 border border-orange-300 text-xs">
+                          ⚠️ {i.name}{method ? ` — ${method}` : ""}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                  <ul className="space-y-1">
+                    <li className="text-xs text-orange-700 flex items-start gap-1.5"><span>•</span> <strong>Recommended drying:</strong> {recommendedDry}.</li>
+                    <li className="text-xs text-orange-700 flex items-start gap-1.5"><span>•</span> Remove shrink-prone items from the dryer early, or skip it entirely.</li>
+                    <li className="text-xs text-orange-700 flex items-start gap-1.5"><span>•</span> If tumble drying, use the lowest heat setting and check every 10 minutes.</li>
+                    <li className="text-xs text-orange-700 flex items-start gap-1.5"><span>•</span> Wool and cashmere should always be laid flat to dry to keep their shape.</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })()}
+
         {/* New garment color bleed warning */}
         {(() => {
           const newItems = closetItems.filter(i => pickerSelected.has(i.id) && i.is_new_garment);
