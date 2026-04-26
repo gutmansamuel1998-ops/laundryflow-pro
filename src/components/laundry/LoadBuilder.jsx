@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Shirt, Bath, BedDouble, Sparkles, Layers, ArrowRight, ChevronLeft } from "lucide-react";
+import { Shirt, Bath, BedDouble, Sparkles, Layers, ArrowRight, ChevronLeft, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLoadRecommendation } from "@/components/laundry/useLoadRecommendation";
 import AILoadSuggestion from "@/components/laundry/AILoadSuggestion";
@@ -11,6 +11,7 @@ const loadTypes = [
   { value: "towels", label: "Towels", icon: Bath, desc: "Bath & kitchen towels", color: "bg-teal-50 text-teal-600 border-teal-200" },
   { value: "bedding", label: "Bedding", icon: BedDouble, desc: "Sheets & pillowcases", color: "bg-purple-50 text-purple-600 border-purple-200" },
   { value: "mixed", label: "Mixed / Not Sure", icon: Layers, desc: "A bit of everything", color: "bg-amber-50 text-amber-600 border-amber-200" },
+  { value: "first_wash", label: "First Wash", icon: AlertTriangle, desc: "Brand-new garments", color: "bg-amber-50 text-amber-600 border-amber-300", highlight: true },
 ];
 
 const washGuidance = {
@@ -19,7 +20,17 @@ const washGuidance = {
   bedding: { temp: "warm", dry: "tumble_low" },
   delicates: { temp: "cold", dry: "hang_dry" },
   mixed: { temp: "cold", dry: "tumble_low" },
+  first_wash: { temp: "cold", dry: "hang_dry", wash_minutes: 25, dry_minutes: 0 },
 };
+
+const firstWashTips = [
+  "Use cold water only — heat sets dye and worsens bleeding.",
+  "Wash new items alone or only with similar dark colors.",
+  "Add a color catcher sheet to absorb any loose dye.",
+  "Turn garments inside out before placing in the machine.",
+  "Skip fabric softener — it can fix dye unevenly.",
+  "After this wash, mark items as no longer 'new' in your Digital Closet.",
+];
 
 const tempLabels = { cold: "Cold water", warm: "Warm water", hot: "Hot water" };
 const dryLabels = { tumble_low: "Tumble dry low", tumble_medium: "Tumble dry medium", hang_dry: "Hang dry" };
@@ -41,20 +52,23 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
 
   const [suggestedTimers, setSuggestedTimers] = useState(null);
 
+  const delicatesType = { value: "delicates", label: "Delicates", icon: Sparkles, desc: "Gentle cycle items", color: "bg-pink-50 text-pink-600 border-pink-200" };
+  // First 4 standard types + optional delicates + always-visible first_wash
   const allTypes = showDelicates
-    ? [...loadTypes.slice(0, 3), { value: "delicates", label: "Delicates", icon: Sparkles, desc: "Gentle cycle items", color: "bg-pink-50 text-pink-600 border-pink-200" }, loadTypes[3]]
+    ? [...loadTypes.slice(0, 4), delicatesType, loadTypes[4]]
     : loadTypes;
 
   const handleCreate = () => {
     const guidance = washGuidance[selected] || washGuidance.mixed;
+    const isFirstWash = selected === "first_wash";
     onCreateLoad({
-      load_type: selected,
+      load_type: isFirstWash ? "everyday_clothes" : selected, // map to valid entity enum
       current_state: "load_created",
       status: "active",
-      wash_guidance: suggestedTimers?.temp || guidance.temp,
-      dry_guidance: suggestedTimers?.dryMethod || guidance.dry,
-      wash_timer_minutes: suggestedTimers?.wash || 35,
-      dry_timer_minutes: suggestedTimers?.dry || 45,
+      wash_guidance: isFirstWash ? "cold" : (suggestedTimers?.temp || guidance.temp),
+      dry_guidance: isFirstWash ? "hang_dry" : (suggestedTimers?.dryMethod || guidance.dry),
+      wash_timer_minutes: isFirstWash ? 25 : (suggestedTimers?.wash || 35),
+      dry_timer_minutes: isFirstWash ? 45 : (suggestedTimers?.dry || 45),
     });
   };
 
@@ -103,6 +117,8 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
                     className={`p-4 cursor-pointer transition-all duration-200 border-2 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 ${
                       isSelected
                         ? "border-primary shadow-md scale-[1.02]"
+                        : type.highlight
+                        ? "border-amber-300 hover:border-amber-400 shadow-sm"
                         : "border-transparent hover:border-border shadow-sm"
                     }`}
                     onClick={() => { setSelected(type.value); setShowSelectionError(false); }}
@@ -113,6 +129,7 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
                     </div>
                     <p className="font-medium text-sm">{type.label}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{type.desc}</p>
+                    {type.highlight && <p className="text-[10px] text-amber-600 font-semibold mt-1">🆕 Anti-bleed settings</p>}
                   </Card>
                 );
               })}
@@ -199,6 +216,21 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
             <p className="text-xs text-muted-foreground mb-6">
               You can adjust timers once you start the load.
             </p>
+
+            {selected === "first_wash" && (
+              <div className="rounded-2xl bg-amber-50 border border-amber-300 p-4 mb-6 space-y-2">
+                <p className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" /> First Wash Precautions
+                </p>
+                <ul className="space-y-1.5">
+                  {firstWashTips.map((tip, i) => (
+                    <li key={i} className="text-xs text-amber-700 flex items-start gap-1.5">
+                      <span className="font-bold mt-0.5">•</span> {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <Button
               onClick={handleCreate}
