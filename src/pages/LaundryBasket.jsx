@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +17,10 @@ const CATEGORY_EMOJI = {
 };
 
 export default function LaundryBasket() {
-  const [selectedIds, setSelectedIds] = useState([]);
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedIds = urlParams.getAll("ids");
+
+  const [selectedIds, setSelectedIds] = useState(preselectedIds);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 

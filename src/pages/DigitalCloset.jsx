@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -30,7 +31,10 @@ const CATEGORY_EMOJI = {
 
 export default function DigitalCloset() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [showAdd, setShowAdd] = useState(false);
+  const [basketMode, setBasketMode] = useState(false);
+  const [basketSelected, setBasketSelected] = useState([]);
   const [form, setForm] = useState({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" });
   const [checkMode, setCheckMode] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("");
@@ -119,6 +123,16 @@ export default function DigitalCloset() {
     setEditingItem(item.id);
     setEditForm({ name: item.name, category: item.category, fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "" });
     setExpandedItem(item.id);
+  };
+
+  const toggleBasket = (id) => setBasketSelected(prev =>
+    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+  );
+
+  const sendToBasket = () => {
+    const params = new URLSearchParams();
+    basketSelected.forEach(id => params.append("ids", id));
+    navigate(`/LaundryBasket?${params.toString()}`);
   };
 
   const markWorn = (item) => {
@@ -220,9 +234,14 @@ Then give an overall safety summary and any general tips.`,
                 <p className="text-sm text-muted-foreground">Store garments · Get wash safety warnings</p>
               </div>
             </div>
-            <Button size="sm" onClick={() => setShowAdd(!showAdd)} className="gap-1.5 rounded-xl">
-              <Plus className="w-4 h-4" /> Add
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" variant={basketMode ? "default" : "outline"} onClick={() => { setBasketMode(!basketMode); setBasketSelected([]); }} className="gap-1.5 rounded-xl">
+                <ShoppingBasket className="w-4 h-4" /> {basketMode ? "Cancel" : "Basket"}
+              </Button>
+              <Button size="sm" onClick={() => setShowAdd(!showAdd)} className="gap-1.5 rounded-xl">
+                <Plus className="w-4 h-4" /> Add
+              </Button>
+            </div>
           </div>
         </motion.div>
 
@@ -515,19 +534,29 @@ Then give an overall safety summary and any general tips.`,
                         </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
-                        onClick={() => markWorn(item)}
-                        title="Mark as worn today"
-                        className="p-1 text-muted-foreground hover:text-primary"
-                      >
-                        <Repeat2 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)} className="p-1 text-muted-foreground hover:text-foreground">
-                        {expandedItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-                      <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {basketMode ? (
+                        <button onClick={() => toggleBasket(item.id)} className="p-1">
+                          {basketSelected.includes(item.id)
+                            ? <CheckSquare className="w-5 h-5 text-primary" />
+                            : <Square className="w-5 h-5 text-muted-foreground" />}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => markWorn(item)}
+                            title="Mark as worn today"
+                            className="p-1 text-muted-foreground hover:text-primary"
+                          >
+                            <Repeat2 className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)} className="p-1 text-muted-foreground hover:text-foreground">
+                            {expandedItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </button>
+                          <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                       </div>
                     </div>
 
@@ -636,6 +665,33 @@ Then give an overall safety summary and any general tips.`,
           </div>
         )}
       </div>
+
+      {/* Basket mode sticky bar */}
+      <AnimatePresence>
+        {basketMode && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            className="fixed bottom-16 left-0 right-0 z-50 px-4 pb-2"
+          >
+            <div className="max-w-lg mx-auto bg-primary text-primary-foreground rounded-2xl px-4 py-3 flex items-center justify-between shadow-xl">
+              <span className="text-sm font-medium">
+                {basketSelected.length === 0 ? "Tap items to select" : `${basketSelected.length} item${basketSelected.length > 1 ? "s" : ""} selected`}
+              </span>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={basketSelected.length === 0}
+                onClick={sendToBasket}
+                className="gap-1.5 rounded-xl"
+              >
+                <ShoppingBasket className="w-4 h-4" /> Send to Basket
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
