@@ -1,0 +1,38 @@
+{
+  "name": "AirDrySession",
+  "type": "object",
+  "properties": {
+    "item_names": {
+      "type": "string",
+      "description": "Names of items left to air dry (comma-separated)"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the air drying session started"
+    },
+    "remind_after_hours": {
+      "type": "number",
+      "default": 3,
+      "description": "Number of hours before sending a reminder"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "drying",
+        "done"
+      ],
+      "default": "drying",
+      "description": "Whether the session is still active or completed"
+    },
+    "notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the reminder notification has been sent"
+    }
+  },
+  "required": [
+    "item_names",
+    "started_at"
+  ]
+}

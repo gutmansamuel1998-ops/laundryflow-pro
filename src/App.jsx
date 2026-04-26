@@ -32,6 +32,7 @@ import FabricCareLibrary from '@/pages/FabricCareLibrary';
 import LoadPlanner from '@/pages/LoadPlanner';
 import DigitalCloset from '@/pages/DigitalCloset';
 import LaundryBasket from '@/pages/LaundryBasket';
+import AirDryTracker from '@/pages/AirDryTracker';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -212,6 +213,11 @@ const AuthenticatedApp = () => {
       <Route path="/LaundryBasket" element={
         <LayoutWrapper currentPageName="LaundryBasket">
           <LaundryBasket />
+        </LayoutWrapper>
+      } />
+      <Route path="/AirDryTracker" element={
+        <LayoutWrapper currentPageName="AirDryTracker">
+          <AirDryTracker />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
