@@ -39,7 +39,6 @@ export default function Settings() {
     idle_threshold_minutes: 120,
     max_idle_time_load_created: 240,
     voice_commands_enabled: false,
-    keyboard_navigation: false,
     alert_channels: {
       wash_finished: { push: true },
       dryer_finished: { push: true },
@@ -67,7 +66,6 @@ export default function Settings() {
         idle_threshold_minutes: u?.idle_threshold_minutes ?? 120,
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
         voice_commands_enabled: u?.voice_commands_enabled || false,
-        keyboard_navigation: u?.keyboard_navigation || false,
         alert_channels: u?.alert_channels || {
           wash_finished: { push: true },
           dryer_finished: { push: true },
@@ -106,10 +104,6 @@ export default function Settings() {
   useEffect(() => {
     document.documentElement.classList.toggle("dyslexia-font", settings.dyslexia_font);
   }, [settings.dyslexia_font]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("keyboard-nav", settings.keyboard_navigation);
-  }, [settings.keyboard_navigation]);
 
   const handleSave = async () => {
     await base44.auth.updateMe(settings);
@@ -406,19 +400,7 @@ export default function Settings() {
                   onCheckedChange={(v) => setSettings(prev => ({ ...prev, dyslexia_font: v }))}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="keyboard-nav">Keyboard navigation</Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Enhances focus indicators so all buttons and links are fully operable by keyboard
-                  </p>
-                </div>
-                <Switch
-                  id="keyboard-nav"
-                  checked={settings.keyboard_navigation}
-                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, keyboard_navigation: v }))}
-                />
-              </div>
+
             </Card>
           </section>
 
