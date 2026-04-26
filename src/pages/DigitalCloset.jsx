@@ -45,7 +45,7 @@ export default function DigitalCloset() {
   const [showAdd, setShowAdd] = useState(false);
   const [basketMode, setBasketMode] = useState(false);
   const [basketSelected, setBasketSelected] = useState([]);
-  const [form, setForm] = useState({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false });
+  const [form, setForm] = useState({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, preferred_dry_method: "" });
   const [filterLifestyle, setFilterLifestyle] = useState("all");
   const [checkMode, setCheckMode] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("");
@@ -75,7 +75,7 @@ export default function DigitalCloset() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.ClothingItem.create(data),
-    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false }); }
+    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, preferred_dry_method: "" }); }
   });
 
   const deleteMutation = useMutation({
@@ -137,7 +137,7 @@ export default function DigitalCloset() {
 
   const startEdit = (item) => {
     setEditingItem(item.id);
-    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false });
+    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, preferred_dry_method: item.preferred_dry_method || "" });
     setExpandedItem(item.id);
   };
 
@@ -280,7 +280,25 @@ Give each outfit a fun short name and a brief styling tip.`,
 
   const activeFilterCount = (filterCategory !== "all" ? 1 : 0) + (filterColor !== "all" ? 1 : 0) + (filterLifestyle !== "all" ? 1 : 0);
 
-  const SHRINK_PRONE_FABRICS = ["cotton", "wool", "linen", "cashmere", "rayon", "bamboo", "silk"];
+  const DRY_METHODS = [
+  { id: "tumble_low", label: "Tumble Low", emoji: "🌡️" },
+  { id: "tumble_medium", label: "Tumble Medium", emoji: "🔥" },
+  { id: "tumble_high", label: "Tumble High", emoji: "🔥🔥" },
+  { id: "hang_dry", label: "Hang Dry", emoji: "👕" },
+  { id: "lay_flat", label: "Lay Flat", emoji: "📋" },
+  { id: "air_dry", label: "Air Dry", emoji: "💨" },
+];
+
+const DRY_METHOD_SAFETY = {
+  tumble_high: { color: "text-red-700 bg-red-50 border-red-200", label: "High heat — shrink risk!" },
+  tumble_medium: { color: "text-amber-700 bg-amber-50 border-amber-200", label: "Medium heat" },
+  tumble_low: { color: "text-emerald-700 bg-emerald-50 border-emerald-200", label: "Low heat — safe" },
+  hang_dry: { color: "text-blue-700 bg-blue-50 border-blue-200", label: "Hang dry — no shrink" },
+  lay_flat: { color: "text-blue-700 bg-blue-50 border-blue-200", label: "Lay flat — no shrink" },
+  air_dry: { color: "text-blue-700 bg-blue-50 border-blue-200", label: "Air dry — no shrink" },
+};
+
+const SHRINK_PRONE_FABRICS = ["cotton", "wool", "linen", "cashmere", "rayon", "bamboo", "silk"];
 const isShrinkRisk = (item) => {
   const fabric = (item.fabric_composition || "").toLowerCase();
   const care = (item.care_instructions || "").toLowerCase();
@@ -416,6 +434,17 @@ const SAFETY_STYLES = {
                   </div>
                   <Input placeholder="Fabric composition (e.g. 80% cotton, 20% polyester)" value={form.fabric_composition} onChange={e => setForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
                   <Textarea placeholder="Care label instructions (e.g. Hand wash cold, do not tumble dry)" value={form.care_instructions} onChange={e => setForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[70px]" />
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Preferred Drying Method</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {DRY_METHODS.map(d => (
+                        <button key={d.id} onClick={() => setForm(f => ({ ...f, preferred_dry_method: form.preferred_dry_method === d.id ? "" : d.id }))}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.preferred_dry_method === d.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                          {d.emoji} {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <Textarea placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                   <div className="flex gap-2">
                     <Button onClick={() => addMutation.mutate(form)} disabled={!form.name || addMutation.isPending} className="flex-1 rounded-xl">
@@ -734,7 +763,12 @@ const SAFETY_STYLES = {
                             {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
                             {item.lifestyle && (() => { const l = LIFESTYLES.find(x => x.id === item.lifestyle); return l ? <Badge variant="outline" className="text-xs">{l.emoji} {l.label}</Badge> : null; })()}
                             {item.is_new_garment && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-200 border">🆕 New — First wash</Badge>}
-                            {isShrinkRisk(item) && <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200 border">⚠️ Air dry recommended</Badge>}
+                            {isShrinkRisk(item) && !item.preferred_dry_method && <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200 border">⚠️ Air dry recommended</Badge>}
+                            {item.preferred_dry_method && (() => {
+                              const method = DRY_METHODS.find(d => d.id === item.preferred_dry_method);
+                              const safety = DRY_METHOD_SAFETY[item.preferred_dry_method];
+                              return method ? <Badge className={`text-xs border ${safety?.color || "bg-secondary text-foreground border-border"}`}>{method.emoji} {method.label}</Badge> : null;
+                            })()}
                           </div>
                           <div className="flex gap-2 mt-1">
                             {(item.wear_count > 0) && (
@@ -862,6 +896,17 @@ const SAFETY_STYLES = {
                               </div>
                               <Input placeholder="Fabric composition" value={editForm.fabric_composition} onChange={e => setEditForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
                               <Textarea placeholder="Care instructions" value={editForm.care_instructions} onChange={e => setEditForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[60px]" />
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1">Preferred Drying Method</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {DRY_METHODS.map(d => (
+                                    <button key={d.id} onClick={() => setEditForm(f => ({ ...f, preferred_dry_method: editForm.preferred_dry_method === d.id ? "" : d.id }))}
+                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.preferred_dry_method === d.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                      {d.emoji} {d.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
                               <Textarea placeholder="Notes (optional)" value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                               <div className="flex gap-2 pt-1">
                                 <Button onClick={() => editMutation.mutate({ id: item.id, data: editForm })} disabled={!editForm.name || editMutation.isPending} className="flex-1 rounded-xl gap-1.5" size="sm">

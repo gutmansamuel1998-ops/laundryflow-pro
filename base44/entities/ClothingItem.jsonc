@@ -48,6 +48,18 @@
       "type": "string",
       "description": "Raw care label instructions from the garment tag"
     },
+    "preferred_dry_method": {
+      "type": "string",
+      "enum": [
+        "tumble_low",
+        "tumble_medium",
+        "tumble_high",
+        "hang_dry",
+        "lay_flat",
+        "air_dry"
+      ],
+      "description": "Preferred drying method for this garment to prevent shrinkage"
+    },
     "color": {
       "type": "string",
       "enum": [
