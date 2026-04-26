@@ -22,8 +22,13 @@ export default function AIAssistant() {
   const [loading, setLoading] = useState(false);
   const [isPremium, setIsPremium] = useState(null);
   const [newGarments, setNewGarments] = useState([]);
+  const [shrinkItems, setShrinkItems] = useState([]);
   const [firstWashExpanded, setFirstWashExpanded] = useState(false);
+  const [shrinkExpanded, setShrinkExpanded] = useState(false);
   const navigate = useNavigate();
+
+  const SHRINK_FABRICS = ["cotton", "wool", "linen", "cashmere", "rayon", "bamboo", "silk"];
+  const AIR_DRY_METHODS = ["hang_dry", "lay_flat", "air_dry"];
 
   useEffect(() => {
     base44.auth.me().then((user) => {
@@ -31,6 +36,17 @@ export default function AIAssistant() {
     }).catch(() => setIsPremium(false));
 
     base44.entities.ClothingItem.filter({ is_new_garment: true }).then(setNewGarments).catch(() => {});
+
+    base44.entities.ClothingItem.list().then(items => {
+      const risky = items.filter(i => {
+        const fabric = (i.fabric_composition || "").toLowerCase();
+        const care = (i.care_instructions || "").toLowerCase();
+        return SHRINK_FABRICS.some(f => fabric.includes(f))
+          || care.includes("do not tumble") || care.includes("hang dry") || care.includes("air dry") || care.includes("lay flat")
+          || AIR_DRY_METHODS.includes(i.preferred_dry_method);
+      });
+      setShrinkItems(risky);
+    }).catch(() => {});
   }, []);
 
   const handleAsk = async (customQuestion = null) => {
@@ -47,8 +63,12 @@ export default function AIAssistant() {
         ? `\n\nThe user currently has these brand-new garments in their closet that haven't been washed yet: ${newGarments.map(g => g.name).join(", ")}. If the question is related to any of these items or to new/first-wash clothes in general, proactively mention color bleed risks and first-wash precautions.`
         : "";
 
+      const shrinkContext = shrinkItems.length > 0
+        ? `\n\nThe user has these shrink-prone garments in their closet: ${shrinkItems.map(g => `${g.name}${g.fabric_composition ? ` (${g.fabric_composition})` : ""}${g.preferred_dry_method ? `, prefers ${g.preferred_dry_method.replace(/_/g, " ")}` : ""}`).join("; ")}. If the question is about drying, laundry settings, or any of these specific items, proactively warn about shrinkage risks and recommend air drying or low heat.`
+        : "";
+
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a supportive laundry assistant. Answer this question in a calm, clear, and helpful way. Avoid judgment or urgency. Keep it simple and actionable.${newGarmentContext}\n\nQuestion: ${q}`,
+        prompt: `You are a supportive laundry assistant. Answer this question in a calm, clear, and helpful way. Avoid judgment or urgency. Keep it simple and actionable.${newGarmentContext}${shrinkContext}\n\nQuestion: ${q}`,
       });
 
       const aiMessage = { role: "assistant", content: response };
@@ -177,6 +197,75 @@ export default function AIAssistant() {
                           onClick={() => handleAsk("Should I add color catcher sheets to my shopping list for washing new clothes?")}
                         >
                           <ShoppingCart className="w-3.5 h-3.5 mr-1.5" /> Do I need color catchers?
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Proactive shrink-risk alert */}
+          {shrinkItems.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="rounded-2xl border border-orange-300 bg-orange-50 p-4">
+                <button
+                  className="w-full flex items-start justify-between gap-3 text-left"
+                  onClick={() => setShrinkExpanded(e => !e)}
+                >
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-orange-800">
+                        {shrinkItems.length} garment{shrinkItems.length > 1 ? "s" : ""} at risk of shrinking in the dryer
+                      </p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {shrinkItems.slice(0, 4).map(g => (
+                          <Badge key={g.id} className="bg-orange-100 text-orange-800 border border-orange-300 text-xs">⚠️ {g.name}</Badge>
+                        ))}
+                        {shrinkItems.length > 4 && <Badge className="bg-orange-100 text-orange-800 border border-orange-300 text-xs">+{shrinkItems.length - 4} more</Badge>}
+                      </div>
+                    </div>
+                  </div>
+                  {shrinkExpanded
+                    ? <ChevronUp className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                    : <ChevronDown className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />}
+                </button>
+                <AnimatePresence>
+                  {shrinkExpanded && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-3 space-y-1.5 pt-3 border-t border-orange-200">
+                        {[
+                          "Wool, cotton, silk, and linen can shrink significantly in a hot dryer.",
+                          "Always use the lowest heat setting — or skip the dryer entirely.",
+                          "Lay wool and cashmere flat to dry to preserve their shape.",
+                          "Remove shrink-prone items from a mixed load before starting the dryer.",
+                        ].map((tip, i) => (
+                          <p key={i} className="text-xs text-orange-700 flex items-start gap-1.5">
+                            <span className="font-bold mt-0.5">•</span> {tip}
+                          </p>
+                        ))}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full mt-2 rounded-xl border-orange-300 text-orange-800 bg-orange-100 hover:bg-orange-200 text-xs"
+                          onClick={() => { setShrinkExpanded(false); handleAsk(`I have these shrink-prone garments: ${shrinkItems.map(g => g.name).join(", ")}. Give me specific drying instructions for each.`); }}
+                        >
+                          <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Get drying plan for my closet
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full rounded-xl border-orange-300 text-orange-800 bg-orange-100 hover:bg-orange-200 text-xs"
+                          onClick={() => { setShrinkExpanded(false); handleAsk("How can I unshrink clothes that have already shrunk in the dryer?"); }}
+                        >
+                          <Sparkles className="w-3.5 h-3.5 mr-1.5" /> How to unshrink clothes?
                         </Button>
                       </div>
                     </motion.div>
