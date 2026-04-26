@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ImageIcon
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -31,7 +31,7 @@ const CATEGORY_EMOJI = {
 export default function DigitalCloset() {
   const qc = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "" });
+  const [form, setForm] = useState({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" });
   const [checkMode, setCheckMode] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("");
   const [selectedSupplies, setSelectedSupplies] = useState([]);
@@ -40,6 +40,7 @@ export default function DigitalCloset() {
   const [expandedItem, setExpandedItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -48,7 +49,7 @@ export default function DigitalCloset() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.ClothingItem.create(data),
-    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "" }); }
+    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "" }); }
   });
 
   const deleteMutation = useMutation({
@@ -61,9 +62,21 @@ export default function DigitalCloset() {
     onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setEditingItem(null); setEditForm({}); }
   });
 
+  const handlePhotoUpload = async (file, target) => {
+    if (!file) return;
+    setUploadingPhoto(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    if (target === "add") {
+      setForm(f => ({ ...f, image_url: file_url }));
+    } else {
+      setEditForm(f => ({ ...f, image_url: file_url }));
+    }
+    setUploadingPhoto(false);
+  };
+
   const startEdit = (item) => {
     setEditingItem(item.id);
-    setEditForm({ name: item.name, category: item.category, fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "" });
+    setEditForm({ name: item.name, category: item.category, fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "" });
     setExpandedItem(item.id);
   };
 
@@ -162,6 +175,26 @@ Then give an overall safety summary and any general tips.`,
                   <CardTitle className="text-base">New Garment</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 pb-4 space-y-3">
+                  {/* Photo upload */}
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1.5">Photo (optional)</label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      {form.image_url ? (
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
+                          <img src={form.image_url} alt="Garment" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                            <X className="w-2.5 h-2.5 text-white" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center flex-shrink-0 bg-secondary">
+                          {uploadingPhoto ? <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
+                        </div>
+                      )}
+                      <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : form.image_url ? "Change photo" : "Upload photo"}</span>
+                      <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={e => handlePhotoUpload(e.target.files[0], "add")} />
+                    </label>
+                  </div>
                   <Input placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -313,7 +346,13 @@ Then give an overall safety summary and any general tips.`,
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-start gap-2 flex-1 min-w-0">
-                        <span className="text-xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                        {item.image_url ? (
+                          <div className="w-10 h-10 rounded-xl overflow-hidden border border-border flex-shrink-0">
+                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <span className="text-xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{item.name}</p>
                           <div className="flex flex-wrap gap-1.5 mt-1">
@@ -337,6 +376,26 @@ Then give an overall safety summary and any general tips.`,
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 pt-3 border-t border-border/50 space-y-2">
                           {editingItem === item.id ? (
                             <div className="space-y-2">
+                              {/* Photo upload in edit */}
+                              <div>
+                                <p className="text-xs text-muted-foreground mb-1.5">Photo</p>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                  {editForm.image_url ? (
+                                    <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
+                                      <img src={editForm.image_url} alt="Garment" className="w-full h-full object-cover" />
+                                      <button type="button" onClick={() => setEditForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                                        <X className="w-2.5 h-2.5 text-white" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center flex-shrink-0 bg-secondary">
+                                      {uploadingPhoto ? <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
+                                    </div>
+                                  )}
+                                  <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : editForm.image_url ? "Change photo" : "Upload photo"}</span>
+                                  <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={e => handlePhotoUpload(e.target.files[0], "edit")} />
+                                </label>
+                              </div>
                               <Input placeholder="Item name" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
                               <div>
                                 <p className="text-xs text-muted-foreground mb-1">Category</p>
