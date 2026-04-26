@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine
+  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -41,8 +41,12 @@ export default function DigitalCloset() {
   const [editingItem, setEditingItem] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [scanningTag, setScanningTag] = useState(false); // "add" | "edit" | false
-  const [tagScanTarget, setTagScanTarget] = useState(null); // "add" | "edit"
+  const [scanningTag, setScanningTag] = useState(false);
+  const [tagScanTarget, setTagScanTarget] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterColor, setFilterColor] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -174,6 +178,20 @@ Then give an overall safety summary and any general tips.`,
     setCheckResult(result);
     setIsChecking(false);
   };
+
+  const filteredItems = items.filter(item => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q ||
+      item.name?.toLowerCase().includes(q) ||
+      item.fabric_composition?.toLowerCase().includes(q) ||
+      item.care_instructions?.toLowerCase().includes(q) ||
+      item.notes?.toLowerCase().includes(q);
+    const matchesCategory = filterCategory === "all" || item.category === filterCategory;
+    const matchesColor = filterColor === "all" || item.color === filterColor;
+    return matchesSearch && matchesCategory && matchesColor;
+  });
+
+  const activeFilterCount = (filterCategory !== "all" ? 1 : 0) + (filterColor !== "all" ? 1 : 0);
 
   const SAFETY_STYLES = {
     safe: { badge: "bg-emerald-100 text-emerald-700", icon: <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> },
@@ -377,6 +395,69 @@ Then give an overall safety summary and any general tips.`,
           </Card>
         )}
 
+        {/* Search & Filter */}
+        {items.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search garments..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9 rounded-xl"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-1.5 px-3 rounded-xl border text-sm font-medium transition-all ${showFilters || activeFilterCount > 0 ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border text-foreground"}`}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                {activeFilterCount > 0 && <span className="text-xs">{activeFilterCount}</span>}
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Category</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {["all", ...CATEGORIES].map(c => (
+                        <button key={c} onClick={() => setFilterCategory(c)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterCategory === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                          {c === "all" ? "All" : `${CATEGORY_EMOJI[c]} ${c}`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1.5">Color Group</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {["all", ...COLORS].map(c => (
+                        <button key={c} onClick={() => setFilterColor(c)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterColor === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                          {c === "all" ? "All Colors" : c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {activeFilterCount > 0 && (
+                    <button onClick={() => { setFilterCategory("all"); setFilterColor("all"); }} className="text-xs text-primary font-medium">
+                      Clear filters
+                    </button>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
         {/* Clothing items list */}
         {isLoading ? (
           <p className="text-center text-sm text-muted-foreground pt-4">Loading your closet...</p>
@@ -386,10 +467,18 @@ Then give an overall safety summary and any general tips.`,
             <p className="text-sm text-muted-foreground">Your digital closet is empty.</p>
             <p className="text-xs text-muted-foreground">Add garments to get wash safety warnings.</p>
           </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center pt-6 space-y-2">
+            <Search className="w-10 h-10 text-muted-foreground/30 mx-auto" />
+            <p className="text-sm text-muted-foreground">No garments match your search.</p>
+            <button onClick={() => { setSearchQuery(""); setFilterCategory("all"); setFilterColor("all"); }} className="text-xs text-primary font-medium">Clear search & filters</button>
+          </div>
         ) : (
           <div className="space-y-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{items.length} Garment{items.length > 1 ? "s" : ""}</h2>
-            {items.map((item, i) => (
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              {filteredItems.length !== items.length ? `${filteredItems.length} of ${items.length}` : items.length} Garment{items.length > 1 ? "s" : ""}
+            </h2>
+            {filteredItems.map((item, i) => (
               <motion.div key={item.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
                 <Card className="border-border/50">
                   <CardContent className="p-4">
