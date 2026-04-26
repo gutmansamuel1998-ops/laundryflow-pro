@@ -1,9 +1,26 @@
 import React from "react";
 import GuideCard from "@/components/laundry/GuideCard";
-import { Thermometer, Palette, Droplets, Wind } from "lucide-react";
+import { Thermometer, Palette, Droplets, Wind, ShieldAlert } from "lucide-react";
 import { motion } from "framer-motion";
 
 const guides = [
+  {
+    title: "First Wash — Preventing Color Bleed",
+    icon: ShieldAlert,
+    color: "bg-amber-50 text-amber-600",
+    highlight: true,
+    intro: "New garments often have excess dye that bleeds in the first wash. Follow these steps to protect your clothes.",
+    items: [
+      { label: "Always use cold water", text: "Heat opens fabric fibers and releases dye. Cold water (60–80°F) keeps dye locked in and dramatically reduces bleeding." },
+      { label: "Wash new items alone or by color", text: "Never mix brand-new dark or bright garments with whites or light colors for the first 2–3 washes." },
+      { label: "Turn garments inside out", text: "Flipping clothes inside out reduces friction on the outer surface, preserving color and preventing dye transfer." },
+      { label: "Use a color catcher sheet", text: "Products like Shout Color Catchers absorb loose dye in the wash water, protecting everything else in the load." },
+      { label: "Skip the fabric softener", text: "Fabric softener can interfere with dye setting and spread loose dye unevenly across the load." },
+      { label: "Use a gentle or delicate cycle", text: "Less agitation = less dye released. Choose the shortest, gentlest cycle available for new items." },
+      { label: "Hang dry after the first wash", text: "Dryer heat can set any remaining transferred dye permanently. Air dry after the first wash to be safe." },
+      { label: "Check for bleeding before mixing", text: "Dampen a white cloth and rub it on the garment. If color transfers, repeat the first-wash process before mixing with other clothes." },
+    ],
+  },
   {
     title: "Water Temperature",
     icon: Thermometer,
