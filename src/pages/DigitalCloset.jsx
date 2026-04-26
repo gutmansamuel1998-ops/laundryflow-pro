@@ -45,7 +45,7 @@ export default function DigitalCloset() {
   const [showAdd, setShowAdd] = useState(false);
   const [basketMode, setBasketMode] = useState(false);
   const [basketSelected, setBasketSelected] = useState([]);
-  const [form, setForm] = useState({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, preferred_dry_method: "" });
+  const [form, setForm] = useState({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, is_wrinkle_free: false, preferred_dry_method: "" });
   const [filterLifestyle, setFilterLifestyle] = useState("all");
   const [checkMode, setCheckMode] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("");
@@ -75,7 +75,7 @@ export default function DigitalCloset() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.ClothingItem.create(data),
-    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, preferred_dry_method: "" }); }
+    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, is_wrinkle_free: false, preferred_dry_method: "" }); }
   });
 
   const deleteMutation = useMutation({
@@ -137,7 +137,7 @@ export default function DigitalCloset() {
 
   const startEdit = (item) => {
     setEditingItem(item.id);
-    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, preferred_dry_method: item.preferred_dry_method || "" });
+    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, is_wrinkle_free: item.is_wrinkle_free || false, preferred_dry_method: item.preferred_dry_method || "" });
     setExpandedItem(item.id);
   };
 
@@ -394,6 +394,21 @@ const SAFETY_STYLES = {
                     </div>
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_new_garment ? "bg-amber-500 border-amber-500" : "border-border"}`}>
                       {form.is_new_garment && <span className="text-white text-xs">✓</span>}
+                    </div>
+                  </button>
+                  {/* Wrinkle-free toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
+                  >
+                    <span className="text-lg">✨</span>
+                    <div className="flex-1 text-left">
+                      <p className="font-medium text-sm">{form.is_wrinkle_free ? "Wrinkle-Free / Non-Iron" : "Is this wrinkle-free or non-iron?"}</p>
+                      {form.is_wrinkle_free && <p className="text-xs font-normal text-sky-700 mt-0.5">No ironing needed — will be excluded from ironing queue</p>}
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.is_wrinkle_free ? "bg-sky-500 border-sky-500" : "border-border"}`}>
+                      {form.is_wrinkle_free && <span className="text-white text-xs">✓</span>}
                     </div>
                   </button>
                   {/* Lifestyle */}
@@ -763,6 +778,7 @@ const SAFETY_STYLES = {
                             {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
                             {item.lifestyle && (() => { const l = LIFESTYLES.find(x => x.id === item.lifestyle); return l ? <Badge variant="outline" className="text-xs">{l.emoji} {l.label}</Badge> : null; })()}
                             {item.is_new_garment && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-200 border">🆕 New — First wash</Badge>}
+                            {item.is_wrinkle_free && <Badge className="text-xs bg-sky-100 text-sky-800 border-sky-200 border">✨ Wrinkle-Free</Badge>}
                             {isShrinkRisk(item) && !item.preferred_dry_method && <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200 border">⚠️ Air dry recommended</Badge>}
                             {item.preferred_dry_method && (() => {
                               const method = DRY_METHODS.find(d => d.id === item.preferred_dry_method);
@@ -859,6 +875,20 @@ const SAFETY_STYLES = {
                                </div>
                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editForm.is_new_garment ? "bg-amber-500 border-amber-500" : "border-border"}`}>
                                  {editForm.is_new_garment && <span className="text-white text-xs">✓</span>}
+                               </div>
+                              </button>
+                              <button
+                               type="button"
+                               onClick={() => setEditForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
+                               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
+                              >
+                               <span className="text-lg">✨</span>
+                               <div className="flex-1 text-left">
+                                 <p className="font-medium text-sm">{editForm.is_wrinkle_free ? "Wrinkle-Free / Non-Iron" : "Is this wrinkle-free or non-iron?"}</p>
+                                 {editForm.is_wrinkle_free && <p className="text-xs font-normal text-sky-700 mt-0.5">No ironing needed — excluded from ironing queue</p>}
+                               </div>
+                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editForm.is_wrinkle_free ? "bg-sky-500 border-sky-500" : "border-border"}`}>
+                                 {editForm.is_wrinkle_free && <span className="text-white text-xs">✓</span>}
                                </div>
                               </button>
                               <div>

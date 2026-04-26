@@ -40,6 +40,11 @@
       "default": false,
       "description": "Whether this item has never been washed before (first wash precaution for color bleeding)"
     },
+    "is_wrinkle_free": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item is wrinkle-free / non-iron fabric"
+    },
     "fabric_composition": {
       "type": "string",
       "description": "Fabric content e.g. '80% cotton, 20% polyester'"
