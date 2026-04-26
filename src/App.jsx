@@ -33,6 +33,7 @@ import LoadPlanner from '@/pages/LoadPlanner';
 import DigitalCloset from '@/pages/DigitalCloset';
 import LaundryBasket from '@/pages/LaundryBasket';
 import AirDryTracker from '@/pages/AirDryTracker';
+import IroningGuide from '@/pages/IroningGuide';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -218,6 +219,11 @@ const AuthenticatedApp = () => {
       <Route path="/AirDryTracker" element={
         <LayoutWrapper currentPageName="AirDryTracker">
           <AirDryTracker />
+        </LayoutWrapper>
+      } />
+      <Route path="/IroningGuide" element={
+        <LayoutWrapper currentPageName="IroningGuide">
+          <IroningGuide />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
