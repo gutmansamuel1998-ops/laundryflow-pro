@@ -1,13 +1,7 @@
 import React from "react";
-import { CheckCircle, Flame, Thermometer, StickyNote } from "lucide-react";
+import { CheckCircle, StickyNote } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const heatLabels = {
-  no_iron: { label: "No Iron", color: "bg-blue-50 text-blue-700 border-blue-200" },
-  low:     { label: "Low Heat", color: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-  medium:  { label: "Medium Heat", color: "bg-orange-50 text-orange-700 border-orange-200" },
-  high:    { label: "High Heat", color: "bg-red-50 text-red-700 border-red-200" },
-};
+import HeatSettingGuide from "./HeatSettingGuide";
 
 const categoryEmoji = {
   tops: "👕", bottoms: "👖", outerwear: "🧥", underwear: "🩲",
@@ -15,7 +9,6 @@ const categoryEmoji = {
 };
 
 export default function IroningItemCard({ item, index, total, onDone, isDoneLoading }) {
-  const heat = heatLabels[item.ironing_heat] || heatLabels.medium;
   const emoji = categoryEmoji[item.category] || "👔";
 
   return (
@@ -46,15 +39,11 @@ export default function IroningItemCard({ item, index, total, onDone, isDoneLoad
         )}
       </div>
 
-      {/* Heat badge */}
-      {item.ironing_heat && (
-        <div className="flex justify-center">
-          <span className={`inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full border ${heat.color}`}>
-            <Thermometer className="w-3.5 h-3.5" />
-            {heat.label}
-          </span>
-        </div>
-      )}
+      {/* Heat setting guide */}
+      <HeatSettingGuide
+        ironingHeat={item.ironing_heat}
+        fabricComposition={item.fabric_composition}
+      />
 
       {/* Ironing notes */}
       {item.ironing_notes && (
