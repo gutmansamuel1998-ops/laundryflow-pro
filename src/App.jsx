@@ -35,6 +35,7 @@ import LaundryBasket from '@/pages/LaundryBasket';
 import AirDryTracker from '@/pages/AirDryTracker';
 import IroningGuide from '@/pages/IroningGuide';
 import IroningQueue from '@/pages/IroningQueue';
+import IroningDashboard from '@/pages/IroningDashboard';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -230,6 +231,11 @@ const AuthenticatedApp = () => {
       <Route path="/IroningQueue" element={
         <LayoutWrapper currentPageName="IroningQueue">
           <IroningQueue />
+        </LayoutWrapper>
+      } />
+      <Route path="/IroningDashboard" element={
+        <LayoutWrapper currentPageName="IroningDashboard">
+          <IroningDashboard />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
