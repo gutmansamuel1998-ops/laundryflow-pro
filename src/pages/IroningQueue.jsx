@@ -1,17 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Plus, CheckCircle, Clock, Trash2, BookOpen } from "lucide-react";
+import { ArrowLeft, Plus, CheckCircle, Clock, Trash2, BookOpen, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format, isPast, isToday } from "date-fns";
+import { useIroningTimer } from "@/hooks/useIroningTimer";
+import IroningTimerModal from "@/components/ironing/IroningTimerModal";
 
 export default function IroningQueue() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ item_names: "", scheduled_for: "", notes: "" });
+  const [showTimer, setShowTimer] = useState(false);
+  const { timerState, startSession, play, pause, reset, nextItem, setMinutesPerItem, clearTimer } = useIroningTimer();
+
+  // Re-open timer modal if there's an active session on mount
+  useEffect(() => {
+    if (timerState && !timerState.isComplete) setShowTimer(true);
+  }, []);
 
   const { data: sessions = [], isLoading } = useQuery({
     queryKey: ["ironing-sessions"],
@@ -52,6 +61,32 @@ export default function IroningQueue() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
+      {showTimer && timerState && (
+        <IroningTimerModal
+          timerState={timerState}
+          onPlay={play}
+          onPause={pause}
+          onReset={reset}
+          onNext={nextItem}
+          onSetMinutes={setMinutesPerItem}
+          onClose={() => { setShowTimer(false); if (timerState?.isComplete) clearTimer(); }}
+        />
+      )}
+      {/* Resume banner */}
+      {timerState && !timerState.isComplete && !showTimer && (
+        <div
+          className="mx-4 mt-4 bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 flex items-center justify-between cursor-pointer"
+          onClick={() => setShowTimer(true)}
+        >
+          <div className="flex items-center gap-2">
+            <Timer className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Timer running — tap to resume</span>
+          </div>
+          <span className="text-xs text-primary font-semibold">
+            {String(Math.floor(timerState.remaining / 60)).padStart(2,"0")}:{String(timerState.remaining % 60).padStart(2,"0")}
+          </span>
+        </div>
+      )}
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -146,6 +181,18 @@ export default function IroningQueue() {
                     )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 text-xs text-primary hover:text-primary hover:bg-primary/10"
+                      onClick={() => {
+                        startSession(session.id, items);
+                        setShowTimer(true);
+                      }}
+                      title="Start ironing timer"
+                    >
+                      <Timer className="w-3.5 h-3.5" /> Start
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
