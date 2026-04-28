@@ -5,13 +5,13 @@ import FeedbackModal from "@/components/FeedbackModal";
 import NotificationPermissionBanner from "@/components/notifications/NotificationPermissionBanner";
 import LowSupplyNotifier from "@/components/notifications/LowSupplyNotifier";
 import { createPageUrl } from "@/utils";
-import { Home, Play, Layers, Sparkles, Settings, Package } from "lucide-react";
+import { Home, Play, Layers, Sparkles, Settings, Package, Shirt } from "lucide-react";
 
 const navItems = [
   { page: "Home", label: "Home", icon: Home },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Loads", label: "Loads", icon: Layers },
-  { page: "Supplies", label: "Supplies", icon: Package },
+  { page: "DigitalCloset", label: "My Closet", icon: Shirt, emoji: "👖" },
   { page: "AIAssistant", label: "AI Help", icon: Sparkles },
   { page: "Settings", label: "Settings", icon: Settings },
 ];
@@ -53,7 +53,9 @@ export default function Layout({ children, currentPageName }) {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Icon className="w-5 h-5" aria-hidden="true" strokeWidth={isActive ? 2.5 : 1.5} />
+                  {item.emoji
+                    ? <span className="text-lg leading-none" aria-hidden="true">{item.emoji}</span>
+                    : <Icon className="w-5 h-5" aria-hidden="true" strokeWidth={isActive ? 2.5 : 1.5} />}
                   <span className="text-[10px] font-medium">{item.label}</span>
                 </Link>
               );

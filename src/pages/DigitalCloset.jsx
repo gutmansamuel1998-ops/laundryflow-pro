@@ -782,10 +782,22 @@ const SAFETY_STYLES = {
         {isLoading ? (
           <p className="text-center text-sm text-muted-foreground pt-4">Loading your closet...</p>
         ) : items.length === 0 ? (
-          <div className="text-center pt-8 space-y-2">
-            <Shirt className="w-12 h-12 text-muted-foreground/30 mx-auto" />
-            <p className="text-sm text-muted-foreground">Your digital closet is empty.</p>
-            <p className="text-xs text-muted-foreground">Add garments to get wash safety warnings.</p>
+          <div className="flex flex-col items-center text-center pt-10 pb-6 px-4 space-y-5">
+            <div className="text-6xl">👖</div>
+            <div className="space-y-2">
+              <p className="text-lg font-semibold text-foreground">Your closet is empty</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Let's add your first item!<br />
+                Snap a photo and we'll help with the care instructions. 👕
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowAdd(true)}
+              className="gap-2 rounded-2xl h-12 px-6 text-base font-semibold"
+            >
+              <Plus className="w-5 h-5" /> Add Your First Item
+            </Button>
+            <p className="text-xs text-muted-foreground/70">No pressure — add as many or as few as you like.</p>
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center pt-6 space-y-2">
@@ -798,76 +810,106 @@ const SAFETY_STYLES = {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               {filteredItems.length !== items.length ? `${filteredItems.length} of ${items.length}` : items.length} Garment{items.length > 1 ? "s" : ""}
             </h2>
-            {filteredItems.map((item, i) => (
-              <motion.div key={item.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}>
-                <Card className="border-border/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-2 flex-1 min-w-0">
+
+            {/* Visual card grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {filteredItems.map((item, i) => {
+                const isWearingToday = item.last_worn === new Date().toISOString().split("T")[0];
+                return (
+                  <motion.div
+                    key={item.id + "-card"}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.04 }}
+                  >
+                    <button
+                      onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
+                      className={`w-full text-left rounded-2xl border overflow-hidden transition-all hover:shadow-md ${expandedItem === item.id ? "border-primary/40 shadow-md" : "border-border"} bg-card`}
+                    >
+                      {/* Photo / emoji area */}
+                      <div className="relative aspect-square bg-secondary flex items-center justify-center overflow-hidden">
                         {item.image_url ? (
-                          <div className="w-10 h-10 rounded-xl overflow-hidden border border-border flex-shrink-0">
-                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                          </div>
+                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                          <span className="text-4xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
                         )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{item.name}</p>
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            <Badge variant="secondary" className="text-xs">{item.category}</Badge>
-                            {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
-                            {item.lifestyle && (() => { const l = LIFESTYLES.find(x => x.id === item.lifestyle); return l ? <Badge variant="outline" className="text-xs">{l.emoji} {l.label}</Badge> : null; })()}
-                            {item.is_new_garment && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-200 border">🆕 New — First wash</Badge>}
-                            {item.is_wrinkle_free && <Badge className="text-xs bg-sky-100 text-sky-800 border-sky-200 border">✨ Wrinkle-Free</Badge>}
-                            {isShrinkRisk(item) && !item.preferred_dry_method && <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200 border">⚠️ Air dry recommended</Badge>}
-                            {item.preferred_dry_method && (() => {
-                              const method = DRY_METHODS.find(d => d.id === item.preferred_dry_method);
-                              const safety = DRY_METHOD_SAFETY[item.preferred_dry_method];
-                              return method ? <Badge className={`text-xs border ${safety?.color || "bg-secondary text-foreground border-border"}`}>{method.emoji} {method.label}</Badge> : null;
-                            })()}
+                        {isWearingToday && (
+                          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                            👗 Wearing today
+                          </span>
+                        )}
+                        {basketMode && (
+                          <div className="absolute top-2 right-2">
+                            {basketSelected.includes(item.id)
+                              ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" />
+                              : <Square className="w-5 h-5 text-white drop-shadow" />}
                           </div>
-                          <div className="flex gap-2 mt-1">
-                            {(item.wear_count > 0) && (
-                              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Repeat2 className="w-3 h-3" /> {item.wear_count} wear{item.wear_count > 1 ? "s" : ""}
-                              </span>
-                            )}
-                            {item.last_worn && (
-                              <span className="text-xs text-muted-foreground">· Last worn {item.last_worn}</span>
-                            )}
-                          </div>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div className="p-2.5">
+                        <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize mt-0.5">{item.category}</p>
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5">🆕 New</span>}
+                          {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5">✨ Non-iron</span>}
+                          {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5">🔥 Iron needed</span>}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                      {basketMode ? (
-                        <button onClick={() => toggleBasket(item.id)} className="p-1">
-                          {basketSelected.includes(item.id)
-                            ? <CheckSquare className="w-5 h-5 text-primary" />
-                            : <Square className="w-5 h-5 text-muted-foreground" />}
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => markWorn(item)}
-                            title="Mark as worn today"
-                            className="p-1 text-muted-foreground hover:text-primary"
-                          >
-                            <Repeat2 className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)} className="p-1 text-muted-foreground hover:text-foreground">
-                            {expandedItem === item.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </button>
-                          <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-                      </div>
-                    </div>
+                    </button>
+                    {basketMode && (
+                      <button onClick={() => toggleBasket(item.id)} className="absolute inset-0 w-full h-full" aria-label={`Select ${item.name}`} />
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
 
-                    <AnimatePresence>
-                      {expandedItem === item.id && (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 pt-3 border-t border-border/50 space-y-2">
+            {/* Detail expand panel + original list controls */}
+            {filteredItems.map((item, i) => (
+              <AnimatePresence key={item.id}>
+                {expandedItem === item.id && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                    <Card className="border-primary/20 border-2">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <div>
+                            <p className="font-semibold text-base">{item.name}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              <Badge variant="secondary" className="text-xs">{item.category}</Badge>
+                              {item.color && <Badge variant="outline" className="text-xs">{item.color}</Badge>}
+                              {item.lifestyle && (() => { const l = LIFESTYLES.find(x => x.id === item.lifestyle); return l ? <Badge variant="outline" className="text-xs">{l.emoji} {l.label}</Badge> : null; })()}
+                              {item.is_new_garment && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-200 border">🆕 New — First wash</Badge>}
+                              {item.is_wrinkle_free && <Badge className="text-xs bg-sky-100 text-sky-800 border-sky-200 border">✨ Wrinkle-Free</Badge>}
+                              {isShrinkRisk(item) && !item.preferred_dry_method && <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-200 border">⚠️ Air dry recommended</Badge>}
+                              {item.preferred_dry_method && (() => {
+                                const method = DRY_METHODS.find(d => d.id === item.preferred_dry_method);
+                                const safety = DRY_METHOD_SAFETY[item.preferred_dry_method];
+                                return method ? <Badge className={`text-xs border ${safety?.color || "bg-secondary text-foreground border-border"}`}>{method.emoji} {method.label}</Badge> : null;
+                              })()}
+                            </div>
+                            <div className="flex gap-2 mt-1">
+                              {(item.wear_count > 0) && (
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Repeat2 className="w-3 h-3" /> {item.wear_count} wear{item.wear_count > 1 ? "s" : ""}
+                                </span>
+                              )}
+                              {item.last_worn && (
+                                <span className="text-xs text-muted-foreground">· Last worn {item.last_worn}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <button onClick={() => markWorn(item)} title="Mark as worn today" className="p-1 text-muted-foreground hover:text-primary">
+                              <Repeat2 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
                           {editingItem === item.id ? (
                             <div className="space-y-2">
                               {/* Photo upload in edit */}
@@ -1021,12 +1063,12 @@ const SAFETY_STYLES = {
                               </Button>
                             </>
                           )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             ))}
           </div>
         )}
