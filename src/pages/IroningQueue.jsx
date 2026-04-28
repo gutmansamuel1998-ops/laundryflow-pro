@@ -2,65 +2,75 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Plus, CheckCircle, Clock, Trash2, BookOpen, Timer } from "lucide-react";
+import { ArrowLeft, BookOpen, Timer, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { format, isPast, isToday } from "date-fns";
+import { format } from "date-fns";
 import { useIroningTimer } from "@/hooks/useIroningTimer";
 import IroningTimerModal from "@/components/ironing/IroningTimerModal";
+import IroningItemCard from "@/components/ironing/IroningItemCard";
 
 export default function IroningQueue() {
   const qc = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ item_names: "", scheduled_for: "", notes: "" });
+  const [focusIndex, setFocusIndex] = useState(0);
   const [showTimer, setShowTimer] = useState(false);
   const { timerState, startSession, play, pause, reset, nextItem, setMinutesPerItem, clearTimer } = useIroningTimer();
 
-  // Re-open timer modal if there's an active session on mount
+  // Re-open timer modal if there's a live session persisted
   useEffect(() => {
     if (timerState && !timerState.isComplete) setShowTimer(true);
   }, []);
 
-  const { data: sessions = [], isLoading } = useQuery({
-    queryKey: ["ironing-sessions"],
-    queryFn: () => base44.entities.IroningSession.filter({ status: "pending" }, "-scheduled_for"),
+  // Pull ClothingItems that need ironing
+  const { data: allItems = [], isLoading } = useQuery({
+    queryKey: ["ironing-queue-items"],
+    queryFn: () => base44.entities.ClothingItem.list(),
   });
 
-  const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.IroningSession.create(data),
+  const ironingItems = allItems.filter(
+    (item) => item.needs_ironing_now || item.requires_ironing
+  );
+
+  // Mark item done: clear flags, set last_ironed
+  const doneMutation = useMutation({
+    mutationFn: (item) =>
+      base44.entities.ClothingItem.update(item.id, {
+        needs_ironing_now: false,
+        last_ironed: format(new Date(), "yyyy-MM-dd"),
+      }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["ironing-sessions"] });
-      setForm({ item_names: "", scheduled_for: "", notes: "" });
-      setShowForm(false);
+      qc.invalidateQueries({ queryKey: ["ironing-queue-items"] });
+      // Stay on same index (list shrinks, so it naturally shows next item)
     },
   });
 
-  const doneMutation = useMutation({
-    mutationFn: (id) => base44.entities.IroningSession.update(id, { status: "done" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["ironing-sessions"] }),
-  });
+  const currentItem = ironingItems[focusIndex];
 
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.IroningSession.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["ironing-sessions"] }),
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.item_names.trim() || !form.scheduled_for) return;
-    createMutation.mutate(form);
+  const handleDone = () => {
+    if (!currentItem) return;
+    doneMutation.mutate(currentItem);
+    // Advance timer to next item too
+    if (timerState) nextItem();
   };
 
-  const getUrgency = (dateStr) => {
-    const d = new Date(dateStr + "T00:00:00");
-    if (isToday(d)) return { label: "Today", cls: "bg-orange-100 text-orange-700 border-orange-200" };
-    if (isPast(d))  return { label: "Overdue", cls: "bg-red-100 text-red-700 border-red-200" };
-    return { label: format(d, "MMM d"), cls: "bg-muted text-muted-foreground border-border" };
+  const handleStartTimer = () => {
+    const names = ironingItems.slice(focusIndex).map((i) => i.name);
+    startSession("closet-queue", names);
+    setShowTimer(true);
   };
+
+  const goNext = () => setFocusIndex((i) => Math.min(i + 1, ironingItems.length - 1));
+  const goPrev = () => setFocusIndex((i) => Math.max(i - 1, 0));
+
+  // Keep focusIndex in bounds when list shrinks
+  useEffect(() => {
+    if (focusIndex >= ironingItems.length && ironingItems.length > 0) {
+      setFocusIndex(ironingItems.length - 1);
+    }
+  }, [ironingItems.length]);
 
   return (
     <div className="min-h-screen bg-background pb-28">
+      {/* Timer modal */}
       {showTimer && timerState && (
         <IroningTimerModal
           timerState={timerState}
@@ -69,24 +79,13 @@ export default function IroningQueue() {
           onReset={reset}
           onNext={nextItem}
           onSetMinutes={setMinutesPerItem}
-          onClose={() => { setShowTimer(false); if (timerState?.isComplete) clearTimer(); }}
+          onClose={() => {
+            setShowTimer(false);
+            if (timerState?.isComplete) clearTimer();
+          }}
         />
       )}
-      {/* Resume banner */}
-      {timerState && !timerState.isComplete && !showTimer && (
-        <div
-          className="mx-4 mt-4 bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 flex items-center justify-between cursor-pointer"
-          onClick={() => setShowTimer(true)}
-        >
-          <div className="flex items-center gap-2">
-            <Timer className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Timer running — tap to resume</span>
-          </div>
-          <span className="text-xs text-primary font-semibold">
-            {String(Math.floor(timerState.remaining / 60)).padStart(2,"0")}:{String(timerState.remaining % 60).padStart(2,"0")}
-          </span>
-        </div>
-      )}
+
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -95,127 +94,98 @@ export default function IroningQueue() {
           </Link>
           <div>
             <h1 className="text-lg font-semibold leading-tight">Ironing Queue</h1>
-            <p className="text-xs text-muted-foreground">Track & get reminders</p>
+            <p className="text-xs text-muted-foreground">
+              {ironingItems.length > 0
+                ? `${ironingItems.length} item${ironingItems.length !== 1 ? "s" : ""} to iron`
+                : "All done!"}
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Link to="/IroningGuide">
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
-              <BookOpen className="w-3.5 h-3.5" /> Guide
-            </Button>
-          </Link>
-          <Button size="sm" className="gap-1.5" onClick={() => setShowForm(!showForm)}>
-            <Plus className="w-4 h-4" /> Add
+        <Link to="/IroningGuide">
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+            <BookOpen className="w-3.5 h-3.5" /> Guide
           </Button>
-        </div>
+        </Link>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-5 space-y-4">
+      <div className="max-w-md mx-auto px-4 pt-6 space-y-5">
 
-        {/* Add Form */}
-        {showForm && (
-          <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-4 space-y-3">
-            <p className="text-sm font-semibold text-foreground">New Ironing Session</p>
-            <div className="space-y-2">
-              <Input
-                placeholder="Items to iron (e.g. dress shirt, linen trousers)"
-                value={form.item_names}
-                onChange={(e) => setForm({ ...form, item_names: e.target.value })}
-                required
-              />
-              <Input
-                type="date"
-                value={form.scheduled_for}
-                onChange={(e) => setForm({ ...form, scheduled_for: e.target.value })}
-                required
-              />
-              <Input
-                placeholder="Notes (optional)"
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              />
+        {/* Resume timer banner */}
+        {timerState && !timerState.isComplete && !showTimer && (
+          <button
+            className="w-full bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3 flex items-center justify-between"
+            onClick={() => setShowTimer(true)}
+          >
+            <div className="flex items-center gap-2">
+              <Timer className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Timer running — tap to resume</span>
             </div>
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
-              <Button type="submit" size="sm" disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Saving…" : "Save"}
-              </Button>
-            </div>
-          </form>
+            <span className="text-xs text-primary font-semibold tabular-nums">
+              {String(Math.floor(timerState.remaining / 60)).padStart(2, "0")}:{String(timerState.remaining % 60).padStart(2, "0")}
+            </span>
+          </button>
         )}
 
-        {/* Session List */}
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground text-sm">Loading…</div>
-        ) : sessions.length === 0 ? (
-          <div className="text-center py-16 space-y-2">
-            <p className="text-4xl">👔</p>
-            <p className="font-medium text-foreground">No items queued</p>
-            <p className="text-sm text-muted-foreground">Tap "Add" to schedule an ironing session.</p>
+          <div className="text-center py-20 text-muted-foreground text-sm">Loading your closet…</div>
+        ) : ironingItems.length === 0 ? (
+          <div className="text-center py-20 space-y-3">
+            <p className="text-5xl">✨</p>
+            <p className="text-xl font-semibold text-foreground">Nothing to iron!</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Items flagged as "needs ironing" or "requires ironing" in your Digital Closet will appear here.
+            </p>
+            <Link to="/DigitalCloset">
+              <Button variant="outline" className="rounded-2xl mt-2">Open Digital Closet</Button>
+            </Link>
           </div>
         ) : (
-          sessions.map((session) => {
-            const urgency = getUrgency(session.scheduled_for);
-            const items = session.item_names.split(",").map(s => s.trim()).filter(Boolean);
-            return (
-              <div key={session.id} className="bg-card border border-border rounded-2xl p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${urgency.cls}`}>
-                        {urgency.label}
-                      </span>
-                      {session.notified && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> Reminded
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {items.map((item) => (
-                        <span key={item} className="text-xs bg-muted rounded-lg px-2 py-0.5 text-foreground">{item}</span>
-                      ))}
-                    </div>
-                    {session.notes && (
-                      <p className="text-xs text-muted-foreground">{session.notes}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5 text-xs text-primary hover:text-primary hover:bg-primary/10"
-                      onClick={() => {
-                        startSession(session.id, items);
-                        setShowTimer(true);
-                      }}
-                      title="Start ironing timer"
-                    >
-                      <Timer className="w-3.5 h-3.5" /> Start
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                      onClick={() => doneMutation.mutate(session.id)}
-                      title="Mark done"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => deleteMutation.mutate(session.id)}
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+          <>
+            {/* Focused item card */}
+            {currentItem && (
+              <IroningItemCard
+                item={currentItem}
+                index={focusIndex}
+                total={ironingItems.length}
+                onDone={handleDone}
+                isDoneLoading={doneMutation.isPending}
+              />
+            )}
+
+            {/* Navigation between items */}
+            {ironingItems.length > 1 && (
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-2xl gap-1.5"
+                  disabled={focusIndex === 0}
+                  onClick={goPrev}
+                >
+                  <ChevronLeft className="w-4 h-4" /> Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 rounded-2xl gap-1.5"
+                  disabled={focusIndex === ironingItems.length - 1}
+                  onClick={goNext}
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
-            );
-          })
+            )}
+
+            {/* Start Timer button */}
+            {!timerState && (
+              <Button
+                variant="ghost"
+                className="w-full rounded-2xl gap-2 text-primary hover:text-primary hover:bg-primary/10"
+                onClick={handleStartTimer}
+              >
+                <Timer className="w-4 h-4" />
+                Start Ironing Timer for All Items
+              </Button>
+            )}
+          </>
         )}
       </div>
     </div>
