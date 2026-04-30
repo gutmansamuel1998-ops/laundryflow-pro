@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import {
   Shirt, Plus, X, Sparkles, AlertTriangle, CheckCircle,
-  RefreshCw, ChevronDown, ChevronUp, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square, LayoutList, Wand2, Sun, Cloud, Snowflake, Briefcase, Heart, Zap
+  RefreshCw, Trash2, ShieldAlert, Pencil, Save, Camera, ScanLine, Search, SlidersHorizontal, Repeat2, ShoppingBasket, CheckSquare, Square, LayoutList, Wand2, Sun, Cloud, Snowflake, Briefcase, Heart, Zap
 } from "lucide-react";
 
 const CATEGORIES = ["tops", "bottoms", "outerwear", "underwear", "activewear", "delicates", "bedding", "towels", "other"];
@@ -68,6 +68,7 @@ export default function DigitalCloset() {
   const [outfitWeather, setOutfitWeather] = useState("mild");
   const [outfitResult, setOutfitResult] = useState(null);
   const [isGeneratingOutfit, setIsGeneratingOutfit] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -80,6 +81,8 @@ export default function DigitalCloset() {
       qc.setQueryData(["clothing-items"], (old = []) => [newItem, ...old]);
       setShowAdd(false);
       setForm(EMPTY_FORM);
+      setSavedFlash(true);
+      setTimeout(() => setSavedFlash(false), 2500);
     }
   });
 
@@ -95,8 +98,12 @@ export default function DigitalCloset() {
     mutationFn: ({ id, data }) => base44.entities.ClothingItem.update(id, data),
     onSuccess: (updated) => {
       qc.setQueryData(["clothing-items"], (old = []) => old.map(i => i.id === updated.id ? updated : i));
-      setEditingItem(null);
-      setEditForm({});
+      if (editingItem) {
+        setEditingItem(null);
+        setEditForm({});
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 2500);
+      }
     }
   });
 
@@ -177,8 +184,8 @@ Return the fabric composition if visible, a plain-English summary of care instru
   };
 
   const startEdit = (item) => {
-    setEditingItem(item.id);
     setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, is_wrinkle_free: item.is_wrinkle_free || false, requires_ironing: item.requires_ironing || false, preferred_dry_method: item.preferred_dry_method || "" });
+    setEditingItem(item.id);
     setExpandedItem(item.id);
   };
 
@@ -357,6 +364,20 @@ const SAFETY_STYLES = {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-lg mx-auto px-4 pt-8 space-y-6">
 
+        {/* Save confirmation toast */}
+        <AnimatePresence>
+          {savedFlash && (
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-sm font-medium px-5 py-2.5 rounded-2xl shadow-lg flex items-center gap-2"
+            >
+              <CheckCircle className="w-4 h-4" /> Garment saved!
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between mb-1">
@@ -532,8 +553,10 @@ const SAFETY_STYLES = {
                   </div>
                   <Textarea placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                   <div className="flex gap-2">
-                    <Button onClick={() => addMutation.mutate(form)} disabled={!form.name || addMutation.isPending} className="flex-1 rounded-xl">
-                      {addMutation.isPending ? "Saving..." : "Save Garment"}
+                    <Button onClick={() => addMutation.mutate(form)} disabled={!form.name || addMutation.isPending} className="flex-1 rounded-xl gap-1.5">
+                      {addMutation.isPending
+                        ? <><RefreshCw className="w-4 h-4 animate-spin" /> Saving...</>
+                        : <><CheckCircle className="w-4 h-4" /> Save Garment</>}
                     </Button>
                     <Button variant="outline" onClick={() => setShowAdd(false)} className="rounded-xl">Cancel</Button>
                   </div>
@@ -852,41 +875,73 @@ const SAFETY_STYLES = {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.04 }}
                   >
-                    <button
-                     onClick={() => basketMode ? toggleBasket(item.id) : setExpandedItem(expandedItem === item.id ? null : item.id)}
-                     className={`w-full text-left rounded-2xl border overflow-hidden transition-all hover:shadow-md ${item.wearing_today ? "border-primary/60 shadow-md bg-primary/5" : expandedItem === item.id ? "border-primary/40 shadow-md bg-card" : "border-border bg-card"}`}
-                    >
-                     {/* Photo / emoji area */}
-                     <div className="relative aspect-square bg-secondary flex items-center justify-center overflow-hidden">
-                       {item.image_url ? (
-                         <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                       ) : (
-                         <span className="text-4xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
-                       )}
-                       {item.wearing_today && (
-                         <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                           👖 Wearing today
-                         </span>
-                       )}
-                       {basketMode && (
-                         <div className="absolute top-2 right-2">
-                           {basketSelected.includes(item.id)
-                             ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" />
-                             : <Square className="w-5 h-5 text-white drop-shadow" />}
-                         </div>
-                       )}
-                     </div>
-                     {/* Info */}
-                     <div className="p-2.5">
-                       <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
-                       <p className="text-xs text-muted-foreground capitalize mt-0.5">{item.category}</p>
-                       <div className="flex flex-wrap gap-1 mt-1.5">
-                         {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5">🆕 New</span>}
-                         {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5">✨ Non-iron</span>}
-                         {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5">🔥 Iron needed</span>}
-                       </div>
-                     </div>
-                    </button>
+                    {/* Card — tapping opens detail view */}
+                    <div className={`rounded-2xl border overflow-hidden transition-all ${item.wearing_today ? "border-primary/60 bg-primary/5 shadow-md" : expandedItem === item.id ? "border-primary/40 shadow-md bg-card" : "border-border bg-card"}`}>
+                      {/* Photo / emoji area — tap to open detail */}
+                      <button
+                        onClick={() => basketMode ? toggleBasket(item.id) : setExpandedItem(expandedItem === item.id ? null : item.id)}
+                        className="w-full text-left"
+                      >
+                        <div className="relative aspect-square bg-secondary flex items-center justify-center overflow-hidden">
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="flex flex-col items-center gap-1">
+                              <span className="text-4xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                            </div>
+                          )}
+                          {item.wearing_today && (
+                            <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                              👖 Wearing
+                            </span>
+                          )}
+                          {basketMode && (
+                            <div className="absolute top-2 right-2">
+                              {basketSelected.includes(item.id)
+                                ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" />
+                                : <Square className="w-5 h-5 text-white drop-shadow" />}
+                            </div>
+                          )}
+                        </div>
+                      </button>
+
+                      {/* Info + action row */}
+                      <div className="p-2.5">
+                        <button
+                          onClick={() => basketMode ? toggleBasket(item.id) : setExpandedItem(expandedItem === item.id ? null : item.id)}
+                          className="w-full text-left"
+                        >
+                          <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
+                          <p className="text-xs text-muted-foreground capitalize mt-0.5">{item.category}</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5">🆕 New</span>}
+                            {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5">✨ Non-iron</span>}
+                            {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5">🔥 Iron needed</span>}
+                          </div>
+                        </button>
+
+                        {/* Edit / Delete row */}
+                        {!basketMode && (
+                          <div className="flex gap-1.5 mt-2">
+                            <button
+                              onClick={() => startEdit(item)}
+                              className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-[11px] font-medium"
+                              aria-label={`Edit ${item.name}`}
+                            >
+                              <Pencil className="w-3 h-3" /> Edit
+                            </button>
+                            <button
+                              onClick={() => deleteMutation.mutate(item.id)}
+                              disabled={deleteMutation.isPending}
+                              className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-all text-[11px] font-medium"
+                              aria-label={`Delete ${item.name}`}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     {/* Wearing Today button */}
                     {!basketMode && (
                      <button
@@ -902,9 +957,6 @@ const SAFETY_STYLES = {
                      >
                        {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
                      </button>
-                    )}
-                    {basketMode && (
-                      <button onClick={() => toggleBasket(item.id)} className="absolute inset-0 w-full h-full" aria-label={`Select ${item.name}`} />
                     )}
                   </motion.div>
                 );
@@ -946,11 +998,11 @@ const SAFETY_STYLES = {
                             </div>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <button onClick={() => markWorn(item)} title="Mark as worn today" className="p-1 text-muted-foreground hover:text-primary">
+                            <button onClick={() => markWorn(item)} title="Mark as worn today" className="p-1.5 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all">
                               <Repeat2 className="w-4 h-4" />
                             </button>
-                            <button onClick={() => deleteMutation.mutate(item.id)} className="p-1 text-muted-foreground hover:text-destructive">
-                              <Trash2 className="w-4 h-4" />
+                            <button onClick={() => setExpandedItem(null)} className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
