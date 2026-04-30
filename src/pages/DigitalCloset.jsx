@@ -1082,6 +1082,23 @@ const SAFETY_STYLES = {
                                  <input type="file" accept="image/*" capture="environment" className="hidden" disabled={scanningTag} onChange={e => handleWrinkleTagScan(e.target.files[0], "edit")} />
                                </label>
                               </div>
+                              {/* Requires ironing toggle in edit */}
+                              {!editForm.is_wrinkle_free && (
+                                <button
+                                  type="button"
+                                  onClick={() => setEditForm(f => ({ ...f, requires_ironing: !f.requires_ironing }))}
+                                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.requires_ironing ? "bg-orange-50 border-orange-300 text-orange-800" : "bg-secondary border-border text-muted-foreground"}`}
+                                >
+                                  <span className="text-lg">🔥</span>
+                                  <div className="flex-1 text-left">
+                                    <p className="font-medium text-sm">{editForm.requires_ironing ? "Needs ironing after washing" : "Needs ironing (add to ironing queue)?"}</p>
+                                    {editForm.requires_ironing && <p className="text-xs font-normal text-orange-700 mt-0.5">Will appear in your ironing queue on the Home screen</p>}
+                                  </div>
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editForm.requires_ironing ? "bg-orange-500 border-orange-500" : "border-border"}`}>
+                                    {editForm.requires_ironing && <span className="text-white text-xs">✓</span>}
+                                  </div>
+                                </button>
+                              )}
                               <div>
                                 <p className="text-xs text-muted-foreground mb-1">Category</p>
                                 <div className="flex flex-wrap gap-1.5">

@@ -20,6 +20,7 @@ import OptimalTimePrompt from "@/components/laundry/OptimalTimePrompt";
 import { AnimatePresence, motion } from "framer-motion";
 import WearingTodaySection from "@/components/home/WearingTodaySection";
 import LaundryBasketSection from "@/components/home/LaundryBasketSection";
+import IroningQueueSection from "@/components/home/IroningQueueSection";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -129,6 +130,7 @@ export default function Home() {
                 <div>
                   <WearingTodaySection />
                   <LaundryBasketSection />
+                  <IroningQueueSection />
                   <OptimalTimePrompt />
                   <SmartSchedule />
                   <ReadinessPrompt user={user} />
@@ -142,6 +144,7 @@ export default function Home() {
                 <div className="mt-10 space-y-6">
                   <WearingTodaySection />
                   <LaundryBasketSection />
+                  <IroningQueueSection />
                   <OptimalTimePrompt />
                   <SmartSchedule />
                   <SmartSupplySuggestion />
