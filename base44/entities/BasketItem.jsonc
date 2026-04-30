@@ -1,0 +1,36 @@
+{
+  "name": "BasketItem",
+  "type": "object",
+  "properties": {
+    "item_id": {
+      "type": "string",
+      "description": "ID of the ClothingItem"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Display name of the clothing item"
+    },
+    "item_category": {
+      "type": "string",
+      "description": "Category of the clothing item"
+    },
+    "item_image_url": {
+      "type": "string",
+      "description": "Optional photo URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_basket",
+        "in_load",
+        "removed"
+      ],
+      "default": "in_basket",
+      "description": "Current status of this basket entry"
+    }
+  },
+  "required": [
+    "item_name",
+    "status"
+  ]
+}

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBasket } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const CATEGORY_EMOJI = {
   tops: "👕", bottoms: "👖", outerwear: "🧥", underwear: "🩲",
@@ -11,6 +12,7 @@ const CATEGORY_EMOJI = {
 
 export default function WearingTodaySection() {
   const qc = useQueryClient();
+  const { toast } = useToast();
 
   const { data: wearingItems = [] } = useQuery({
     queryKey: ["wearing-today"],
@@ -19,14 +21,20 @@ export default function WearingTodaySection() {
 
   const moveMutation = useMutation({
     mutationFn: async (item) => {
-      // Clear wearing_today flag
       await base44.entities.ClothingItem.update(item.id, { wearing_today: false });
-      // Add to laundry basket
-      await base44.entities.LaundryBasket?.create?.({ item_id: item.id, item_name: item.name }).catch(() => {});
+      await base44.entities.BasketItem.create({
+        item_id: item.id,
+        item_name: item.name,
+        item_category: item.category,
+        item_image_url: item.image_url || "",
+        status: "in_basket",
+      });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["wearing-today"] });
       qc.invalidateQueries({ queryKey: ["clothing-items"] });
+      qc.invalidateQueries({ queryKey: ["basket-items"] });
+      toast({ description: "Added to basket 🧺", duration: 2000 });
     }
   });
 
