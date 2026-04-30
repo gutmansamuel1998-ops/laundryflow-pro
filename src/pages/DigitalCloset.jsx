@@ -45,7 +45,8 @@ export default function DigitalCloset() {
   const [showAdd, setShowAdd] = useState(false);
   const [basketMode, setBasketMode] = useState(false);
   const [basketSelected, setBasketSelected] = useState([]);
-  const [form, setForm] = useState({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, is_wrinkle_free: false, preferred_dry_method: "" });
+  const EMPTY_FORM = { name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, is_wrinkle_free: false, requires_ironing: false, preferred_dry_method: "" };
+  const [form, setForm] = useState(EMPTY_FORM);
   const [filterLifestyle, setFilterLifestyle] = useState("all");
   const [checkMode, setCheckMode] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState("");
@@ -75,17 +76,28 @@ export default function DigitalCloset() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.ClothingItem.create(data),
-    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setShowAdd(false); setForm({ name: "", category: "tops", lifestyle: "", fabric_composition: "", care_instructions: "", color: "color", notes: "", image_url: "", is_new_garment: false, is_wrinkle_free: false, preferred_dry_method: "" }); }
+    onSuccess: (newItem) => {
+      qc.setQueryData(["clothing-items"], (old = []) => [newItem, ...old]);
+      setShowAdd(false);
+      setForm(EMPTY_FORM);
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.ClothingItem.delete(id),
-    onSuccess: () => qc.invalidateQueries(["clothing-items"]),
+    onSuccess: (_, id) => {
+      qc.setQueryData(["clothing-items"], (old = []) => old.filter(i => i.id !== id));
+      if (expandedItem === id) setExpandedItem(null);
+    },
   });
 
   const editMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.ClothingItem.update(id, data),
-    onSuccess: () => { qc.invalidateQueries(["clothing-items"]); setEditingItem(null); setEditForm({}); }
+    onSuccess: (updated) => {
+      qc.setQueryData(["clothing-items"], (old = []) => old.map(i => i.id === updated.id ? updated : i));
+      setEditingItem(null);
+      setEditForm({});
+    }
   });
 
   const handlePhotoUpload = async (file, target) => {
@@ -166,7 +178,7 @@ Return the fabric composition if visible, a plain-English summary of care instru
 
   const startEdit = (item) => {
     setEditingItem(item.id);
-    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, is_wrinkle_free: item.is_wrinkle_free || false, preferred_dry_method: item.preferred_dry_method || "" });
+    setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, is_wrinkle_free: item.is_wrinkle_free || false, requires_ironing: item.requires_ironing || false, preferred_dry_method: item.preferred_dry_method || "" });
     setExpandedItem(item.id);
   };
 
@@ -451,6 +463,24 @@ const SAFETY_STYLES = {
                       <input type="file" accept="image/*" capture="environment" className="hidden" disabled={scanningTag} onChange={e => handleWrinkleTagScan(e.target.files[0], "add")} />
                     </label>
                   </div>
+                  {/* Requires ironing toggle */}
+                  {!form.is_wrinkle_free && (
+                    <button
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, requires_ironing: !f.requires_ironing }))}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.requires_ironing ? "bg-orange-50 border-orange-300 text-orange-800" : "bg-secondary border-border text-muted-foreground"}`}
+                    >
+                      <span className="text-lg">🔥</span>
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-sm">{form.requires_ironing ? "Needs ironing after washing" : "Does this need ironing?"}</p>
+                        {form.requires_ironing && <p className="text-xs font-normal text-orange-700 mt-0.5">It'll appear in your ironing queue after a wash</p>}
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${form.requires_ironing ? "bg-orange-500 border-orange-500" : "border-border"}`}>
+                        {form.requires_ironing && <span className="text-white text-xs">✓</span>}
+                      </div>
+                    </button>
+                  )}
+
                   {/* Lifestyle */}
                   <div>
                     <p className="text-xs text-muted-foreground mb-1.5">Lifestyle / Occasion</p>
