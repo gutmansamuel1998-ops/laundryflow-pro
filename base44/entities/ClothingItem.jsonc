@@ -94,6 +94,11 @@
       "format": "date",
       "description": "Date this item was last worn (YYYY-MM-DD)"
     },
+    "wearing_today": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item is currently being worn today"
+    },
     "requires_ironing": {
       "type": "boolean",
       "default": false,

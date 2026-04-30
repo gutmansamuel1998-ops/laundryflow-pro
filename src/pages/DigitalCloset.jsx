@@ -853,40 +853,56 @@ const SAFETY_STYLES = {
                     transition={{ delay: i * 0.04 }}
                   >
                     <button
-                      onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
-                      className={`w-full text-left rounded-2xl border overflow-hidden transition-all hover:shadow-md ${expandedItem === item.id ? "border-primary/40 shadow-md" : "border-border"} bg-card`}
+                     onClick={() => basketMode ? toggleBasket(item.id) : setExpandedItem(expandedItem === item.id ? null : item.id)}
+                     className={`w-full text-left rounded-2xl border overflow-hidden transition-all hover:shadow-md ${item.wearing_today ? "border-primary/60 shadow-md bg-primary/5" : expandedItem === item.id ? "border-primary/40 shadow-md bg-card" : "border-border bg-card"}`}
                     >
-                      {/* Photo / emoji area */}
-                      <div className="relative aspect-square bg-secondary flex items-center justify-center overflow-hidden">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-4xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
-                        )}
-                        {isWearingToday && (
-                          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                            👗 Wearing today
-                          </span>
-                        )}
-                        {basketMode && (
-                          <div className="absolute top-2 right-2">
-                            {basketSelected.includes(item.id)
-                              ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" />
-                              : <Square className="w-5 h-5 text-white drop-shadow" />}
-                          </div>
-                        )}
-                      </div>
-                      {/* Info */}
-                      <div className="p-2.5">
-                        <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize mt-0.5">{item.category}</p>
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5">🆕 New</span>}
-                          {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5">✨ Non-iron</span>}
-                          {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5">🔥 Iron needed</span>}
-                        </div>
-                      </div>
+                     {/* Photo / emoji area */}
+                     <div className="relative aspect-square bg-secondary flex items-center justify-center overflow-hidden">
+                       {item.image_url ? (
+                         <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                       ) : (
+                         <span className="text-4xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                       )}
+                       {item.wearing_today && (
+                         <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                           👖 Wearing today
+                         </span>
+                       )}
+                       {basketMode && (
+                         <div className="absolute top-2 right-2">
+                           {basketSelected.includes(item.id)
+                             ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" />
+                             : <Square className="w-5 h-5 text-white drop-shadow" />}
+                         </div>
+                       )}
+                     </div>
+                     {/* Info */}
+                     <div className="p-2.5">
+                       <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
+                       <p className="text-xs text-muted-foreground capitalize mt-0.5">{item.category}</p>
+                       <div className="flex flex-wrap gap-1 mt-1.5">
+                         {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5">🆕 New</span>}
+                         {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5">✨ Non-iron</span>}
+                         {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5">🔥 Iron needed</span>}
+                       </div>
+                     </div>
                     </button>
+                    {/* Wearing Today button */}
+                    {!basketMode && (
+                     <button
+                       onClick={() => {
+                         const today = new Date().toISOString().split("T")[0];
+                         const isWearing = item.wearing_today;
+                         editMutation.mutate({
+                           id: item.id,
+                           data: { wearing_today: !isWearing, last_worn: isWearing ? item.last_worn : today, wear_count: isWearing ? item.wear_count : (item.wear_count || 0) + 1 }
+                         });
+                       }}
+                       className={`w-full mt-1 py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.wearing_today ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
+                     >
+                       {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
+                     </button>
+                    )}
                     {basketMode && (
                       <button onClick={() => toggleBasket(item.id)} className="absolute inset-0 w-full h-full" aria-label={`Select ${item.name}`} />
                     )}

@@ -18,6 +18,7 @@ import SmartSupplySuggestion from "@/components/laundry/SmartSupplySuggestion";
 import SmartSchedule from "@/components/laundry/SmartSchedule";
 import OptimalTimePrompt from "@/components/laundry/OptimalTimePrompt";
 import { AnimatePresence, motion } from "framer-motion";
+import WearingTodaySection from "@/components/home/WearingTodaySection";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -125,6 +126,7 @@ export default function Home() {
                 </div>
               ) : activeLoads.length === 0 ? (
                 <div>
+                  <WearingTodaySection />
                   <OptimalTimePrompt />
                   <SmartSchedule />
                   <ReadinessPrompt user={user} />
@@ -136,6 +138,7 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="mt-10 space-y-6">
+                  <WearingTodaySection />
                   <OptimalTimePrompt />
                   <SmartSchedule />
                   <SmartSupplySuggestion />
