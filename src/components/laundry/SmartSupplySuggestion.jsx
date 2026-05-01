@@ -3,19 +3,22 @@ import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Sparkles, X } from "lucide-react";
+import { usePremium } from "@/hooks/usePremium";
 
 export default function SmartSupplySuggestion() {
+  const { isPremium } = usePremium();
   const [suggestions, setSuggestions] = useState([]);
   const [dismissed, setDismissed] = useState([]);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (!isPremium) { setLoading(false); return; }
     base44.functions.invoke('suggestSupplies', {})
       .then(res => setSuggestions(res.data?.suggestions || []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [isPremium]);
 
   const addMutation = useMutation({
     mutationFn: (supply_name) =>

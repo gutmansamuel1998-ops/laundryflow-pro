@@ -5,12 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Sparkles, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { usePremium } from "@/hooks/usePremium";
 
 export default function OptimalTimePrompt() {
+  const { isPremium } = usePremium();
   const { data, isLoading } = useQuery({
     queryKey: ["optimal-time"],
     queryFn: () => base44.functions.invoke("suggestOptimalTime", {}),
-    refetchInterval: 300000, // Refresh every 5 minutes
+    refetchInterval: 300000,
+    enabled: isPremium === true, // Only fetch for premium users
   });
 
   const formatTime = (isoString) => {

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePremium } from "@/hooks/usePremium";
+import AIPremiumLock from "@/components/premium/AIPremiumLock";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,7 @@ const CATEGORY_EMOJI = {
 };
 
 export default function DigitalCloset() {
+  const { isPremium } = usePremium();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [showAdd, setShowAdd] = useState(false);
@@ -431,6 +434,7 @@ const SAFETY_STYLES = {
                     </label>
                   </div>
                   {/* Scan care tag */}
+                  {isPremium && (
                   <div>
                     <label className="flex items-center gap-3 cursor-pointer">
                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-dashed border-primary/50 bg-primary/5 w-full">
@@ -442,6 +446,7 @@ const SAFETY_STYLES = {
                       <input type="file" accept="image/*" className="hidden" disabled={scanningTag} onChange={e => handleTagScan(e.target.files[0], "add")} />
                     </label>
                   </div>
+                  )}
                   <Input placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
                   {/* New garment toggle */}
                   <button
@@ -574,13 +579,16 @@ const SAFETY_STYLES = {
                 <p className="text-sm font-medium flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-primary" /> Wash Safety Checker
                 </p>
-                <button onClick={() => { setCheckMode(!checkMode); setCheckResult(null); }} className="text-xs text-primary font-medium">
-                  {checkMode ? "Hide" : "Check My Closet"}
-                </button>
+                {isPremium
+                  ? <button onClick={() => { setCheckMode(!checkMode); setCheckResult(null); }} className="text-xs text-primary font-medium">
+                      {checkMode ? "Hide" : "Check My Closet"}
+                    </button>
+                  : <AIPremiumLock compact featureName="Wash Safety Checker" />
+                }
               </div>
 
               <AnimatePresence>
-                {checkMode && (
+                {checkMode && isPremium && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3">
                     <div>
                       <p className="text-xs text-muted-foreground mb-1.5">Wash Cycle</p>
@@ -667,13 +675,16 @@ const SAFETY_STYLES = {
                 <p className="text-sm font-medium flex items-center gap-2">
                   <Wand2 className="w-4 h-4 text-primary" /> Outfit Suggestions
                 </p>
-                <button onClick={() => { setOutfitMode(!outfitMode); setOutfitResult(null); }} className="text-xs text-primary font-medium">
-                  {outfitMode ? "Hide" : "Get Ideas"}
-                </button>
+                {isPremium
+                  ? <button onClick={() => { setOutfitMode(!outfitMode); setOutfitResult(null); }} className="text-xs text-primary font-medium">
+                      {outfitMode ? "Hide" : "Get Ideas"}
+                    </button>
+                  : <AIPremiumLock compact featureName="Outfit Suggestions" />
+                }
               </div>
 
               <AnimatePresence>
-                {outfitMode && (
+                {outfitMode && isPremium && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
                     {/* Occasion */}
                     <div>

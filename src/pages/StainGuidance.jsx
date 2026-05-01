@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { usePremium } from "@/hooks/usePremium";
+import AIPremiumLock from "@/components/premium/AIPremiumLock";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,7 @@ const STAIN_DB = [
 const CATEGORIES = [...new Set(STAIN_DB.map(s => s.category))];
 
 export default function StainGuidance() {
+  const { isPremium, isLoading: premiumLoading } = usePremium();
   const [stainType, setStainType] = useState("");
   const [guidance, setGuidance] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -151,6 +154,14 @@ Be concise, calm, and practical.`;
   const confidenceColor = { high: "bg-green-100 text-green-700", medium: "bg-yellow-100 text-yellow-700", low: "bg-orange-100 text-orange-700" };
   const filteredStains = activeCategory ? STAIN_DB.filter(s => s.category === activeCategory) : STAIN_DB;
 
+  if (premiumLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
@@ -164,7 +175,13 @@ Be concise, calm, and practical.`;
           </p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-6 space-y-4">
+        {!isPremium && (
+          <div className="mt-10 rounded-2xl border border-border bg-card">
+            <AIPremiumLock featureName="AI Stain Guidance" />
+          </div>
+        )}
+
+        {isPremium && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mt-6 space-y-4">
 
           {/* Fabric / Closet Selector */}
           <Card className="p-4 border-0 shadow-sm">
@@ -416,7 +433,7 @@ Be concise, calm, and practical.`;
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </motion.div>}
       </div>
     </div>
   );

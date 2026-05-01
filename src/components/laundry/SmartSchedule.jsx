@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { CalendarClock, Bell, BellOff, CheckCircle2 } from "lucide-react";
+import { usePremium } from "@/hooks/usePremium";
 
 const LOAD_TYPE_LABELS = {
   everyday_clothes: "Everyday Clothes",
@@ -12,6 +13,7 @@ const LOAD_TYPE_LABELS = {
 };
 
 export default function SmartSchedule() {
+  const { isPremium } = usePremium();
   const [suggestion, setSuggestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notified, setNotified] = useState(false);
@@ -19,11 +21,12 @@ export default function SmartSchedule() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    if (!isPremium) { setLoading(false); return; }
     base44.functions.invoke('smartSchedule', { action: 'suggest' })
       .then(res => setSuggestion(res.data?.suggestion || null))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [isPremium]);
 
   const handleNotify = async () => {
     setNotifying(true);

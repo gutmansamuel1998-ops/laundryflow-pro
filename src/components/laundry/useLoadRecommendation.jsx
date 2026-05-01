@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { usePremium } from "@/hooks/usePremium";
 
 /**
  * Fetches an AI-powered load recommendation based on the user's
@@ -11,8 +12,16 @@ import { base44 } from "@/api/base44Client";
 export function useLoadRecommendation() {
   const [recommendation, setRecommendation] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { isPremium } = usePremium();
 
   useEffect(() => {
+    // AI suggestion only for premium users
+    if (isPremium === null) return; // still loading premium status
+    if (!isPremium) {
+      setIsLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     async function fetch() {
@@ -71,7 +80,7 @@ Rules:
 
     fetch();
     return () => { cancelled = true; };
-  }, []);
+  }, [isPremium]);
 
   return { recommendation, isLoading };
 }

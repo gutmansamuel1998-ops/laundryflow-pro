@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Camera, Upload, Loader2, Thermometer, Wind, Droplets, Sun, Scissors, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePremium } from "@/hooks/usePremium";
+import AIPremiumLock from "@/components/premium/AIPremiumLock";
 
 const CATEGORY_ICONS = {
   washing: Droplets,
@@ -26,6 +28,7 @@ const CATEGORY_LABELS = {
 };
 
 export default function TagScanner() {
+  const { isPremium, isLoading: premiumLoading } = usePremium();
   const [imageUrl, setImageUrl] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -67,6 +70,14 @@ export default function TagScanner() {
     setLoading(false);
   };
 
+  if (premiumLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
@@ -80,7 +91,13 @@ export default function TagScanner() {
           </p>
         </motion.div>
 
-        <motion.div
+        {!isPremium && (
+          <div className="mt-10 rounded-2xl border border-border bg-card">
+            <AIPremiumLock featureName="AI Tag Scanner" />
+          </div>
+        )}
+
+        {isPremium && <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
@@ -187,7 +204,7 @@ export default function TagScanner() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </motion.div>}
       </div>
     </div>
   );
