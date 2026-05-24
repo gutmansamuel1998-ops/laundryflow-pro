@@ -8,8 +8,8 @@ import { createPageUrl } from "@/utils";
 import { Home, Play, Layers, Sparkles, Settings, Package, Shirt } from "lucide-react";
 
 const navItems = [
-  { page: "Home", label: "Home", icon: Home },
   { page: "DigitalCloset", label: "My Closet", icon: Shirt, emoji: "👖" },
+  { page: "Home", label: "Home", icon: Home },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Loads", label: "Loads", icon: Layers },
   { page: "Supplies", label: "Supplies", icon: Package },
