@@ -7,7 +7,6 @@ import { usePremium } from "@/hooks/usePremium";
 const FREE_LINKS = [
   { page: "FabricCareLibrary", label: "Fabric Care Library", icon: BookOpen,     color: "bg-blue-50 text-blue-600" },
   { page: "LaundryCalendar",   label: "Laundry Calendar",   icon: Calendar,      color: "bg-green-50 text-green-600" },
-  { page: "TagScanner",        label: "Tag Scanner",        icon: ScanLine,      color: "bg-purple-50 text-purple-600" },
   { page: "StainGuidance",     label: "Stain Guidance",     icon: Droplets,      color: "bg-red-50 text-red-500" },
   { page: "ShoppingList",      label: "Shopping List",      icon: ShoppingCart,  color: "bg-amber-50 text-amber-600" },
   { page: "AirDryTracker",     label: "Air Dry Tracker",    icon: Wind,          color: "bg-cyan-50 text-cyan-600" },
@@ -15,6 +14,7 @@ const FREE_LINKS = [
 ];
 
 const PREMIUM_LINKS = [
+  { page: "TagScanner",       label: "AI Tag Scanner",      icon: ScanLine,      color: "bg-purple-50 text-purple-600" },
   { page: "SmartWash",        label: "Smart Wash",          icon: Zap,           color: "bg-violet-50 text-violet-600" },
   { page: "SmartPredictions", label: "Smart Predictions",   icon: Brain,         color: "bg-indigo-50 text-indigo-600" },
   { page: "SmartPlanner",     label: "Smart Planner",       icon: CalendarClock, color: "bg-sky-50 text-sky-600" },
