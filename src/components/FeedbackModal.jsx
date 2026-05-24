@@ -109,7 +109,7 @@ export default function FeedbackModal() {
               </div>
 
               {/* Scrollable content */}
-              <div className="overflow-y-auto flex-1 px-6 pb-6" style={{ WebkitOverflowScrolling: "touch" }}>
+              <div className="overflow-y-auto flex-1 px-6 pb-2" style={{ WebkitOverflowScrolling: "touch" }}>
                 {done ? (
                   <div className="flex flex-col items-center gap-3 py-10">
                     <CheckCircle2 className="w-12 h-12 text-primary" />
@@ -117,7 +117,7 @@ export default function FeedbackModal() {
                     <p className="text-xs text-muted-foreground text-center">We appreciate you taking the time — we'll look into it soon.</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 pb-2">
                     {/* Type selector */}
                     <div className="flex gap-2">
                       {TYPES.map(({ value, label, icon: Icon, color }) => (
@@ -147,7 +147,7 @@ export default function FeedbackModal() {
                           ? "What feature or improvement would you like to see?"
                           : "Share your thoughts about the app…"
                       }
-                      rows={4}
+                      rows={3}
                       className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                     />
 
@@ -159,22 +159,24 @@ export default function FeedbackModal() {
                       type="email"
                       className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
-
-                    {/* Submit — always visible at bottom of scroll area */}
-                    <button
-                      onClick={handleSubmit}
-                      disabled={sending || !message.trim()}
-                      className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
-                    >
-                      <Send className="w-4 h-4" />
-                      {sending ? "Sending…" : "Submit Feedback"}
-                    </button>
                   </div>
                 )}
               </div>
 
-              {/* Safe area spacer for devices with home bar */}
-              <div className="flex-shrink-0" style={{ paddingBottom: "env(safe-area-inset-bottom, 12px)" }} />
+              {/* Submit button — sticky outside scroll area, always visible */}
+              {!done && (
+                <div className="flex-shrink-0 px-6 pt-3 pb-4 border-t border-border/40 bg-card">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={sending || !message.trim()}
+                    className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-xl py-3.5 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
+                  >
+                    <Send className="w-4 h-4" />
+                    {sending ? "Sending…" : "Submit Feedback"}
+                  </button>
+                  <div style={{ height: "env(safe-area-inset-bottom, 8px)" }} />
+                </div>
+              )}
             </motion.div>
           </>
         )}
