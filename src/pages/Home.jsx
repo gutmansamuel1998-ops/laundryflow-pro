@@ -153,7 +153,6 @@ export default function Home() {
                   <ShoppingList />
                   <LowSupplyAlert />
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
-                  <QuickLinksSection />
                   <FrictionAlert loads={activeLoads} />
                   <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
                   {actionableLoad && (
@@ -190,9 +189,10 @@ export default function Home() {
                      + Start another load
                    </button>
                   </motion.div>
-                </div>
-              )}
-            </motion.div>
+                  <QuickLinksSection />
+                  </div>
+                  )}
+                  </motion.div>
           )}
         </AnimatePresence>
       </div>
