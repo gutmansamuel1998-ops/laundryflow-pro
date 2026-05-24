@@ -22,6 +22,7 @@ import WearingTodaySection from "@/components/home/WearingTodaySection";
 import LaundryBasketSection from "@/components/home/LaundryBasketSection";
 import IroningQueueSection from "@/components/home/IroningQueueSection";
 import QuickLinksSection from "@/components/home/QuickLinksSection";
+import RestorePremiumSection from "@/components/home/RestorePremiumSection";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -141,6 +142,7 @@ export default function Home() {
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
                   <EmptyState onStartLoad={() => setShowBuilder(true)} />
                   <QuickLinksSection />
+                  <RestorePremiumSection />
                 </div>
               ) : (
                 <div className="mt-10 space-y-6">
@@ -190,6 +192,7 @@ export default function Home() {
                    </button>
                   </motion.div>
                   <QuickLinksSection />
+                  <RestorePremiumSection />
                   </div>
                   )}
                   </motion.div>
