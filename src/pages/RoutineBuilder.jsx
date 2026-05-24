@@ -7,10 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Loader2, Edit, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { usePremium } from "@/hooks/usePremium";
+import AIPremiumLock from "@/components/premium/AIPremiumLock";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function RoutineBuilder() {
+  const { isPremium, isLoading: premiumLoading } = usePremium();
   const [user, setUser] = useState(null);
   const [inputs, setInputs] = useState({
     household_size: "1",
@@ -80,6 +83,14 @@ Provide a suggested schedule with specific days and load types (e.g., "Monday â€
     setRoutine({ ...routine, routine: updated });
   };
 
+  if (premiumLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
@@ -93,7 +104,13 @@ Provide a suggested schedule with specific days and load types (e.g., "Monday â€
           </p>
         </motion.div>
 
-        <motion.div
+        {!isPremium && (
+          <div className="mt-6 rounded-2xl border border-border bg-card">
+            <AIPremiumLock featureName="AI Routine Builder" />
+          </div>
+        )}
+
+        {isPremium && <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
@@ -254,7 +271,7 @@ Provide a suggested schedule with specific days and load types (e.g., "Monday â€
               </div>
             </motion.div>
           )}
-        </motion.div>
+        </motion.div>}
       </div>
     </div>
   );

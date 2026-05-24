@@ -7,12 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Plus, X, Loader2, Thermometer, Timer, Wind, AlertTriangle, ChevronLeft, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { usePremium } from "@/hooks/usePremium";
+import AIPremiumLock from "@/components/premium/AIPremiumLock";
 
 const FABRIC_PRESETS = ["Cotton", "Polyester", "Wool", "Silk", "Linen", "Denim", "Synthetic", "Delicate"];
 const ITEM_PRESETS = ["T-shirts", "Jeans", "Towels", "Bedding", "Dress shirts", "Activewear", "Underwear", "Sweaters"];
 
 export default function CycleRecommender() {
   const navigate = useNavigate();
+  const { isPremium, isLoading: premiumLoading } = usePremium();
   const [items, setItems] = useState([]);
   const [itemInput, setItemInput] = useState("");
   const [fabrics, setFabrics] = useState([]);
@@ -89,6 +92,14 @@ Return a JSON object with:
     { icon: RotateCcw, label: "Dry Method", value: recommendation.dry_method },
   ] : [];
 
+  if (premiumLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
@@ -104,7 +115,13 @@ Return a JSON object with:
           </div>
         </div>
 
-        <AnimatePresence mode="wait">
+        {!isPremium && (
+          <div className="mt-4 rounded-2xl border border-border bg-card">
+            <AIPremiumLock featureName="AI Cycle Recommender" />
+          </div>
+        )}
+
+        {isPremium && <AnimatePresence mode="wait">
           {!recommendation ? (
             <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
 
@@ -232,7 +249,7 @@ Return a JSON object with:
               </Button>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>}
       </div>
     </div>
   );

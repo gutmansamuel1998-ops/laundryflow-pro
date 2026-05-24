@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Camera, Upload, RotateCcw, AlertTriangle, CheckCircle, Loader2, Droplets } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePremium } from "@/hooks/usePremium";
+import AIPremiumLock from "@/components/premium/AIPremiumLock";
 
 const likelihoodConfig = {
   high: { color: "bg-green-100 text-green-700 border-green-200", label: "High Success" },
@@ -19,6 +21,7 @@ const severityConfig = {
 };
 
 export default function StainScanner() {
+  const { isPremium, isLoading: premiumLoading } = usePremium();
   const [photo, setPhoto] = useState(null); // base64 data url
   const [uploadedUrl, setUploadedUrl] = useState(null);
   const [analysis, setAnalysis] = useState(null);
@@ -70,6 +73,14 @@ export default function StainScanner() {
   const likelihood = analysis ? likelihoodConfig[analysis.success_likelihood] : null;
   const severity = analysis ? severityConfig[analysis.severity] : null;
 
+  if (premiumLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -89,6 +100,13 @@ export default function StainScanner() {
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
 
+        {!isPremium && (
+          <div className="rounded-2xl border border-border bg-card">
+            <AIPremiumLock featureName="AI Stain Scanner" />
+          </div>
+        )}
+
+        {isPremium && <>
         {/* Photo Capture Area */}
         {!photo ? (
           <motion.div
@@ -275,6 +293,7 @@ export default function StainScanner() {
             </motion.div>
           )}
         </AnimatePresence>
+        </>}
       </div>
     </div>
   );
