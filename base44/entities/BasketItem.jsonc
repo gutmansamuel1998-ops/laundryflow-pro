@@ -18,6 +18,10 @@
       "type": "string",
       "description": "Optional photo URL"
     },
+    "description": {
+      "type": "string",
+      "description": "Optional description or notes for this basket item (up to 1000 characters)"
+    },
     "status": {
       "type": "string",
       "enum": [

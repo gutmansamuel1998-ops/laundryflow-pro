@@ -1,0 +1,37 @@
+{
+  "name": "ShoppingItem",
+  "type": "object",
+  "properties": {
+    "supply_name": {
+      "type": "string",
+      "description": "Name of the supply item to purchase"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of this shopping item (up to 1000 characters)"
+    },
+    "predicted_depletion_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the supply is predicted to run out"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "purchased",
+        "dismissed"
+      ],
+      "default": "pending",
+      "description": "Status of the shopping item"
+    },
+    "added_reason": {
+      "type": "string",
+      "description": "Why this item was added (e.g., 'Based on 3 loads/week pattern')"
+    }
+  },
+  "required": [
+    "supply_name",
+    "status"
+  ]
+}

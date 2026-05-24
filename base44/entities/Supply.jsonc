@@ -1,0 +1,74 @@
+{
+  "name": "Supply",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Supply item name (e.g. Detergent, Fabric Softener)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of this supply item (up to 1000 characters)"
+    },
+    "current_level": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 100,
+      "description": "Current supply level as percentage (0-100)"
+    },
+    "low_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 20,
+      "description": "Percentage threshold for low supply notification"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "loads",
+        "ml",
+        "oz",
+        "cups",
+        "scoops"
+      ],
+      "default": "loads",
+      "description": "Unit of measurement"
+    },
+    "last_restocked": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the supply was last restocked"
+    },
+    "notified_low": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether low notification has been sent"
+    },
+    "usage_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Historical tracking of supply levels for usage estimation"
+    },
+    "estimated_days_remaining": {
+      "type": "number",
+      "description": "Calculated estimate of days until supply runs out"
+    }
+  },
+  "required": [
+    "name",
+    "current_level"
+  ]
+}

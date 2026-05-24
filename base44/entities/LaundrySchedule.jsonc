@@ -1,0 +1,57 @@
+{
+  "name": "LaundrySchedule",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Scheduled laundry date (YYYY-MM-DD)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Optional label for this session (e.g. 'Bedding day', 'Quick wash')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description for this scheduled laundry session (up to 1000 characters)"
+    },
+    "recurring": {
+      "type": "string",
+      "enum": [
+        "none",
+        "weekly",
+        "biweekly",
+        "monthly"
+      ],
+      "default": "none",
+      "description": "Recurrence pattern"
+    },
+    "reminder_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to show a reminder for this day"
+    },
+    "load_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "everyday_clothes",
+          "towels",
+          "bedding",
+          "delicates",
+          "mixed"
+        ]
+      },
+      "description": "Types of loads planned for this day"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this laundry day was completed"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

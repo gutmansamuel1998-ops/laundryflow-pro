@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Names of items left to air dry (comma-separated)"
     },
+    "description": {
+      "type": "string",
+      "description": "Optional description or notes for this air dry session (up to 1000 characters)"
+    },
     "started_at": {
       "type": "string",
       "format": "date-time",
