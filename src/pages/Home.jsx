@@ -21,6 +21,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import WearingTodaySection from "@/components/home/WearingTodaySection";
 import LaundryBasketSection from "@/components/home/LaundryBasketSection";
 import IroningQueueSection from "@/components/home/IroningQueueSection";
+import QuickLinksSection from "@/components/home/QuickLinksSection";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -139,6 +140,7 @@ export default function Home() {
                   <LowSupplyAlert />
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
                   <EmptyState onStartLoad={() => setShowBuilder(true)} />
+                  <QuickLinksSection />
                 </div>
               ) : (
                 <div className="mt-10 space-y-6">
@@ -151,6 +153,7 @@ export default function Home() {
                   <ShoppingList />
                   <LowSupplyAlert />
                   <EnvironmentalAnchorPrompt anchors={environmentalAnchors} onTrigger={handleAnchorTrigger} />
+                  <QuickLinksSection />
                   <FrictionAlert loads={activeLoads} />
                   <ForgottenLoadAlert loads={activeLoads} thresholdMinutes={forgottenThreshold} />
                   {actionableLoad && (
