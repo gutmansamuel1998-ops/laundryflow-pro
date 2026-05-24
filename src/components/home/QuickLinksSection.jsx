@@ -1,7 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets } from "lucide-react";
+import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, FlaskConical, Lock } from "lucide-react";
+import { usePremium } from "@/hooks/usePremium";
 
 const FREE_LINKS = [
   { page: "FabricCareLibrary", label: "Fabric Care Library", icon: BookOpen,     color: "bg-blue-50 text-blue-600" },
@@ -13,7 +14,21 @@ const FREE_LINKS = [
   { page: "IroningDashboard",  label: "Ironing",            icon: Shirt,         color: "bg-orange-50 text-orange-600" },
 ];
 
+const PREMIUM_LINKS = [
+  { page: "SmartWash",        label: "Smart Wash",          icon: Zap,           color: "bg-violet-50 text-violet-600" },
+  { page: "SmartPredictions", label: "Smart Predictions",   icon: Brain,         color: "bg-indigo-50 text-indigo-600" },
+  { page: "SmartPlanner",     label: "Smart Planner",       icon: CalendarClock, color: "bg-sky-50 text-sky-600" },
+  { page: "SmartScheduler",   label: "Smart Scheduler",     icon: CalendarClock, color: "bg-teal-50 text-teal-600" },
+  { page: "SupplyAnalytics",  label: "Supply Analytics",    icon: BarChart2,     color: "bg-emerald-50 text-emerald-600" },
+  { page: "SupplyDashboard",  label: "Supply Dashboard",    icon: BarChart2,     color: "bg-lime-50 text-lime-600" },
+  { page: "RoutineBuilder",   label: "Routine Builder",     icon: CalendarClock, color: "bg-pink-50 text-pink-600" },
+  { page: "StainScanner",     label: "Stain Scanner",       icon: FlaskConical,  color: "bg-rose-50 text-rose-600" },
+];
+
 export default function QuickLinksSection() {
+  const { isPremium } = usePremium();
+  const navigate = useNavigate();
+
   return (
     <section className="mt-8 mb-4">
       <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">More Features</h2>
@@ -30,6 +45,38 @@ export default function QuickLinksSection() {
             <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
           </Link>
         ))}
+
+        {PREMIUM_LINKS.map(({ page, label, icon: Icon, color }) => {
+          const canAccess = isPremium === true;
+          return canAccess ? (
+            <Link
+              key={page}
+              to={createPageUrl(page)}
+              className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/30 hover:shadow-sm transition-all"
+            >
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
+            </Link>
+          ) : (
+            <button
+              key={page}
+              onClick={() => navigate(createPageUrl("Premium"))}
+              className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/30 hover:shadow-sm transition-all opacity-60 text-left"
+            >
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                  <Lock className="w-2.5 h-2.5" /> Pro
+                </span>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
