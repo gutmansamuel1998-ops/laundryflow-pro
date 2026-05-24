@@ -953,21 +953,29 @@ const SAFETY_STYLES = {
                         )}
                       </div>
                     </div>
-                    {/* Wearing Today button */}
+                    {/* Wearing Today / Used Today buttons */}
                     {!basketMode && (
-                     <button
-                       onClick={() => {
-                         const today = new Date().toISOString().split("T")[0];
-                         const isWearing = item.wearing_today;
-                         editMutation.mutate({
-                           id: item.id,
-                           data: { wearing_today: !isWearing, last_worn: isWearing ? item.last_worn : today, wear_count: isWearing ? item.wear_count : (item.wear_count || 0) + 1 }
-                         });
-                       }}
-                       className={`w-full mt-1 py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.wearing_today ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
-                     >
-                       {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
-                     </button>
+                     <div className="flex flex-col gap-1 mt-1">
+                       <button
+                         onClick={() => {
+                           const today = new Date().toISOString().split("T")[0];
+                           const isWearing = item.wearing_today;
+                           editMutation.mutate({
+                             id: item.id,
+                             data: { wearing_today: !isWearing, last_worn: isWearing ? item.last_worn : today, wear_count: isWearing ? item.wear_count : (item.wear_count || 0) + 1 }
+                           });
+                         }}
+                         className={`w-full py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.wearing_today ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
+                       >
+                         {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
+                       </button>
+                       <button
+                         onClick={() => editMutation.mutate({ id: item.id, data: { used_today: !item.used_today } })}
+                         className={`w-full py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.used_today ? "bg-amber-100 border-amber-300 text-amber-800" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
+                       >
+                         {item.used_today ? "✓ Used today" : "🧺 Used today?"}
+                       </button>
+                     </div>
                     )}
                   </motion.div>
                 );

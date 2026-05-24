@@ -19,6 +19,7 @@ import SmartSchedule from "@/components/laundry/SmartSchedule";
 import OptimalTimePrompt from "@/components/laundry/OptimalTimePrompt";
 import { AnimatePresence, motion } from "framer-motion";
 import WearingTodaySection from "@/components/home/WearingTodaySection";
+import UsedTodaySection from "@/components/home/UsedTodaySection";
 import LaundryBasketSection from "@/components/home/LaundryBasketSection";
 import IroningQueueSection from "@/components/home/IroningQueueSection";
 import QuickLinksSection from "@/components/home/QuickLinksSection";
@@ -131,6 +132,7 @@ export default function Home() {
               ) : activeLoads.length === 0 ? (
                 <div>
                   <WearingTodaySection />
+                  <UsedTodaySection />
                   <LaundryBasketSection />
                   <IroningQueueSection />
                   <OptimalTimePrompt />
@@ -147,6 +149,7 @@ export default function Home() {
               ) : (
                 <div className="mt-10 space-y-6">
                   <WearingTodaySection />
+                  <UsedTodaySection />
                   <LaundryBasketSection />
                   <IroningQueueSection />
                   <OptimalTimePrompt />

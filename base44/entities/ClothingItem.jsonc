@@ -99,6 +99,11 @@
       "default": false,
       "description": "Whether this item is currently being worn today"
     },
+    "used_today": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item was used today (e.g. a towel) but not worn \u2014 needs laundering"
+    },
     "requires_ironing": {
       "type": "boolean",
       "default": false,
