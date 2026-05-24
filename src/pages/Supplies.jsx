@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine, BarChart2, LayoutDashboard } from "lucide-react";
+import { Package, Plus, Droplet, AlertCircle, Trash2, RefreshCw, Calendar, TrendingDown, ShoppingCart, ScanLine, BarChart2, LayoutDashboard, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -271,12 +271,12 @@ export default function Supplies() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setShowScanner(true)}
-              aria-label="Scan product barcode"
+              onClick={() => isPremium ? setShowScanner(true) : navigate(createPageUrl("Premium"))}
+              aria-label={isPremium ? "Scan product barcode" : "Upgrade to Premium to use barcode scanner"}
               className="rounded-xl"
               size="sm"
             >
-              <ScanLine className="w-4 h-4 mr-1" aria-hidden="true" />
+              {isPremium ? <ScanLine className="w-4 h-4 mr-1" aria-hidden="true" /> : <Lock className="w-4 h-4 mr-1" aria-hidden="true" />}
               Scan
             </Button>
             <Button
