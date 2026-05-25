@@ -880,7 +880,7 @@ const SAFETY_STYLES = {
             >
               <Plus className="w-5 h-5" /> Add Your First Item
             </Button>
-            <p className="text-xs text-muted-foreground/70">No pressure — add as many or as few as you like.</p>
+            <p className="text-xs text-muted-foreground">No pressure — add as many or as few as you like.</p>
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center pt-6 space-y-2">
