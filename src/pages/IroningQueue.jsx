@@ -109,7 +109,7 @@ export default function IroningQueue() {
           </div>
         </div>
         <Link to="/IroningGuide">
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs min-h-[44px] min-w-[44px]">
             <BookOpen className="w-3.5 h-3.5" /> Guide
           </Button>
         </Link>

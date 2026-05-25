@@ -48,7 +48,7 @@ export default function Layout({ children, currentPageName }) {
                   to={createPageUrl(item.page)}
                   aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all ${
+                  className={`flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] min-w-[44px] rounded-xl transition-all ${
                     isActive
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"

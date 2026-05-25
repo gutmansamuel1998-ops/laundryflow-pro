@@ -886,9 +886,9 @@ const SAFETY_STYLES = {
                     </div>
                   </div>
                   {activeFilterCount > 0 && (
-                    <button onClick={() => { setFilterCategory("all"); setFilterColor("all"); setFilterLifestyle("all"); }} className="text-xs text-primary font-medium">
-                      Clear filters
-                    </button>
+                  <button onClick={() => { setFilterCategory("all"); setFilterColor("all"); setFilterLifestyle("all"); }} className="text-xs text-primary font-medium min-h-[44px] px-2 py-2">
+                   Clear filters
+                  </button>
                   )}
                 </motion.div>
               )}
@@ -921,7 +921,7 @@ const SAFETY_STYLES = {
           <div className="text-center pt-6 space-y-2">
             <Search className="w-10 h-10 text-muted-foreground/30 mx-auto" aria-hidden="true" />
             <h2 className="text-sm font-medium text-muted-foreground">No garments match your search.</h2>
-            <button onClick={() => { setSearchQuery(""); setFilterCategory("all"); setFilterColor("all"); }} className="text-xs text-primary font-medium">Clear search & filters</button>
+            <button onClick={() => { setSearchQuery(""); setFilterCategory("all"); setFilterColor("all"); }} className="text-xs text-primary font-medium min-h-[44px] px-2 py-2">Clear search & filters</button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -1013,26 +1013,26 @@ const SAFETY_STYLES = {
                     {!basketMode && (
                      <div className="flex flex-col gap-1 mt-1">
                        <button
-                         aria-pressed={!!item.wearing_today}
-                         onClick={() => {
-                           const today = new Date().toISOString().split("T")[0];
-                           const isWearing = item.wearing_today;
-                           editMutation.mutate({
-                             id: item.id,
-                             data: { wearing_today: !isWearing, last_worn: isWearing ? item.last_worn : today, wear_count: isWearing ? item.wear_count : (item.wear_count || 0) + 1 }
-                           });
-                         }}
-                         className={`w-full py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.wearing_today ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
-                       >
-                         {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
-                       </button>
+                          aria-pressed={!!item.wearing_today}
+                          onClick={() => {
+                            const today = new Date().toISOString().split("T")[0];
+                            const isWearing = item.wearing_today;
+                            editMutation.mutate({
+                              id: item.id,
+                              data: { wearing_today: !isWearing, last_worn: isWearing ? item.last_worn : today, wear_count: isWearing ? item.wear_count : (item.wear_count || 0) + 1 }
+                            });
+                          }}
+                          className={`w-full min-h-[44px] py-2 rounded-xl text-[11px] font-medium transition-all border ${item.wearing_today ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
+                        >
+                          {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
+                        </button>
                        <button
-                         aria-pressed={!!item.used_today}
-                         onClick={() => editMutation.mutate({ id: item.id, data: { used_today: !item.used_today } })}
-                         className={`w-full py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.used_today ? "bg-amber-100 border-amber-300 text-amber-800" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
-                       >
-                         {item.used_today ? "✓ Used today" : "🧺 Used today?"}
-                       </button>
+                          aria-pressed={!!item.used_today}
+                          onClick={() => editMutation.mutate({ id: item.id, data: { used_today: !item.used_today } })}
+                          className={`w-full min-h-[44px] py-2 rounded-xl text-[11px] font-medium transition-all border ${item.used_today ? "bg-amber-100 border-amber-300 text-amber-800" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
+                        >
+                          {item.used_today ? "✓ Used today" : "🧺 Used today?"}
+                        </button>
                      </div>
                     )}
                   </motion.div>
