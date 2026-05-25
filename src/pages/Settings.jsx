@@ -225,12 +225,12 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <Label className="text-sm mb-2 block">Forgotten load alert after</Label>
+                <Label id="forgotten-threshold-label" className="text-sm mb-2 block">Forgotten load alert after</Label>
                 <Select
                   value={String(settings.forgotten_threshold_minutes)}
                   onValueChange={(v) => setSettings(prev => ({ ...prev, forgotten_threshold_minutes: Number(v) }))}
                 >
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl" aria-labelledby="forgotten-threshold-label"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="15">15 minutes</SelectItem>
                     <SelectItem value="30">30 minutes</SelectItem>
@@ -372,7 +372,10 @@ export default function Settings() {
                 </p>
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="motion">Reduced motion</Label>
+                <div>
+                  <Label htmlFor="motion">Reduced motion</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Minimizes animations and transitions</p>
+                </div>
                 <Switch
                   id="motion"
                   checked={settings.reduced_motion}
@@ -380,7 +383,10 @@ export default function Settings() {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="contrast">High contrast</Label>
+                <div>
+                  <Label htmlFor="contrast">High contrast</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Increases color contrast for better visibility</p>
+                </div>
                 <Switch
                   id="contrast"
                   checked={settings.high_contrast}
@@ -444,12 +450,12 @@ export default function Settings() {
               {settings.friction_detection_enabled && (
                 <>
                   <div>
-                    <Label className="text-sm mb-2 block">General idle time threshold</Label>
+                    <Label id="idle-threshold-label" className="text-sm mb-2 block">General idle time threshold</Label>
                     <Select
                       value={String(settings.idle_threshold_minutes)}
                       onValueChange={(v) => setSettings(prev => ({ ...prev, idle_threshold_minutes: Number(v) }))}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="rounded-xl" aria-labelledby="idle-threshold-label"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="60">1 hour</SelectItem>
                         <SelectItem value="120">2 hours</SelectItem>
@@ -462,12 +468,12 @@ export default function Settings() {
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm mb-2 block">Load created idle time</Label>
+                    <Label id="load-created-idle-label" className="text-sm mb-2 block">Load created idle time</Label>
                     <Select
                       value={String(settings.max_idle_time_load_created)}
                       onValueChange={(v) => setSettings(prev => ({ ...prev, max_idle_time_load_created: Number(v) }))}
                     >
-                      <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="rounded-xl" aria-labelledby="load-created-idle-label"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="120">2 hours</SelectItem>
                         <SelectItem value="180">3 hours</SelectItem>

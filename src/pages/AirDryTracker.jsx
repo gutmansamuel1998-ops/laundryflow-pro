@@ -168,11 +168,14 @@ export default function AirDryTracker() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Remind me after…</label>
-                <div className="flex gap-2">
+                <p id="remind-after-label" className="text-sm font-medium mb-1.5 block">Remind me after…</p>
+                <div className="flex gap-2" role="radiogroup" aria-labelledby="remind-after-label">
                   {REMIND_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
+                      role="radio"
+                      aria-checked={remindHours === opt.value}
+                      aria-label={`Remind me after ${opt.value} hour${opt.value > 1 ? "s" : ""}`}
                       onClick={() => setRemindHours(opt.value)}
                       className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors ${
                         remindHours === opt.value
