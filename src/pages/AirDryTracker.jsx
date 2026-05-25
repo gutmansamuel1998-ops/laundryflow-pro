@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Wind, Plus, CheckCircle2, Bell, Trash2, Clock } from "lucide-react";
+import { Wind, Plus, CheckCircle2, Bell, Trash2, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ export default function AirDryTracker() {
   const [itemNames, setItemNames] = useState("");
   const [remindHours, setRemindHours] = useState(3);
   const [adding, setAdding] = useState(false);
+  const [itemNamesError, setItemNamesError] = useState("");
 
   const { data: sessions = [] } = useQuery({
     queryKey: ["air_dry_sessions"],
@@ -68,7 +69,11 @@ export default function AirDryTracker() {
   }, [sessions, permission]);
 
   const handleAdd = () => {
-    if (!itemNames.trim()) return;
+    if (!itemNames.trim()) {
+      setItemNamesError("Please enter what you are air drying.");
+      return;
+    }
+    setItemNamesError("");
     createMutation.mutate({
       item_names: itemNames.trim(),
       started_at: new Date().toISOString(),
@@ -132,14 +137,26 @@ export default function AirDryTracker() {
               className="rounded-2xl border bg-card p-5 mb-6 space-y-4"
             >
               <div>
-                <label className="text-sm font-medium mb-1.5 block">What are you air drying?</label>
+                <label htmlFor="air-dry-items" className="text-sm font-medium mb-1.5 block">
+                  What are you air drying? <span aria-hidden="true" className="text-destructive">*</span>
+                </label>
                 <Input
+                  id="air-dry-items"
                   placeholder="e.g. Wool sweater, linen shirt…"
                   value={itemNames}
-                  onChange={(e) => setItemNames(e.target.value)}
+                  onChange={(e) => { setItemNames(e.target.value); if (e.target.value.trim()) setItemNamesError(""); }}
                   onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+                  aria-required="true"
+                  aria-invalid={!!itemNamesError}
+                  aria-describedby={itemNamesError ? "air-dry-items-error" : undefined}
+                  className={itemNamesError ? "border-destructive focus-visible:ring-destructive" : ""}
                   autoFocus
                 />
+                {itemNamesError && (
+                  <p id="air-dry-items-error" role="alert" className="text-xs text-destructive mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 flex-shrink-0" aria-hidden="true" /> {itemNamesError}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Remind me after…</label>
@@ -160,8 +177,8 @@ export default function AirDryTracker() {
                 </div>
               </div>
               <div className="flex gap-2 pt-1">
-                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setAdding(false)}>Cancel</Button>
-                <Button className="flex-1 rounded-xl" onClick={handleAdd} disabled={!itemNames.trim() || createMutation.isPending}>
+                <Button variant="outline" className="flex-1 rounded-xl" onClick={() => { setAdding(false); setItemNamesError(""); }}>Cancel</Button>
+                <Button className="flex-1 rounded-xl" onClick={handleAdd} disabled={createMutation.isPending}>
                   {createMutation.isPending ? "Saving…" : "Start Timer"}
                 </Button>
               </div>

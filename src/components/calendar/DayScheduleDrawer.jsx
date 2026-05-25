@@ -109,8 +109,10 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
                 className="rounded-xl"
               />
             </div>
-            <fieldset>
-              <legend className="text-xs text-muted-foreground mb-1.5">Load types</legend>
+            <fieldset aria-describedby={saveError ? "drawer-save-error" : undefined}>
+              <legend className="text-xs text-muted-foreground mb-1.5">
+                Load types <span aria-hidden="true" className="text-destructive">*</span>
+              </legend>
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Select load types">
                 {LOAD_OPTIONS.map((o) => (
                   <button
@@ -152,7 +154,7 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
               </Button>
             </div>
             {saveError && (
-              <p role="alert" className="text-xs text-destructive flex items-center gap-1">
+              <p id="drawer-save-error" role="alert" className="text-xs text-destructive flex items-center gap-1">
                 <span aria-hidden="true">⚠</span> {saveError}
               </p>
             )}

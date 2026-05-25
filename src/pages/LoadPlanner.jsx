@@ -32,6 +32,7 @@ export default function LoadPlanner() {
   const [garments, setGarments] = useState("");
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [garmentsError, setGarmentsError] = useState("");
   const [showClosetPicker, setShowClosetPicker] = useState(false);
   const [pickerSelected, setPickerSelected] = useState(new Set(preselectedIds));
 
@@ -77,7 +78,11 @@ export default function LoadPlanner() {
   };
 
   const analyze = async () => {
-    if (!garments.trim()) return;
+    if (!garments.trim()) {
+      setGarmentsError("Please describe what you are washing.");
+      return;
+    }
+    setGarmentsError("");
     setIsLoading(true);
     setResult(null);
 
@@ -308,14 +313,25 @@ Respond with a JSON matching the schema exactly.`,
         {/* Input */}
         <Card className="border-border/50">
           <CardContent className="p-4 space-y-3">
-            <p className="text-sm font-medium">What are you washing?</p>
+            <label htmlFor="planner-garments" className="text-sm font-medium block">
+              What are you washing? <span aria-hidden="true" className="text-destructive">*</span>
+            </label>
             <Textarea
+              id="planner-garments"
               placeholder="e.g. 3 white cotton shirts, 2 dark jeans, 1 wool sweater, 4 towels..."
               value={garments}
-              onChange={e => setGarments(e.target.value)}
-              className="min-h-[100px] resize-none rounded-xl text-sm"
+              onChange={e => { setGarments(e.target.value); if (e.target.value.trim()) setGarmentsError(""); }}
+              className={`min-h-[100px] resize-none rounded-xl text-sm ${garmentsError ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              aria-required="true"
+              aria-invalid={!!garmentsError}
+              aria-describedby={garmentsError ? "planner-garments-error" : undefined}
             />
-            <Button onClick={analyze} disabled={isLoading || !garments.trim()} className="w-full gap-2 rounded-xl">
+            {garmentsError && (
+              <p id="planner-garments-error" role="alert" className="text-xs text-destructive flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3 flex-shrink-0" aria-hidden="true" /> {garmentsError}
+              </p>
+            )}
+            <Button onClick={analyze} disabled={isLoading} className="w-full gap-2 rounded-xl">
               {isLoading
                 ? <><RefreshCw className="w-4 h-4 animate-spin" /> Planning your load...</>
                 : <><Sparkles className="w-4 h-4" /> Plan My Load</>}

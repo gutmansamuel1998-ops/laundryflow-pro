@@ -84,8 +84,8 @@ export default function LaundryCalendar() {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-xl">
-            <ChevronLeft className="w-4 h-4" />
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back" className="rounded-xl">
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
           </Button>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Laundry Calendar</h1>
@@ -117,12 +117,12 @@ export default function LaundryCalendar() {
         <Card className="p-5 border-0 shadow-sm mb-4">
           {/* Month nav */}
           <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setMonth((m) => subMonths(m, 1))}>
-              <ChevronLeft className="w-4 h-4" />
+            <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setMonth((m) => subMonths(m, 1))} aria-label="Previous month">
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
             </Button>
             <h2 className="text-base font-semibold">{format(month, "MMMM yyyy")}</h2>
-            <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setMonth((m) => addMonths(m, 1))}>
-              <ChevronRight className="w-4 h-4" />
+            <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setMonth((m) => addMonths(m, 1))} aria-label="Next month">
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </Button>
           </div>
 
