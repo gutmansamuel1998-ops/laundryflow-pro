@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Upload, Sparkles, X, BookOpen, Camera, Lock, Droplet } from "lucide-react";
+import { Search, Upload, Sparkles, X, BookOpen, Camera, Lock, Droplet, ArrowLeft } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 const STAIN_GUIDE = [
@@ -233,6 +233,7 @@ const CATEGORY_COLORS = {
 
 export default function FabricCareLibrary() {
   const { isPremium } = usePremium();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedSymbol, setSelectedSymbol] = useState(null);
@@ -311,6 +312,13 @@ Also provide an overall care summary for this garment.`,
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-3 mb-1">
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+              className="flex items-center justify-center h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all flex-shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+            </button>
             <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-primary" />
             </div>
@@ -400,24 +408,32 @@ Also provide an overall care summary for this garment.`,
         )}
 
         {/* Tab Toggle */}
-        <div className="flex bg-muted rounded-xl p-1 gap-1">
+        <div role="tablist" aria-label="Library sections" className="flex bg-muted rounded-xl p-1 gap-1">
           <button
+            role="tab"
+            id="tab-symbols"
+            aria-controls="panel-symbols"
+            aria-selected={activeTab === "symbols"}
             onClick={() => setActiveTab("symbols")}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "symbols" ? "bg-white shadow-sm text-foreground" : "text-muted-foreground"}`}
           >
-            <BookOpen className="w-4 h-4" /> Care Symbols
+            <BookOpen className="w-4 h-4" aria-hidden="true" /> Care Symbols
           </button>
           <button
+            role="tab"
+            id="tab-stains"
+            aria-controls="panel-stains"
+            aria-selected={activeTab === "stains"}
             onClick={() => setActiveTab("stains")}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "stains" ? "bg-white shadow-sm text-foreground" : "text-muted-foreground"}`}
           >
-            <Droplet className="w-4 h-4" /> Stain Guide
+            <Droplet className="w-4 h-4" aria-hidden="true" /> Stain Guide
           </button>
         </div>
 
         {/* Stain Guide Tab */}
         {activeTab === "stains" && (
-          <div className="space-y-3">
+          <div role="tabpanel" id="panel-stains" aria-labelledby="tab-stains" className="space-y-3">
             <div className="flex gap-2 overflow-x-auto pb-1">
               {STAIN_CATEGORIES.map(cat => (
                 <button key={cat} onClick={() => setStainCategory(cat)}
@@ -463,7 +479,7 @@ Also provide an overall care summary for this garment.`,
 
         {/* Search & Filter + Symbol Grid (symbols tab only) */}
         {activeTab === "symbols" && (
-          <div className="space-y-3">
+          <div role="tabpanel" id="panel-symbols" aria-labelledby="tab-symbols" className="space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input

@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Loader2, Edit, Check } from "lucide-react";
+import { Calendar, Loader2, Edit, Check, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePremium } from "@/hooks/usePremium";
 import AIPremiumLock from "@/components/premium/AIPremiumLock";
+import { useNavigate } from "react-router-dom";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function RoutineBuilder() {
   const { isPremium, isLoading: premiumLoading } = usePremium();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [inputs, setInputs] = useState({
     household_size: "1",
@@ -95,8 +97,15 @@ Provide a suggested schedule with specific days and load types (e.g., "Monday â€
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-3 mb-1">
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+              className="flex items-center justify-center h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all flex-shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+            </button>
+            <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
             <h1 className="text-2xl font-semibold tracking-tight">Routine Builder</h1>
           </div>
           <p className="text-sm text-muted-foreground">

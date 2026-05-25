@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Send, Loader2, Lock, AlertTriangle, ShoppingCart, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, Send, Loader2, Lock, AlertTriangle, ShoppingCart, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -93,8 +93,15 @@ export default function AIAssistant() {
     return (
       <div className="min-h-screen pb-24">
         <div className="max-w-lg mx-auto px-5 pt-8">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-3 mb-1">
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+              className="flex items-center justify-center h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all flex-shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+            </button>
+            <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
             <h1 className="text-2xl font-semibold tracking-tight">AI Laundry Assistant</h1>
           </div>
           <p className="text-sm text-muted-foreground mb-10">Ask any laundry question in plain language</p>
@@ -126,8 +133,15 @@ export default function AIAssistant() {
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-3 mb-1">
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+              className="flex items-center justify-center h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all flex-shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+            </button>
+            <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
             <h1 className="text-2xl font-semibold tracking-tight">AI Laundry Assistant</h1>
           </div>
           <p className="text-sm text-muted-foreground">
