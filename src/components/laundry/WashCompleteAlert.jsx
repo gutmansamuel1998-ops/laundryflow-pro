@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Bell, AlarmClock, ArrowRight } from "lucide-react";
@@ -7,6 +7,13 @@ const SNOOZE_OPTIONS = [5, 10, 15];
 
 export default function WashCompleteAlert({ visible, loadType, onMoveNow, onSnooze, snoozedUntil }) {
   const isSnoozed = snoozedUntil && Date.now() < snoozedUntil;
+  const primaryBtnRef = useRef(null);
+
+  useEffect(() => {
+    if (visible && !isSnoozed) {
+      primaryBtnRef.current?.focus();
+    }
+  }, [visible, isSnoozed]);
 
   return (
     <AnimatePresence>
@@ -19,7 +26,7 @@ export default function WashCompleteAlert({ visible, loadType, onMoveNow, onSnoo
           transition={{ type: "spring", stiffness: 220, damping: 20 }}
           className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4"
         >
-          <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-border/60 overflow-hidden">
+          <div role="dialog" aria-modal="true" aria-label="Wash cycle finished" className="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-border/60 overflow-hidden">
             {/* Pulsing top bar */}
             <motion.div
               className="h-1 bg-primary"
@@ -50,6 +57,7 @@ export default function WashCompleteAlert({ visible, loadType, onMoveNow, onSnoo
               {/* Actions */}
               <div className="mt-4 flex flex-col gap-2">
                 <Button
+                  ref={primaryBtnRef}
                   onClick={onMoveNow}
                   size="sm"
                   className="w-full rounded-xl"

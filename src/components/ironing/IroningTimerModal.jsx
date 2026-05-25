@@ -10,6 +10,10 @@ function formatTime(seconds) {
 
 export default function IroningTimerModal({ timerState, onPlay, onPause, onReset, onNext, onClose, onSetMinutes }) {
   const { items = [], currentIndex = 0, remaining = 0, minutesPerItem = 3, isRunning, isComplete } = timerState || {};
+  const primaryBtnRef = useRef(null);
+  useEffect(() => {
+    primaryBtnRef.current?.focus();
+  }, []);
   const currentItem = items[currentIndex] || "";
   const total = minutesPerItem * 60;
   const progress = total > 0 ? ((total - remaining) / total) : 0;
@@ -37,7 +41,7 @@ export default function IroningTimerModal({ timerState, onPlay, onPause, onReset
   if (isComplete) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-        <div className="bg-card rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-5">
+        <div role="dialog" aria-modal="true" aria-label="Ironing complete" className="bg-card rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center space-y-5">
           <div className="text-6xl">🎉</div>
           <h2 className="text-2xl font-semibold text-foreground">All done!</h2>
           <p className="text-muted-foreground text-sm">You finished ironing all {items.length} item{items.length !== 1 ? "s" : ""}. Great work!</p>
@@ -51,7 +55,7 @@ export default function IroningTimerModal({ timerState, onPlay, onPause, onReset
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
-      <div className="bg-card rounded-3xl shadow-2xl p-6 max-w-sm w-full space-y-5">
+      <div role="dialog" aria-modal="true" aria-label="Ironing timer" className="bg-card rounded-3xl shadow-2xl p-6 max-w-sm w-full space-y-5">
 
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -143,6 +147,7 @@ export default function IroningTimerModal({ timerState, onPlay, onPause, onReset
           </Button>
 
           <Button
+            ref={primaryBtnRef}
             className="flex-1 h-14 rounded-2xl text-lg font-medium gap-2"
             onClick={isRunning ? onPause : onPlay}
           >

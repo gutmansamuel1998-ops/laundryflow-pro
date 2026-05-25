@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePremium } from "@/hooks/usePremium";
@@ -75,6 +75,22 @@ export default function DigitalCloset() {
   const [addErrors, setAddErrors] = useState({});
   const [editErrors, setEditErrors] = useState({});
   const [checkCycleError, setCheckCycleError] = useState("");
+  const addFormFirstFieldRef = useRef(null);
+  const detailPanelRef = useRef(null);
+
+  // Move focus into add form when it opens
+  useEffect(() => {
+    if (showAdd) {
+      setTimeout(() => addFormFirstFieldRef.current?.focus(), 50);
+    }
+  }, [showAdd]);
+
+  // Move focus into detail panel when it opens
+  useEffect(() => {
+    if (expandedItem) {
+      setTimeout(() => detailPanelRef.current?.focus(), 50);
+    }
+  }, [expandedItem]);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -461,6 +477,7 @@ const SAFETY_STYLES = {
                   </label>
                   <Input
                     id="add-item-name"
+                    ref={addFormFirstFieldRef}
                     placeholder="e.g. Blue wool sweater"
                     value={form.name}
                     onChange={e => { setForm(f => ({ ...f, name: e.target.value })); if (e.target.value.trim()) setAddErrors(err => ({ ...err, name: null })); }}
@@ -1046,7 +1063,7 @@ const SAFETY_STYLES = {
                 {expandedItem === item.id && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                     <Card className="border-primary/20 border-2">
-                      <CardContent className="p-4">
+                      <CardContent className="p-4 outline-none" ref={expandedItem === item.id ? detailPanelRef : null} tabIndex={-1} aria-label={`Details for ${item.name}`}>
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <div>
                             <p className="font-semibold text-base">{item.name}</p>
