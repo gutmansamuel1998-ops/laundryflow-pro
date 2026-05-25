@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShoppingCart, AlertCircle, CheckCircle, Trash2, Calendar, Package } from "lucide-react";
+import { ShoppingCart, AlertCircle, CheckCircle, Trash2, Calendar, Package, TrendingDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -210,7 +210,8 @@ export default function ShoppingList() {
                                 <h3 className="font-medium">{item.supply_name}</h3>
                                 <div className="flex flex-wrap items-center gap-2 mt-1">
                                   {supply?.current_level !== undefined && (
-                                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
+                                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded flex items-center gap-1">
+                                      <TrendingDown className="w-3 h-3" aria-hidden="true" />
                                       {supply.current_level}% left
                                     </span>
                                   )}

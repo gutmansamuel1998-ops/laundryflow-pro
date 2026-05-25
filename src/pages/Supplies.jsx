@@ -210,6 +210,12 @@ export default function Supplies() {
     return "bg-primary";
   };
 
+  const getLevelLabel = (level, threshold) => {
+    if (level <= threshold) return { text: "Low", className: "text-destructive font-medium" };
+    if (level <= threshold * 2) return { text: "Getting low", className: "text-yellow-700 font-medium" };
+    return { text: "Good", className: "text-primary font-medium" };
+  };
+
   return (
     <div className="min-h-screen pb-24">
       {/* Live region: announces supply loading and form state */}
@@ -450,11 +456,15 @@ export default function Supplies() {
                     </div>
 
                     <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="sr-only">Supply level</span>
+                        {(() => { const lbl = getLevelLabel(supply.current_level, supply.low_threshold); return <span className={`text-xs ${lbl.className}`} aria-hidden="true">{lbl.text}</span>; })()}
+                      </div>
                       <Progress
                         value={supply.current_level}
                         className="h-2"
                         indicatorClassName={getLevelColor(supply.current_level, supply.low_threshold)}
-                        aria-label={`${supply.name} supply level: ${supply.current_level}% remaining`}
+                        aria-label={`${supply.name} supply level: ${supply.current_level}% remaining — ${getLevelLabel(supply.current_level, supply.low_threshold).text}`}
                       />
                     </div>
 
