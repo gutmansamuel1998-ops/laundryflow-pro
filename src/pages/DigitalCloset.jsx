@@ -516,10 +516,10 @@ const SAFETY_STYLES = {
 
                   {/* Lifestyle */}
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1.5">Lifestyle / Occasion</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p id="add-lifestyle-label" className="text-xs text-muted-foreground mb-1.5">Lifestyle / Occasion</p>
+                    <div role="group" aria-labelledby="add-lifestyle-label" className="flex flex-wrap gap-1.5">
                       {LIFESTYLES.map(l => (
-                        <button key={l.id} onClick={() => setForm(f => ({ ...f, lifestyle: form.lifestyle === l.id ? "" : l.id }))}
+                        <button key={l.id} role="radio" aria-checked={form.lifestyle === l.id} onClick={() => setForm(f => ({ ...f, lifestyle: form.lifestyle === l.id ? "" : l.id }))}
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.lifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                           {l.emoji} {l.label}
                         </button>
@@ -528,10 +528,10 @@ const SAFETY_STYLES = {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1.5">Category</p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <p id="add-category-label" className="text-xs text-muted-foreground mb-1.5">Category</p>
+                      <div role="radiogroup" aria-labelledby="add-category-label" className="flex flex-wrap gap-1.5">
                         {CATEGORIES.map(c => (
-                          <button key={c} onClick={() => setForm(f => ({ ...f, category: c }))}
+                          <button key={c} role="radio" aria-checked={form.category === c} onClick={() => setForm(f => ({ ...f, category: c }))}
                             className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.category === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {CATEGORY_EMOJI[c]} {c}
                           </button>
@@ -539,10 +539,10 @@ const SAFETY_STYLES = {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1.5">Color Group</p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <p id="add-color-label" className="text-xs text-muted-foreground mb-1.5">Color Group</p>
+                      <div role="radiogroup" aria-labelledby="add-color-label" className="flex flex-wrap gap-1.5">
                         {COLORS.map(c => (
-                          <button key={c} onClick={() => setForm(f => ({ ...f, color: c }))}
+                          <button key={c} role="radio" aria-checked={form.color === c} onClick={() => setForm(f => ({ ...f, color: c }))}
                             className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.color === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {c}
                           </button>
@@ -555,10 +555,10 @@ const SAFETY_STYLES = {
                   <label htmlFor="add-care" className="sr-only">Care label instructions</label>
                   <Textarea id="add-care" placeholder="Care label instructions (e.g. Hand wash cold, do not tumble dry)" value={form.care_instructions} onChange={e => setForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[70px]" />
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1.5">Preferred Drying Method</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p id="add-dry-label" className="text-xs text-muted-foreground mb-1.5">Preferred Drying Method</p>
+                    <div role="group" aria-labelledby="add-dry-label" className="flex flex-wrap gap-1.5">
                       {DRY_METHODS.map(d => (
-                        <button key={d.id} onClick={() => setForm(f => ({ ...f, preferred_dry_method: form.preferred_dry_method === d.id ? "" : d.id }))}
+                        <button key={d.id} role="radio" aria-checked={form.preferred_dry_method === d.id} onClick={() => setForm(f => ({ ...f, preferred_dry_method: form.preferred_dry_method === d.id ? "" : d.id }))}
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${form.preferred_dry_method === d.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                           {d.emoji} {d.label}
                         </button>
@@ -601,10 +601,10 @@ const SAFETY_STYLES = {
                 {checkMode && isPremium && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1.5">Wash Cycle</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p id="wash-cycle-label" className="text-xs text-muted-foreground mb-1.5">Wash Cycle</p>
+                      <div role="radiogroup" aria-labelledby="wash-cycle-label" className="flex flex-wrap gap-2">
                         {WASH_CYCLES.map(c => (
-                          <button key={c.id} onClick={() => setSelectedCycle(c.id)}
+                          <button key={c.id} role="radio" aria-checked={selectedCycle === c.id} onClick={() => setSelectedCycle(c.id)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${selectedCycle === c.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {c.label}
                           </button>
@@ -612,10 +612,10 @@ const SAFETY_STYLES = {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1.5">Supplies Being Used</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p id="supplies-label" className="text-xs text-muted-foreground mb-1.5">Supplies Being Used</p>
+                      <div role="group" aria-labelledby="supplies-label" className="flex flex-wrap gap-2">
                         {SUPPLIES.map(s => (
-                          <button key={s} onClick={() => toggleSupply(s)}
+                          <button key={s} role="checkbox" aria-checked={selectedSupplies.includes(s)} onClick={() => toggleSupply(s)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${selectedSupplies.includes(s) ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {s}
                           </button>
@@ -627,6 +627,7 @@ const SAFETY_STYLES = {
                     </Button>
 
                     {/* Results */}
+                    <div aria-live="polite" aria-atomic="true">
                     <AnimatePresence>
                       {checkResult && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
@@ -670,6 +671,7 @@ const SAFETY_STYLES = {
                         </motion.div>
                       )}
                     </AnimatePresence>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -698,15 +700,15 @@ const SAFETY_STYLES = {
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
                     {/* Occasion */}
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1.5">Occasion</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p id="outfit-occasion-label" className="text-xs text-muted-foreground mb-1.5">Occasion</p>
+                      <div role="radiogroup" aria-labelledby="outfit-occasion-label" className="flex flex-wrap gap-2">
                         {[
-                          { id: "casual", label: "Casual", icon: <Heart className="w-3 h-3" /> },
-                          { id: "work", label: "Work", icon: <Briefcase className="w-3 h-3" /> },
-                          { id: "active", label: "Active", icon: <Zap className="w-3 h-3" /> },
-                          { id: "formal", label: "Formal", icon: <Sparkles className="w-3 h-3" /> },
+                          { id: "casual", label: "Casual", icon: <Heart className="w-3 h-3" aria-hidden="true" /> },
+                          { id: "work", label: "Work", icon: <Briefcase className="w-3 h-3" aria-hidden="true" /> },
+                          { id: "active", label: "Active", icon: <Zap className="w-3 h-3" aria-hidden="true" /> },
+                          { id: "formal", label: "Formal", icon: <Sparkles className="w-3 h-3" aria-hidden="true" /> },
                         ].map(o => (
-                          <button key={o.id} onClick={() => setOutfitOccasion(o.id)}
+                          <button key={o.id} role="radio" aria-checked={outfitOccasion === o.id} onClick={() => setOutfitOccasion(o.id)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${outfitOccasion === o.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {o.icon} {o.label}
                           </button>
@@ -715,14 +717,14 @@ const SAFETY_STYLES = {
                     </div>
                     {/* Weather */}
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1.5">Weather</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p id="outfit-weather-label" className="text-xs text-muted-foreground mb-1.5">Weather</p>
+                      <div role="radiogroup" aria-labelledby="outfit-weather-label" className="flex flex-wrap gap-2">
                         {[
-                          { id: "hot", label: "Hot", icon: <Sun className="w-3 h-3" /> },
-                          { id: "mild", label: "Mild", icon: <Cloud className="w-3 h-3" /> },
-                          { id: "cold", label: "Cold", icon: <Snowflake className="w-3 h-3" /> },
+                          { id: "hot", label: "Hot", icon: <Sun className="w-3 h-3" aria-hidden="true" /> },
+                          { id: "mild", label: "Mild", icon: <Cloud className="w-3 h-3" aria-hidden="true" /> },
+                          { id: "cold", label: "Cold", icon: <Snowflake className="w-3 h-3" aria-hidden="true" /> },
                         ].map(w => (
-                          <button key={w.id} onClick={() => setOutfitWeather(w.id)}
+                          <button key={w.id} role="radio" aria-checked={outfitWeather === w.id} onClick={() => setOutfitWeather(w.id)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${outfitWeather === w.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {w.icon} {w.label}
                           </button>
@@ -736,6 +738,7 @@ const SAFETY_STYLES = {
                         : <><Wand2 className="w-4 h-4" /> Suggest Outfits</>}
                     </Button>
 
+                    <div aria-live="polite" aria-atomic="true">
                     <AnimatePresence>
                       {outfitResult && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
@@ -771,6 +774,7 @@ const SAFETY_STYLES = {
                         </motion.div>
                       )}
                     </AnimatePresence>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -814,10 +818,10 @@ const SAFETY_STYLES = {
               {showFilters && (
                 <motion.div id="filter-panel" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1.5">Category</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p id="filter-category-label" className="text-xs text-muted-foreground mb-1.5">Category</p>
+                    <div role="radiogroup" aria-labelledby="filter-category-label" className="flex flex-wrap gap-1.5">
                       {["all", ...CATEGORIES].map(c => (
-                        <button key={c} onClick={() => setFilterCategory(c)}
+                        <button key={c} role="radio" aria-checked={filterCategory === c} onClick={() => setFilterCategory(c)}
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterCategory === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                           {c === "all" ? "All" : `${CATEGORY_EMOJI[c]} ${c}`}
                         </button>
@@ -825,10 +829,10 @@ const SAFETY_STYLES = {
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1.5">Color Group</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p id="filter-color-label" className="text-xs text-muted-foreground mb-1.5">Color Group</p>
+                    <div role="radiogroup" aria-labelledby="filter-color-label" className="flex flex-wrap gap-1.5">
                       {["all", ...COLORS].map(c => (
-                        <button key={c} onClick={() => setFilterColor(c)}
+                        <button key={c} role="radio" aria-checked={filterColor === c} onClick={() => setFilterColor(c)}
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterColor === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                           {c === "all" ? "All Colors" : c}
                         </button>
@@ -836,10 +840,10 @@ const SAFETY_STYLES = {
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1.5">Lifestyle</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p id="filter-lifestyle-label" className="text-xs text-muted-foreground mb-1.5">Lifestyle</p>
+                    <div role="radiogroup" aria-labelledby="filter-lifestyle-label" className="flex flex-wrap gap-1.5">
                       {[{ id: "all", label: "All", emoji: "✨" }, ...LIFESTYLES].map(l => (
-                        <button key={l.id} onClick={() => setFilterLifestyle(l.id)}
+                        <button key={l.id} role="radio" aria-checked={filterLifestyle === l.id} onClick={() => setFilterLifestyle(l.id)}
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${filterLifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                           {l.emoji} {l.label}
                         </button>
@@ -1143,47 +1147,47 @@ const SAFETY_STYLES = {
                                 </button>
                               )}
                               <div>
-                                <p className="text-xs text-muted-foreground mb-1">Category</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {CATEGORIES.map(c => (
-                                    <button key={c} onClick={() => setEditForm(f => ({ ...f, category: c }))}
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.category === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
-                                      {CATEGORY_EMOJI[c]} {c}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Color Group</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {COLORS.map(c => (
-                                    <button key={c} onClick={() => setEditForm(f => ({ ...f, color: c }))}
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.color === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
-                                      {c}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-xs text-muted-foreground mb-1">Lifestyle / Occasion</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {LIFESTYLES.map(l => (
-                                    <button key={l.id} onClick={() => setEditForm(f => ({ ...f, lifestyle: editForm.lifestyle === l.id ? "" : l.id }))}
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.lifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
-                                      {l.emoji} {l.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
+                                 <p id="edit-category-label" className="text-xs text-muted-foreground mb-1">Category</p>
+                                 <div role="radiogroup" aria-labelledby="edit-category-label" className="flex flex-wrap gap-1.5">
+                                   {CATEGORIES.map(c => (
+                                     <button key={c} role="radio" aria-checked={editForm.category === c} onClick={() => setEditForm(f => ({ ...f, category: c }))}
+                                       className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.category === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                       {CATEGORY_EMOJI[c]} {c}
+                                     </button>
+                                   ))}
+                                 </div>
+                               </div>
+                               <div>
+                                 <p id="edit-color-label" className="text-xs text-muted-foreground mb-1">Color Group</p>
+                                 <div role="radiogroup" aria-labelledby="edit-color-label" className="flex flex-wrap gap-1.5">
+                                   {COLORS.map(c => (
+                                     <button key={c} role="radio" aria-checked={editForm.color === c} onClick={() => setEditForm(f => ({ ...f, color: c }))}
+                                       className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.color === c ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                       {c}
+                                     </button>
+                                   ))}
+                                 </div>
+                               </div>
+                               <div>
+                                 <p id="edit-lifestyle-label" className="text-xs text-muted-foreground mb-1">Lifestyle / Occasion</p>
+                                 <div role="group" aria-labelledby="edit-lifestyle-label" className="flex flex-wrap gap-1.5">
+                                   {LIFESTYLES.map(l => (
+                                     <button key={l.id} role="radio" aria-checked={editForm.lifestyle === l.id} onClick={() => setEditForm(f => ({ ...f, lifestyle: editForm.lifestyle === l.id ? "" : l.id }))}
+                                       className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.lifestyle === l.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
+                                       {l.emoji} {l.label}
+                                     </button>
+                                   ))}
+                                 </div>
+                               </div>
                               <label htmlFor="edit-fabric" className="sr-only">Fabric composition</label>
                               <Input id="edit-fabric" placeholder="Fabric composition" value={editForm.fabric_composition} onChange={e => setEditForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
                               <label htmlFor="edit-care" className="sr-only">Care instructions</label>
                                <Textarea id="edit-care" placeholder="Care instructions" value={editForm.care_instructions} onChange={e => setEditForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[60px]" />
                               <div>
-                                <p className="text-xs text-muted-foreground mb-1">Preferred Drying Method</p>
-                                <div className="flex flex-wrap gap-1.5">
+                                <p id="edit-dry-label" className="text-xs text-muted-foreground mb-1">Preferred Drying Method</p>
+                                <div role="group" aria-labelledby="edit-dry-label" className="flex flex-wrap gap-1.5">
                                   {DRY_METHODS.map(d => (
-                                    <button key={d.id} onClick={() => setEditForm(f => ({ ...f, preferred_dry_method: editForm.preferred_dry_method === d.id ? "" : d.id }))}
+                                    <button key={d.id} role="radio" aria-checked={editForm.preferred_dry_method === d.id} onClick={() => setEditForm(f => ({ ...f, preferred_dry_method: editForm.preferred_dry_method === d.id ? "" : d.id }))}
                                       className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${editForm.preferred_dry_method === d.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                                       {d.emoji} {d.label}
                                     </button>
