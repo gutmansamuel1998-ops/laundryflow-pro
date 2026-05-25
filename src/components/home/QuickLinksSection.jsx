@@ -1,19 +1,19 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, FlaskConical, Lock } from "lucide-react";
+import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 
 const FREE_LINKS = [
   { page: "FabricCareLibrary", label: "Fabric Care Library", icon: BookOpen,     color: "bg-blue-50 text-blue-600" },
   { page: "LaundryCalendar",   label: "Laundry Calendar",   icon: Calendar,      color: "bg-green-50 text-green-600" },
-  { page: "StainGuidance",     label: "Stain Guidance",     icon: Droplets,      color: "bg-red-50 text-red-500" },
   { page: "ShoppingList",      label: "Shopping List",      icon: ShoppingCart,  color: "bg-amber-50 text-amber-600" },
   { page: "AirDryTracker",     label: "Air Dry Tracker",    icon: Wind,          color: "bg-cyan-50 text-cyan-600" },
   { page: "IroningDashboard",  label: "Ironing",            icon: Shirt,         color: "bg-orange-50 text-orange-600" },
 ];
 
 const PREMIUM_LINKS = [
+  { page: "StainGuidance",    label: "Stain Assistant",     icon: Droplets,      color: "bg-rose-50 text-rose-600" },
   { page: "TagScanner",       label: "AI Tag Scanner",      icon: ScanLine,      color: "bg-purple-50 text-purple-600" },
   { page: "SmartWash",        label: "Smart Wash",          icon: Zap,           color: "bg-violet-50 text-violet-600" },
   { page: "SmartPredictions", label: "Smart Predictions",   icon: Brain,         color: "bg-indigo-50 text-indigo-600" },
@@ -22,7 +22,6 @@ const PREMIUM_LINKS = [
   { page: "SupplyAnalytics",  label: "Supply Analytics",    icon: BarChart2,     color: "bg-emerald-50 text-emerald-600" },
   { page: "SupplyDashboard",  label: "Supply Dashboard",    icon: BarChart2,     color: "bg-lime-50 text-lime-600" },
   { page: "RoutineBuilder",   label: "Routine Builder",     icon: CalendarClock, color: "bg-pink-50 text-pink-600" },
-  { page: "StainScanner",     label: "Stain Scanner",       icon: FlaskConical,  color: "bg-rose-50 text-rose-600" },
 ];
 
 export default function QuickLinksSection() {

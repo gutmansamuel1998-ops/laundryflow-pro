@@ -5,10 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Upload, Sparkles, X, BookOpen, Camera, Lock } from "lucide-react";
+import { Search, Upload, Sparkles, X, BookOpen, Camera, Lock, Droplet } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+
+const STAIN_GUIDE = [
+  { name: "Red Wine",  emoji: "🍷", category: "Beverages",  tip: "Act fast — blot (don't rub). Apply cold water + salt, then treat with dish soap before washing in cold water." },
+  { name: "Coffee",   emoji: "☕", category: "Beverages",  tip: "Blot excess, rinse with cold water. Apply a mix of dish soap and white vinegar, let sit 5 min, then wash." },
+  { name: "Tea",      emoji: "🍵", category: "Beverages",  tip: "Rinse immediately with cold water. Pre-treat with liquid detergent, then machine wash on cool." },
+  { name: "Grease",   emoji: "🍳", category: "Food & Oil", tip: "Sprinkle baking soda or cornstarch to absorb oil. Brush off, then apply dish soap. Wash in warm water." },
+  { name: "Tomato",   emoji: "🍅", category: "Food & Oil", tip: "Scrape off solids, rinse with cold water. Apply dish soap + white vinegar, let sit, then wash." },
+  { name: "Chocolate",emoji: "🍫", category: "Food & Oil", tip: "Let it dry, then scrape off. Soak in cold water with detergent for 30 min before washing." },
+  { name: "Grass",    emoji: "🌿", category: "Outdoor",    tip: "Pre-treat with rubbing alcohol or white vinegar. Apply detergent, let sit, then wash in warm water." },
+  { name: "Mud",      emoji: "🪨", category: "Outdoor",    tip: "Let mud dry completely, then brush off. Pre-treat with detergent and wash as normal." },
+  { name: "Blood",    emoji: "🩸", category: "Body",       tip: "Always use COLD water — hot sets blood. Rinse immediately, apply hydrogen peroxide on white fabrics, then wash cold." },
+  { name: "Sweat",    emoji: "💧", category: "Body",       tip: "Pre-soak in cold water + white vinegar for 30 min. Wash with detergent on warm cycle." },
+  { name: "Ink",      emoji: "🖊️", category: "Ink & Dye",  tip: "Dab with rubbing alcohol (don't rub). Blot with a clean cloth, then pre-treat with detergent before washing." },
+  { name: "Makeup",   emoji: "💄", category: "Cosmetics",  tip: "Use micellar water or makeup remover to break it down, then apply dish soap. Rinse and wash." },
+  { name: "Rust",     emoji: "⚙️", category: "Other",      tip: "Apply lemon juice and salt, leave in sunlight for an hour. Rinse well and wash. Avoid bleach." },
+];
+
+const STAIN_CATEGORIES = ["All", ...new Set(STAIN_GUIDE.map(s => s.category))];
 
 // ISO 3758 laundry symbols represented as clean text/SVG glyphs
 const COMMON_SYMBOLS = [
@@ -218,6 +236,9 @@ export default function FabricCareLibrary() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const [activeTab, setActiveTab] = useState("symbols"); // "symbols" | "stains"
+  const [stainCategory, setStainCategory] = useState("All");
+  const [selectedStain, setSelectedStain] = useState(null);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [aiResult, setAiResult] = useState(null);
@@ -378,69 +399,132 @@ Also provide an overall care summary for this garment.`,
           </Card>
         )}
 
-        {/* Search & Filter */}
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search symbols, e.g. 'iron', 'bleach'..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 rounded-xl"
-            />
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setActiveCategory(cat)}
-                className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground hover:border-primary/40"}`}>
-                {cat}
-              </button>
-            ))}
-          </div>
+        {/* Tab Toggle */}
+        <div className="flex bg-muted rounded-xl p-1 gap-1">
+          <button
+            onClick={() => setActiveTab("symbols")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "symbols" ? "bg-white shadow-sm text-foreground" : "text-muted-foreground"}`}
+          >
+            <BookOpen className="w-4 h-4" /> Care Symbols
+          </button>
+          <button
+            onClick={() => setActiveTab("stains")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "stains" ? "bg-white shadow-sm text-foreground" : "text-muted-foreground"}`}
+          >
+            <Droplet className="w-4 h-4" /> Stain Guide
+          </button>
         </div>
 
-        {/* Symbol Grid */}
-        <div className="grid grid-cols-1 gap-3">
-          {filtered.map((sym, i) => {
-            const isSelected = selectedSymbol?.name === sym.name;
-            const categoryColor = CATEGORY_COLORS[sym.category] || "bg-muted text-muted-foreground border-border";
-            return (
-              <motion.div key={sym.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
-                <Card
-                  className={`border cursor-pointer transition-all ${isSelected ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}
-                  onClick={() => setSelectedSymbol(isSelected ? null : sym)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      {/* Symbol visual */}
-                      <div className="w-12 h-12 rounded-xl bg-muted flex flex-col items-center justify-center shrink-0 border border-border/50">
-                        <span className="text-lg leading-none font-mono">{sym.glyph}</span>
-                        <span className="text-[9px] text-muted-foreground mt-0.5 font-medium tracking-wider">{sym.label}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <p className="text-sm font-semibold">{sym.name}</p>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${categoryColor}`}>{sym.category}</span>
+        {/* Stain Guide Tab */}
+        {activeTab === "stains" && (
+          <div className="space-y-3">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {STAIN_CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => setStainCategory(cat)}
+                  className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${stainCategory === cat ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground hover:border-primary/40"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {STAIN_GUIDE.filter(s => stainCategory === "All" || s.category === stainCategory).map((stain, i) => {
+                const isSelected = selectedStain?.name === stain.name;
+                return (
+                  <motion.div key={stain.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
+                    <Card
+                      className={`border cursor-pointer transition-all ${isSelected ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}
+                      onClick={() => setSelectedStain(isSelected ? null : stain)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="text-3xl">{stain.emoji}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-sm font-semibold">{stain.name}</p>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full border bg-muted text-muted-foreground">{stain.category}</span>
+                            </div>
+                            <p className={`text-xs text-muted-foreground ${isSelected ? "" : "line-clamp-2"}`}>{stain.tip}</p>
+                          </div>
                         </div>
-                        <p className={`text-xs text-muted-foreground ${isSelected ? "" : "line-clamp-2"}`}>{sym.description}</p>
-                        <AnimatePresence>
-                          {isSelected && sym.tip && (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-2">
-                              <p className="text-xs text-primary font-medium">💡 {sym.tip}</p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-          {filtered.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-8">No symbols found for "{search}"</p>
-          )}
-        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+            <div className="pt-2 pb-4 text-center">
+              <p className="text-xs text-muted-foreground">Want AI-powered analysis for your specific stain?</p>
+              <Link to={createPageUrl("StainGuidance")} className="text-xs text-primary font-medium hover:underline">
+                Try the Smart Stain Assistant →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Search & Filter + Symbol Grid (symbols tab only) */}
+        {activeTab === "symbols" && (
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search symbols, e.g. 'iron', 'bleach'..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9 rounded-xl"
+              />
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => setActiveCategory(cat)}
+                  className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${activeCategory === cat ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border text-muted-foreground hover:border-primary/40"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Symbol Grid */}
+            <div className="grid grid-cols-1 gap-3">
+              {filtered.map((sym, i) => {
+                const isSelected = selectedSymbol?.name === sym.name;
+                const categoryColor = CATEGORY_COLORS[sym.category] || "bg-muted text-muted-foreground border-border";
+                return (
+                  <motion.div key={sym.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
+                    <Card
+                      className={`border cursor-pointer transition-all ${isSelected ? "border-primary bg-primary/5" : "border-border/50 hover:border-primary/30"}`}
+                      onClick={() => setSelectedSymbol(isSelected ? null : sym)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-muted flex flex-col items-center justify-center shrink-0 border border-border/50">
+                            <span className="text-lg leading-none font-mono">{sym.glyph}</span>
+                            <span className="text-[9px] text-muted-foreground mt-0.5 font-medium tracking-wider">{sym.label}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <p className="text-sm font-semibold">{sym.name}</p>
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${categoryColor}`}>{sym.category}</span>
+                            </div>
+                            <p className={`text-xs text-muted-foreground ${isSelected ? "" : "line-clamp-2"}`}>{sym.description}</p>
+                            <AnimatePresence>
+                              {isSelected && sym.tip && (
+                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-2">
+                                  <p className="text-xs text-primary font-medium">💡 {sym.tip}</p>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+              {filtered.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground py-8">No symbols found for "{search}"</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
