@@ -214,18 +214,18 @@ export default function AirDryTracker() {
                         variant="ghost"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() => deleteMutation.mutate(session.id)}
-                        title="Remove"
+                        aria-label={`Remove air dry session for ${session.item_names}`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 text-muted-foreground hover:text-teal-600"
                         onClick={() => doneMutation.mutate(session.id)}
-                        title="Mark as done"
+                        aria-label={`Mark ${session.item_names} as dry and done`}
                       >
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                       </Button>
                     </div>
                   </div>

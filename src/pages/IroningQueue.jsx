@@ -89,8 +89,8 @@ export default function IroningQueue() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+          <Link to="/" aria-label="Back to Home" className="text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </Link>
           <div>
             <h1 className="text-lg font-semibold leading-tight">Ironing Queue</h1>

@@ -423,8 +423,8 @@ const SAFETY_STYLES = {
                       {form.image_url ? (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
                           <img src={form.image_url} alt={form.name ? `Photo of ${form.name}` : "Garment photo"} className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
-                            <X className="w-2.5 h-2.5 text-white" />
+                          <button type="button" aria-label="Remove photo" onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                            <X className="w-2.5 h-2.5 text-white" aria-hidden="true" />
                           </button>
                         </div>
                       ) : (
@@ -933,6 +933,7 @@ const SAFETY_STYLES = {
                       {/* Photo / emoji area — tap to open detail */}
                       <button
                         onClick={() => basketMode ? toggleBasket(item.id) : setExpandedItem(expandedItem === item.id ? null : item.id)}
+                        aria-label={basketMode ? `${basketSelected.includes(item.id) ? "Deselect" : "Select"} ${item.name} for basket` : `${expandedItem === item.id ? "Collapse" : "Expand"} details for ${item.name}`}
                         className="w-full text-left"
                       >
                         <div className="relative aspect-square bg-secondary flex items-center justify-center overflow-hidden">
@@ -962,6 +963,7 @@ const SAFETY_STYLES = {
                       <div className="p-2.5">
                         <button
                           onClick={() => basketMode ? toggleBasket(item.id) : setExpandedItem(expandedItem === item.id ? null : item.id)}
+                          aria-label={basketMode ? `${basketSelected.includes(item.id) ? "Deselect" : "Select"} ${item.name}` : `${expandedItem === item.id ? "Collapse" : "Expand"} ${item.name}`}
                           className="w-full text-left"
                         >
                           <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
@@ -1080,8 +1082,8 @@ const SAFETY_STYLES = {
                                   {editForm.image_url ? (
                                     <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
                                       <img src={editForm.image_url} alt={editForm.name ? `Photo of ${editForm.name}` : "Garment photo"} className="w-full h-full object-cover" />
-                                      <button type="button" onClick={() => setEditForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
-                                        <X className="w-2.5 h-2.5 text-white" />
+                                      <button type="button" aria-label="Remove photo" onClick={() => setEditForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                                        <X className="w-2.5 h-2.5 text-white" aria-hidden="true" />
                                       </button>
                                     </div>
                                   ) : (
@@ -1301,18 +1303,20 @@ const SAFETY_STYLES = {
                   variant="secondary"
                   disabled={basketSelected.length === 0}
                   onClick={sendToBasket}
+                  aria-label={`Send ${basketSelected.length} selected item${basketSelected.length !== 1 ? "s" : ""} to Laundry Basket`}
                   className="gap-1 rounded-xl text-xs"
                 >
-                  <ShoppingBasket className="w-3.5 h-3.5" /> Basket
+                  <ShoppingBasket className="w-3.5 h-3.5" aria-hidden="true" /> Basket
                 </Button>
                 <Button
                   size="sm"
                   variant="secondary"
                   disabled={basketSelected.length === 0}
                   onClick={sendToLoadPlanner}
+                  aria-label={`Send ${basketSelected.length} selected item${basketSelected.length !== 1 ? "s" : ""} to Load Planner`}
                   className="gap-1 rounded-xl text-xs"
                 >
-                  <LayoutList className="w-3.5 h-3.5" /> Planner
+                  <LayoutList className="w-3.5 h-3.5" aria-hidden="true" /> Planner
                 </Button>
               </div>
             </div>
