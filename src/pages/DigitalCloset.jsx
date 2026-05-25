@@ -889,9 +889,9 @@ const SAFETY_STYLES = {
           <p className="text-center text-sm text-muted-foreground pt-4">Loading your closet...</p>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center text-center pt-10 pb-6 px-4 space-y-5">
-            <div className="text-6xl">👖</div>
+            <div className="text-6xl" aria-hidden="true">👖</div>
             <div className="space-y-2">
-              <p className="text-lg font-semibold text-foreground">Your closet is empty</p>
+              <h2 className="text-lg font-semibold text-foreground">Your closet is empty</h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Let's add your first item!<br />
                 Snap a photo and we'll help with the care instructions. 👕
@@ -907,8 +907,8 @@ const SAFETY_STYLES = {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center pt-6 space-y-2">
-            <Search className="w-10 h-10 text-muted-foreground/30 mx-auto" />
-            <p className="text-sm text-muted-foreground">No garments match your search.</p>
+            <Search className="w-10 h-10 text-muted-foreground/30 mx-auto" aria-hidden="true" />
+            <h2 className="text-sm font-medium text-muted-foreground">No garments match your search.</h2>
             <button onClick={() => { setSearchQuery(""); setFilterCategory("all"); setFilterColor("all"); }} className="text-xs text-primary font-medium">Clear search & filters</button>
           </div>
         ) : (
