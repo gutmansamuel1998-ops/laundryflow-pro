@@ -72,7 +72,7 @@ export default function LoadCard({ load, onClick }) {
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(load); } }}
       >
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${config.color}`}>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${config.color}`} aria-hidden="true">
             <Icon className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
@@ -84,7 +84,7 @@ export default function LoadCard({ load, onClick }) {
             </div>
             {isTimerActive && minutesLeft !== null && (
               <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Timer className="w-3.5 h-3.5" />
+                <Timer className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>{minutesLeft > 0 ? `${minutesLeft} min remaining` : "Finished!"}</span>
               </div>
             )}
@@ -97,7 +97,7 @@ export default function LoadCard({ load, onClick }) {
               </p>
             )}
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground/50" />
+          <ArrowRight className="w-4 h-4 text-muted-foreground/50" aria-hidden="true" />
         </div>
       </Card>
     </motion.div>

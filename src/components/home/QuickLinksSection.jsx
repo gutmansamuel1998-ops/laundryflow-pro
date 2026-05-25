@@ -38,7 +38,7 @@ export default function QuickLinksSection() {
             to={createPageUrl(page)}
             className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/30 hover:shadow-sm transition-all"
           >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`} aria-hidden="true">
               <Icon className="w-4 h-4" />
             </div>
             <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
@@ -53,7 +53,7 @@ export default function QuickLinksSection() {
               to={createPageUrl(page)}
               className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/30 hover:shadow-sm transition-all"
             >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`} aria-hidden="true">
                 <Icon className="w-4 h-4" />
               </div>
               <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
@@ -64,13 +64,13 @@ export default function QuickLinksSection() {
               onClick={() => navigate(createPageUrl("Premium"))}
               className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/30 hover:shadow-sm transition-all opacity-60 text-left"
             >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`} aria-hidden="true">
                 <Icon className="w-4 h-4" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
                 <span className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-                  <Lock className="w-2.5 h-2.5" /> Pro
+                  <Lock className="w-2.5 h-2.5" aria-hidden="true" /> Pro
                 </span>
               </div>
             </button>

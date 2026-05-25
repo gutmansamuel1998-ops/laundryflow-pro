@@ -72,7 +72,7 @@ export default function UsedTodaySection() {
                 disabled={moveMutation.isPending}
                 className="gap-1.5 rounded-xl text-xs flex-shrink-0"
               >
-                <ShoppingBasket className="w-3.5 h-3.5" /> Basket
+                <ShoppingBasket className="w-3.5 h-3.5" aria-hidden="true" /> Basket
               </Button>
             </motion.div>
           ))}

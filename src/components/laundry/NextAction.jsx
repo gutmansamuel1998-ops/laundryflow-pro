@@ -58,7 +58,7 @@ export default function NextAction({ load, onAction }) {
       <Card className={`p-5 border-0 shadow-sm bg-gradient-to-br ${config.color}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center" aria-hidden="true">
               <Icon className="w-4 h-4 text-foreground" />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function NextAction({ load, onAction }) {
             className="rounded-xl shadow-sm"
           >
             {config.action}
-            <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            <ArrowRight className="w-3.5 h-3.5 ml-1.5" aria-hidden="true" />
           </Button>
         </div>
       </Card>

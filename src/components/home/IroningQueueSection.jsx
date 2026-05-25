@@ -65,7 +65,7 @@ export default function IroningQueueSection() {
                     className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition-all flex-shrink-0"
                     aria-label={`Mark ${item.name} as ironed`}
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Done
+                    <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" /> Done
                   </button>
                 </motion.div>
               ))}

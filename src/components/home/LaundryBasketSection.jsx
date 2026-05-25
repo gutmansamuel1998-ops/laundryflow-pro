@@ -65,7 +65,7 @@ export default function LaundryBasketSection({ onStartLoad }) {
   return (
     <section>
       <div className="flex items-center gap-2 mb-3">
-        <ShoppingBasket className="w-4 h-4 text-muted-foreground" />
+        <ShoppingBasket className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
           Laundry Basket 🧺
         </h2>
@@ -119,7 +119,7 @@ export default function LaundryBasketSection({ onStartLoad }) {
               >
                 {startLoadMutation.isPending
                   ? "Starting load..."
-                  : <><ArrowRight className="w-4 h-4" /> Start Load ({basketItems.length} item{basketItems.length !== 1 ? "s" : ""})</>
+                  : <><ArrowRight className="w-4 h-4" aria-hidden="true" /> Start Load ({basketItems.length} item{basketItems.length !== 1 ? "s" : ""})</>
                 }
               </Button>
             </div>
