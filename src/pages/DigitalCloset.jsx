@@ -72,6 +72,8 @@ export default function DigitalCloset() {
   const [outfitResult, setOutfitResult] = useState(null);
   const [isGeneratingOutfit, setIsGeneratingOutfit] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [addErrors, setAddErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -188,6 +190,7 @@ Return the fabric composition if visible, a plain-English summary of care instru
 
   const startEdit = (item) => {
     setEditForm({ name: item.name, category: item.category, lifestyle: item.lifestyle || "", fabric_composition: item.fabric_composition || "", care_instructions: item.care_instructions || "", color: item.color || "color", notes: item.notes || "", image_url: item.image_url || "", is_new_garment: item.is_new_garment || false, is_wrinkle_free: item.is_wrinkle_free || false, requires_ironing: item.requires_ironing || false, preferred_dry_method: item.preferred_dry_method || "" });
+    setEditErrors({});
     setEditingItem(item.id);
     setExpandedItem(item.id);
   };
@@ -447,8 +450,24 @@ const SAFETY_STYLES = {
                     </label>
                   </div>
                   )}
-                  <label htmlFor="add-item-name" className="sr-only">Item name</label>
-                  <Input id="add-item-name" placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+                  <label htmlFor="add-item-name" className="text-xs font-medium text-foreground mb-0.5 block">
+                    Item name <span aria-hidden="true" className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="add-item-name"
+                    placeholder="e.g. Blue wool sweater"
+                    value={form.name}
+                    onChange={e => { setForm(f => ({ ...f, name: e.target.value })); if (e.target.value.trim()) setAddErrors(err => ({ ...err, name: null })); }}
+                    className={`rounded-xl ${addErrors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                    aria-required="true"
+                    aria-invalid={!!addErrors.name}
+                    aria-describedby={addErrors.name ? "add-name-error" : undefined}
+                  />
+                  {addErrors.name && (
+                    <p id="add-name-error" role="alert" className="text-xs text-destructive mt-1 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3 flex-shrink-0" aria-hidden="true" /> {addErrors.name}
+                    </p>
+                  )}
                   {/* New garment toggle */}
                   <button
                     type="button"
@@ -568,12 +587,16 @@ const SAFETY_STYLES = {
                   <label htmlFor="add-notes" className="sr-only">Notes (optional)</label>
                   <Textarea id="add-notes" placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                   <div className="flex gap-2">
-                    <Button onClick={() => addMutation.mutate(form)} disabled={!form.name || addMutation.isPending} className="flex-1 rounded-xl gap-1.5">
+                    <Button onClick={() => {
+                      if (!form.name.trim()) { setAddErrors({ name: "Item name is required. Please enter a name for this garment." }); return; }
+                      setAddErrors({});
+                      addMutation.mutate(form);
+                    }} disabled={addMutation.isPending} className="flex-1 rounded-xl gap-1.5">
                       {addMutation.isPending
                         ? <><RefreshCw className="w-4 h-4 animate-spin" /> Saving...</>
                         : <><CheckCircle className="w-4 h-4" /> Save Garment</>}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowAdd(false)} className="rounded-xl">Cancel</Button>
+                    <Button variant="outline" onClick={() => { setShowAdd(false); setAddErrors({}); }} className="rounded-xl">Cancel</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -1082,8 +1105,24 @@ const SAFETY_STYLES = {
                                   <input type="file" accept="image/*" className="hidden" disabled={scanningTag} onChange={e => handleTagScan(e.target.files[0], "edit")} />
                                 </label>
                               </div>
-                              <label htmlFor="edit-item-name" className="sr-only">Item name</label>
-                              <Input id="edit-item-name" placeholder="Item name" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+                              <label htmlFor="edit-item-name" className="text-xs font-medium text-foreground mb-0.5 block">
+                                Item name <span aria-hidden="true" className="text-destructive">*</span>
+                              </label>
+                              <Input
+                                id="edit-item-name"
+                                placeholder="Item name"
+                                value={editForm.name}
+                                onChange={e => { setEditForm(f => ({ ...f, name: e.target.value })); if (e.target.value.trim()) setEditErrors(err => ({ ...err, name: null })); }}
+                                className={`rounded-xl ${editErrors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                                aria-required="true"
+                                aria-invalid={!!editErrors.name}
+                                aria-describedby={editErrors.name ? "edit-name-error" : undefined}
+                              />
+                              {editErrors.name && (
+                                <p id="edit-name-error" role="alert" className="text-xs text-destructive mt-1 flex items-center gap-1">
+                                  <AlertTriangle className="w-3 h-3 flex-shrink-0" aria-hidden="true" /> {editErrors.name}
+                                </p>
+                              )}
                               <button
                                type="button"
                                role="switch"
@@ -1197,7 +1236,11 @@ const SAFETY_STYLES = {
                               <label htmlFor="edit-notes" className="sr-only">Notes (optional)</label>
                               <Textarea id="edit-notes" placeholder="Notes (optional)" value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                               <div className="flex gap-2 pt-1">
-                                <Button onClick={() => editMutation.mutate({ id: item.id, data: editForm })} disabled={!editForm.name || editMutation.isPending} className="flex-1 rounded-xl gap-1.5" size="sm">
+                                <Button onClick={() => {
+                                  if (!editForm.name?.trim()) { setEditErrors({ name: "Item name is required. Please enter a name for this garment." }); return; }
+                                  setEditErrors({});
+                                  editMutation.mutate({ id: item.id, data: editForm });
+                                }} disabled={editMutation.isPending} className="flex-1 rounded-xl gap-1.5" size="sm">
                                   <Save className="w-3.5 h-3.5" /> {editMutation.isPending ? "Saving..." : "Save Changes"}
                                 </Button>
                                 <Button variant="outline" onClick={() => setEditingItem(null)} className="rounded-xl" size="sm">Cancel</Button>
