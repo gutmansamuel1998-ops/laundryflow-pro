@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ShoppingBasket, Sparkles, Check, AlertTriangle, Thermometer,
-  Wind, Droplets, Clock, RefreshCw, ChevronRight, Link
+  Wind, Droplets, Clock, RefreshCw, ChevronRight, Link, AlertCircle
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -23,6 +23,7 @@ export default function LaundryBasket() {
   const [selectedIds, setSelectedIds] = useState(preselectedIds);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [selectionError, setSelectionError] = useState("");
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -34,14 +35,21 @@ export default function LaundryBasket() {
     queryFn: () => base44.entities.Supply.list(),
   });
 
-  const toggle = (id) => setSelectedIds(prev =>
-    prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-  );
+  const toggle = (id) => {
+    setSelectionError("");
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
 
   const selectedItems = items.filter(i => selectedIds.includes(i.id));
 
   const analyze = async () => {
-    if (selectedItems.length === 0) return;
+    if (selectedItems.length === 0) {
+      setSelectionError("Please select at least one item before getting recommendations.");
+      return;
+    }
+    setSelectionError("");
     setLoading(true);
     setResult(null);
 
@@ -149,6 +157,9 @@ Be concise and practical.`,
                     <motion.button
                       key={item.id}
                       onClick={() => toggle(item.id)}
+                      role="checkbox"
+                      aria-checked={selected}
+                      aria-label={`${selected ? "Deselect" : "Select"} ${item.name} for this load`}
                       className={`w-full text-left rounded-2xl border-2 p-3 transition-all ${
                         selected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/40"
                       }`}
@@ -208,9 +219,16 @@ Be concise and practical.`,
             })()}
 
             {/* Analyze button */}
+            {selectionError && (
+              <p role="alert" className="text-xs text-destructive flex items-center gap-1.5 -mt-2">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                {selectionError}
+              </p>
+            )}
             <Button
               onClick={analyze}
-              disabled={selectedIds.length === 0 || loading}
+              disabled={loading}
+              aria-describedby={selectionError ? "selection-error" : undefined}
               className="w-full rounded-2xl py-5 gap-2 text-base shadow-lg shadow-primary/15"
             >
               {loading

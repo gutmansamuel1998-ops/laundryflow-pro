@@ -492,15 +492,19 @@ export default function Supplies() {
                         min="0"
                         max="100"
                         value={supply.current_level}
-                        onChange={(e) => handleUpdateLevel(supply, Number(e.target.value))}
-                        aria-label={`Update current level of ${supply.name} (percentage)`}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (val >= 0 && val <= 100) handleUpdateLevel(supply, val);
+                        }}
+                        aria-label={`Update current level of ${supply.name} (0–100%)`}
+                        aria-describedby={`level-hint-${supply.id}`}
                         className="rounded-xl flex-1"
                       />
                       <Button
                         variant="outline"
                         onClick={() => handleRestock(supply)}
                         aria-label={`Restock ${supply.name} to 100%`}
-                        className="rounded-xl"
+                        className="rounded-xl shrink-0"
                       >
                         <RefreshCw className="w-4 h-4 mr-1" aria-hidden="true" />
                         Restock

@@ -74,6 +74,7 @@ export default function DigitalCloset() {
   const [savedFlash, setSavedFlash] = useState(false);
   const [addErrors, setAddErrors] = useState({});
   const [editErrors, setEditErrors] = useState({});
+  const [checkCycleError, setCheckCycleError] = useState("");
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["clothing-items"],
@@ -219,7 +220,12 @@ Return the fabric composition if visible, a plain-English summary of care instru
   const toggleSupply = (s) => setSelectedSupplies(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
 
   const runCheck = async () => {
-    if (!selectedCycle || items.length === 0) return;
+    if (!selectedCycle) {
+      setCheckCycleError("Please select a wash cycle before checking for damage risks.");
+      return;
+    }
+    setCheckCycleError("");
+    if (items.length === 0) return;
     setIsChecking(true);
     setCheckResult(null);
 
@@ -627,7 +633,7 @@ const SAFETY_STYLES = {
                       <p id="wash-cycle-label" className="text-xs text-muted-foreground mb-1.5">Wash Cycle</p>
                       <div role="radiogroup" aria-labelledby="wash-cycle-label" className="flex flex-wrap gap-2">
                         {WASH_CYCLES.map(c => (
-                          <button key={c.id} role="radio" aria-checked={selectedCycle === c.id} onClick={() => setSelectedCycle(c.id)}
+                          <button key={c.id} role="radio" aria-checked={selectedCycle === c.id} onClick={() => { setSelectedCycle(c.id); setCheckCycleError(""); }}
                             className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${selectedCycle === c.id ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border"}`}>
                             {c.label}
                           </button>
@@ -645,7 +651,13 @@ const SAFETY_STYLES = {
                         ))}
                       </div>
                     </div>
-                    <Button onClick={runCheck} disabled={!selectedCycle || isChecking} className="w-full gap-2 rounded-xl">
+                    {checkCycleError && (
+                      <p role="alert" className="text-xs text-destructive flex items-center gap-1.5">
+                        <AlertTriangle className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+                        {checkCycleError}
+                      </p>
+                    )}
+                    <Button onClick={runCheck} disabled={isChecking} className="w-full gap-2 rounded-xl">
                       {isChecking ? <><RefreshCw className="w-4 h-4 animate-spin" /> Checking fabrics...</> : <><Sparkles className="w-4 h-4" /> Check for Damage Risks</>}
                     </Button>
 
