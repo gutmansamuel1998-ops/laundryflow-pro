@@ -11,7 +11,7 @@ export default function EmptyState({ onStartLoad }) {
       transition={{ duration: 0.5, delay: 0.1 }}
       className="flex flex-col items-center justify-center py-16 px-6 text-center"
     >
-      <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-6">
+      <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-6" aria-hidden="true">
         <span className="text-4xl">🧺</span>
       </div>
       <h2 className="text-xl font-semibold mb-2">Ready when you are</h2>
@@ -23,7 +23,7 @@ export default function EmptyState({ onStartLoad }) {
         onClick={onStartLoad}
         className="rounded-2xl px-8 py-6 text-base font-medium shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
       >
-        <Plus className="w-5 h-5 mr-2" />
+        <Plus className="w-5 h-5 mr-2" aria-hidden="true" />
         Start a Load
       </Button>
     </motion.div>

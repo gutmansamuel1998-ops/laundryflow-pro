@@ -43,7 +43,7 @@ export default function WearingTodaySection() {
   return (
     <section className="pt-2">
       <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-        👖 Wearing Today
+        <span aria-hidden="true">👖 </span>Wearing Today
       </h2>
       <div className="space-y-2">
         <AnimatePresence>

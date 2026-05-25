@@ -38,20 +38,23 @@ export default function FeedbackModal() {
               onClick={() => setOpen(false)}
             />
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="feedback-modal-title"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
               className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl shadow-xl max-w-lg mx-auto"
             >
-              <div className="flex justify-center pt-3 pb-1">
+              <div className="flex justify-center pt-3 pb-1" aria-hidden="true">
                 <div className="w-10 h-1 rounded-full bg-border" />
               </div>
 
               <div className="flex items-center justify-between px-6 py-3">
-                <h2 className="text-base font-semibold">Send Feedback</h2>
-                <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground p-1">
-                  <X className="w-5 h-5" />
+                <h2 id="feedback-modal-title" className="text-base font-semibold">Send Feedback</h2>
+                <button onClick={() => setOpen(false)} aria-label="Close feedback" className="text-muted-foreground hover:text-foreground p-1">
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               </div>
 
@@ -60,12 +63,12 @@ export default function FeedbackModal() {
               <div className="px-6 pb-6 space-y-2" style={{ paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))` }}>
                 {TYPES.map(({ value, label, icon: Icon }) => (
                   <button
-                    key={value}
-                    onClick={() => handleSend({ value, label })}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm font-medium text-left"
+                   key={value}
+                   onClick={() => handleSend({ value, label })}
+                   className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all text-sm font-medium text-left"
                   >
-                    <Icon className="w-4 h-4 text-muted-foreground" />
-                    {label}
+                   <Icon className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                   {label}
                   </button>
                 ))}
               </div>

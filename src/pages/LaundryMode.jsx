@@ -144,7 +144,7 @@ function StateCreated({ load, washMinutes, onChangeWash, onStart, isPending }) {
   const Icon = config.icon;
   return (
     <motion.div key="load_created" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
-      <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${config.color}`}>
+      <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${config.color}`} aria-hidden="true">
         <Icon className="w-9 h-9" />
       </div>
       <div>
@@ -204,7 +204,7 @@ function ShrinkRiskDryerAlert({ closetItems }) {
     <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="w-full text-left">
       <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-orange-600 flex-shrink-0" />
+          <AlertCircle className="w-4 h-4 text-orange-600 flex-shrink-0" aria-hidden="true" />
           <p className="text-sm font-semibold text-orange-800">
             Shrink Risk — Check These Before the Dryer
           </p>
@@ -232,7 +232,7 @@ function ShrinkRiskDryerAlert({ closetItems }) {
 function StateWashFinished({ load, dryMinutes, onChangeDry, onStart, isPending, closetItems }) {
   return (
     <motion.div key="wash_finished" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
-      <div className="w-20 h-20 rounded-3xl bg-amber-50 flex items-center justify-center">
+      <div className="w-20 h-20 rounded-3xl bg-amber-50 flex items-center justify-center" aria-hidden="true">
         <RefreshCw className="w-9 h-9 text-amber-500" />
       </div>
       <div>
@@ -272,7 +272,7 @@ function StateDrying({ load }) {
 function StateDryFinished({ onFinish, isPending }) {
   return (
     <motion.div key="dry_finished" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
-      <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center">
+      <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center" aria-hidden="true">
         <CheckCircle className="w-9 h-9 text-emerald-500" />
       </div>
       <div>
@@ -325,7 +325,7 @@ function StateCompleted({ onHome, onNewLoad }) {
 function StateAbandoned({ onResume, isPending }) {
   return (
     <motion.div key="abandoned" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col items-center text-center gap-6">
-      <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
+      <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center" aria-hidden="true">
         <AlertCircle className="w-9 h-9 text-orange-400" />
       </div>
       <div>

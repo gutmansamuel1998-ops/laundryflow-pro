@@ -27,7 +27,7 @@ export default function IroningQueueSection() {
   return (
     <section>
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-base leading-none">🔥</span>
+        <span className="text-base leading-none" aria-hidden="true">🔥</span>
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
           Ironing Queue
         </h2>

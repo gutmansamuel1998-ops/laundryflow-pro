@@ -43,7 +43,7 @@ export default function UsedTodaySection() {
   return (
     <section className="pt-2">
       <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-        🧺 Used Today
+        <span aria-hidden="true">🧺 </span>Used Today
       </h2>
       <div className="space-y-2">
         <AnimatePresence>
