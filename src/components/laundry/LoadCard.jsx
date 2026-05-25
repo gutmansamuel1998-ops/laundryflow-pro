@@ -5,11 +5,11 @@ import { Shirt, Bath, BedDouble, Sparkles, Layers, Timer, ArrowRight } from "luc
 import { motion } from "framer-motion";
 
 const loadTypeConfig = {
-  everyday_clothes: { label: "Clothes", icon: Shirt, color: "bg-blue-50 text-blue-600" },
-  towels: { label: "Towels", icon: Bath, color: "bg-teal-50 text-teal-600" },
-  bedding: { label: "Bedding", icon: BedDouble, color: "bg-purple-50 text-purple-600" },
-  delicates: { label: "Delicates", icon: Sparkles, color: "bg-pink-50 text-pink-600" },
-  mixed: { label: "Mixed", icon: Layers, color: "bg-amber-50 text-amber-600" },
+  everyday_clothes: { label: "Clothes",   icon: Shirt,     color: "bg-blue-50 text-blue-700" },
+  towels:           { label: "Towels",    icon: Bath,      color: "bg-teal-50 text-teal-700" },
+  bedding:          { label: "Bedding",   icon: BedDouble, color: "bg-purple-50 text-purple-700" },
+  delicates:        { label: "Delicates", icon: Sparkles,  color: "bg-pink-50 text-pink-700" },
+  mixed:            { label: "Mixed",     icon: Layers,    color: "bg-amber-50 text-amber-700" },
 };
 
 const stateLabels = {
@@ -23,13 +23,13 @@ const stateLabels = {
 };
 
 const stateColors = {
-  load_created: "bg-slate-100 text-slate-600",
-  washing: "bg-blue-100 text-blue-700",
-  wash_finished: "bg-amber-100 text-amber-700",
-  drying: "bg-sky-100 text-sky-700",
-  dry_finished: "bg-emerald-100 text-emerald-700",
-  completed: "bg-green-100 text-green-700",
-  abandoned: "bg-orange-100 text-orange-700",
+  load_created: "bg-slate-100 text-slate-700",
+  washing: "bg-blue-100 text-blue-800",
+  wash_finished: "bg-amber-100 text-amber-800",
+  drying: "bg-sky-100 text-sky-800",
+  dry_finished: "bg-emerald-100 text-emerald-800",
+  completed: "bg-green-100 text-green-800",
+  abandoned: "bg-orange-100 text-orange-800",
 };
 
 function getTimeRemaining(stageStartTime, durationMinutes) {

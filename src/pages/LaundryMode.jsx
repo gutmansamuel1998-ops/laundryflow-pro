@@ -21,11 +21,11 @@ import { useNotifications } from "@/hooks/useNotifications";
 // ─── Config ────────────────────────────────────────────────────────────────
 
 const loadTypeConfig = {
-  everyday_clothes: { label: "Clothes", icon: Shirt, color: "bg-blue-50 text-blue-600" },
-  towels:           { label: "Towels",  icon: Bath,    color: "bg-teal-50 text-teal-600" },
-  bedding:          { label: "Bedding", icon: BedDouble, color: "bg-purple-50 text-purple-600" },
-  delicates:        { label: "Delicates", icon: Sparkles, color: "bg-pink-50 text-pink-600" },
-  mixed:            { label: "Mixed",   icon: Layers,  color: "bg-amber-50 text-amber-600" },
+  everyday_clothes: { label: "Clothes",   icon: Shirt,     color: "bg-blue-50 text-blue-700" },
+  towels:           { label: "Towels",    icon: Bath,      color: "bg-teal-50 text-teal-700" },
+  bedding:          { label: "Bedding",   icon: BedDouble, color: "bg-purple-50 text-purple-700" },
+  delicates:        { label: "Delicates", icon: Sparkles,  color: "bg-pink-50 text-pink-700" },
+  mixed:            { label: "Mixed",     icon: Layers,    color: "bg-amber-50 text-amber-700" },
 };
 
 const tempLabels = { cold: "Cold water", warm: "Warm water", hot: "Hot water" };
