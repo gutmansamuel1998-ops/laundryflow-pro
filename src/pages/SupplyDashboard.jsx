@@ -51,8 +51,8 @@ export default function SupplyDashboard() {
 
   const getStatusBadge = (level, threshold) => {
     if (level <= threshold) return { label: "Low", className: "bg-destructive/10 text-destructive" };
-    if (level <= threshold * 2) return { label: "Getting Low", className: "bg-yellow-100 text-yellow-700" };
-    return { label: "Good", className: "bg-green-100 text-green-700" };
+    if (level <= threshold * 2) return { label: "Getting Low", className: "bg-yellow-100 text-yellow-800" };
+    return { label: "Good", className: "bg-green-100 text-green-800" };
   };
 
   return (
@@ -130,6 +130,7 @@ export default function SupplyDashboard() {
                         value={supply.current_level}
                         className="h-2.5 mb-3"
                         indicatorClassName={getLevelColor(supply.current_level, supply.low_threshold)}
+                        aria-label={`${supply.name} supply level: ${supply.current_level}% remaining`}
                       />
 
                       <div className="flex items-center justify-between">

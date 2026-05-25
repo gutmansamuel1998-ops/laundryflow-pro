@@ -454,6 +454,7 @@ export default function Supplies() {
                         value={supply.current_level}
                         className="h-2"
                         indicatorClassName={getLevelColor(supply.current_level, supply.low_threshold)}
+                        aria-label={`${supply.name} supply level: ${supply.current_level}% remaining`}
                       />
                     </div>
 
