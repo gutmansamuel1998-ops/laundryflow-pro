@@ -93,7 +93,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    const sizeMap = { small: "87.5%", normal: "100%", large: "118.75%", xlarge: "137.5%" };
+    const sizeMap = { small: "87.5%", normal: "100%", large: "125%", xlarge: "200%" };
     document.documentElement.style.fontSize = sizeMap[settings.text_size] || "100%";
   }, [settings.text_size]);
 
@@ -367,8 +367,8 @@ export default function Settings() {
                 <p className="text-xs text-muted-foreground mt-2">
                   {settings.text_size === "small" && "Small — compact layout"}
                   {settings.text_size === "normal" && "Normal — default size"}
-                  {settings.text_size === "large" && "Large — easier to read"}
-                  {settings.text_size === "xlarge" && "Extra Large — maximum readability"}
+                  {settings.text_size === "large" && "Large — 125% size"}
+                  {settings.text_size === "xlarge" && "Extra Large — 200% (WCAG maximum)"}
                 </p>
               </div>
               <div className="flex items-center justify-between">

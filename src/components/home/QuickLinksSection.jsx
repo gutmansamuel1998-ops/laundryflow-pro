@@ -69,7 +69,7 @@ export default function QuickLinksSection() {
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-sm font-medium text-foreground leading-tight">{label}</span>
-                <span className="flex items-center gap-1 text-[10px] text-foreground/60 mt-0.5">
+                <span className="flex items-center gap-1 text-xs text-foreground/60 mt-0.5">
                   <Lock className="w-2.5 h-2.5" aria-hidden="true" /> Pro
                 </span>
               </div>

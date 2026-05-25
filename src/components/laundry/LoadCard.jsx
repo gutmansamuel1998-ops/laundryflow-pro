@@ -77,7 +77,7 @@ export default function LoadCard({ load, onClick }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-[15px]">{config.label}</span>
+              <span className="font-semibold text-base">{config.label}</span>
               <Badge variant="secondary" className={`text-xs font-medium ${stateColors[load.current_state]}`}>
                 {stateLabels[load.current_state]}
               </Badge>

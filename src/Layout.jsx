@@ -20,7 +20,7 @@ const navItems = [
 export default function Layout({ children, currentPageName }) {
   useEffect(() => {
     base44.auth.me().then((u) => {
-      const sizeMap = { small: "87.5%", normal: "100%", large: "118.75%", xlarge: "137.5%" };
+      const sizeMap = { small: "87.5%", normal: "100%", large: "125%", xlarge: "200%" };
       document.documentElement.style.fontSize = sizeMap[u?.text_size] || "100%";
       document.documentElement.classList.toggle("high-contrast", u?.high_contrast === true);
       document.documentElement.classList.toggle("dyslexia-font", u?.dyslexia_font === true);
