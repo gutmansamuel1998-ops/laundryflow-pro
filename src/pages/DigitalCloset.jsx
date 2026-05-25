@@ -423,7 +423,7 @@ const SAFETY_STYLES = {
                       {form.image_url ? (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
                           <img src={form.image_url} alt={form.name ? `Photo of ${form.name}` : "Garment photo"} className="w-full h-full object-cover" />
-                          <button type="button" aria-label="Remove photo" onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                          <button type="button" aria-label="Remove photo" onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-1.5">
                             <X className="w-2.5 h-2.5 text-white" aria-hidden="true" />
                           </button>
                         </div>
@@ -980,7 +980,7 @@ const SAFETY_STYLES = {
                           <div className="flex gap-1.5 mt-2">
                             <button
                               onClick={() => startEdit(item)}
-                              className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-[11px] font-medium"
+                              className="flex-1 flex items-center justify-center gap-1 min-h-[44px] py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-all text-[11px] font-medium"
                               aria-label={`Edit ${item.name}`}
                             >
                               <Pencil className="w-3 h-3" /> Edit
@@ -988,7 +988,7 @@ const SAFETY_STYLES = {
                             <button
                               onClick={() => deleteMutation.mutate(item.id)}
                               disabled={deleteMutation.isPending}
-                              className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-all text-[11px] font-medium"
+                              className="flex items-center justify-center gap-1 min-h-[44px] min-w-[44px] px-2.5 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-all text-[11px] font-medium"
                               aria-label={`Delete ${item.name}`}
                             >
                               <Trash2 className="w-3 h-3" />
@@ -1063,10 +1063,10 @@ const SAFETY_STYLES = {
                             </div>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <button onClick={() => markWorn(item)} aria-label="Mark as worn today" className="p-1.5 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all">
+                            <button onClick={() => markWorn(item)} aria-label="Mark as worn today" className="p-2.5 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center">
                               <Repeat2 className="w-4 h-4" aria-hidden="true" />
                             </button>
-                            <button onClick={() => setExpandedItem(null)} aria-label="Close details" className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+                            <button onClick={() => setExpandedItem(null)} aria-label="Close details" className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all min-h-[44px] min-w-[44px] flex items-center justify-center">
                               <X className="w-4 h-4" aria-hidden="true" />
                             </button>
                           </div>
@@ -1082,7 +1082,7 @@ const SAFETY_STYLES = {
                                   {editForm.image_url ? (
                                     <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
                                       <img src={editForm.image_url} alt={editForm.name ? `Photo of ${editForm.name}` : "Garment photo"} className="w-full h-full object-cover" />
-                                      <button type="button" aria-label="Remove photo" onClick={() => setEditForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
+                                      <button type="button" aria-label="Remove photo" onClick={() => setEditForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-1.5">
                                         <X className="w-2.5 h-2.5 text-white" aria-hidden="true" />
                                       </button>
                                     </div>

@@ -443,7 +443,7 @@ export default function Supplies() {
                         size="icon"
                         onClick={() => deleteMutation.mutate(supply.id)}
                         aria-label={`Delete ${supply.name}`}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        className="h-11 w-11 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </Button>

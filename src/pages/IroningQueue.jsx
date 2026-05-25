@@ -89,7 +89,7 @@ export default function IroningQueue() {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/" aria-label="Back to Home" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/" aria-label="Back to Home" className="text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center h-11 w-11 rounded-xl">
             <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </Link>
           <div>

@@ -47,7 +47,7 @@ export default function CalendarGrid({ month, schedules, onDayClick }) {
             <button
               key={day.toISOString()}
               onClick={() => onDayClick(day)}
-              className={`relative flex flex-col items-center rounded-xl py-2 px-1 transition-all min-h-[52px] ${
+              className={`relative flex flex-col items-center rounded-xl py-2 px-1 transition-all min-h-[44px] min-w-[44px] ${
                 isT
                   ? "bg-primary text-primary-foreground font-bold"
                   : daySched.length > 0

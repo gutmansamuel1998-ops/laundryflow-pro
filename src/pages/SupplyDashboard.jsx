@@ -61,7 +61,7 @@ export default function SupplyDashboard() {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-xl">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back" className="rounded-xl h-11 w-11">
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
