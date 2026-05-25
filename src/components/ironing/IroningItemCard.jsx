@@ -32,7 +32,7 @@ export default function IroningItemCard({ item, index, total, onDone, isDoneLoad
 
       {/* Item identity */}
       <div className="text-center space-y-1">
-        <div className="text-5xl">{emoji}</div>
+        <div className="text-5xl" aria-hidden="true">{emoji}</div>
         <h2 className="text-2xl font-semibold text-foreground leading-tight">{item.name}</h2>
         {item.fabric_composition && (
           <p className="text-sm text-muted-foreground">{item.fabric_composition}</p>

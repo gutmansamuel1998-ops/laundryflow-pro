@@ -67,7 +67,7 @@ export default function LaundryBasketSection({ onStartLoad }) {
       <div className="flex items-center gap-2 mb-3">
         <ShoppingBasket className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Laundry Basket 🧺
+        Laundry Basket <span aria-hidden="true">🧺</span>
         </h2>
       </div>
 
@@ -89,7 +89,7 @@ export default function LaundryBasketSection({ onStartLoad }) {
                     transition={{ duration: 0.18 }}
                     className="flex items-center gap-3 px-4 py-3"
                   >
-                    <span className="text-lg flex-shrink-0">
+                    <span className="text-lg flex-shrink-0" aria-hidden="true">
                       {CATEGORY_EMOJI[item.item_category] || "📦"}
                     </span>
                     <div className="flex-1 min-w-0">

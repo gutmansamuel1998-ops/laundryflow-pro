@@ -155,7 +155,7 @@ Be concise and practical.`,
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                        <span className="text-xl" aria-hidden="true">{CATEGORY_EMOJI[item.category] || "📦"}</span>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{item.name}</p>
                           <div className="flex flex-wrap gap-1 mt-0.5">

@@ -969,9 +969,9 @@ const SAFETY_STYLES = {
                           <p className="text-sm font-semibold text-foreground truncate leading-tight">{item.name}</p>
                           <p className="text-xs text-muted-foreground capitalize mt-0.5">{item.category}</p>
                           <div className="flex flex-wrap gap-1 mt-1">
-                            {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5">🆕 New</span>}
-                            {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5">✨ Non-iron</span>}
-                            {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5">🔥 Iron needed</span>}
+                            {item.is_new_garment && <span className="text-[10px] bg-amber-100 text-amber-800 rounded-full px-1.5 py-0.5"><span aria-hidden="true">🆕 </span>New</span>}
+                            {item.is_wrinkle_free && <span className="text-[10px] bg-sky-100 text-sky-800 rounded-full px-1.5 py-0.5"><span aria-hidden="true">✨ </span>Non-iron</span>}
+                            {item.needs_ironing_now && <span className="text-[10px] bg-orange-100 text-orange-800 rounded-full px-1.5 py-0.5"><span aria-hidden="true">🔥 </span>Iron needed</span>}
                           </div>
                         </button>
 
