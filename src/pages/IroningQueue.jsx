@@ -70,6 +70,13 @@ export default function IroningQueue() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
+      {/* Live region: announces item completion and navigation */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {doneMutation.isSuccess && "Item marked as ironed."}
+        {ironingItems.length > 0 && !doneMutation.isSuccess
+          ? `Item ${focusIndex + 1} of ${ironingItems.length}: ${currentItem?.name ?? ""}.`
+          : ironingItems.length === 0 && !isLoading ? "All items ironed. Nothing left in the queue." : ""}
+      </div>
       {/* Timer modal */}
       {showTimer && timerState && (
         <IroningTimerModal

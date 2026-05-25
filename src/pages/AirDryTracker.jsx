@@ -93,6 +93,15 @@ export default function AirDryTracker() {
 
   return (
     <div className="min-h-screen pb-24">
+      {/* Live region: announces session changes */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {createMutation.isSuccess && "Air dry session started."}
+        {doneMutation.isSuccess && "Session marked as done."}
+        {deleteMutation.isSuccess && "Session removed."}
+        {sessions.length > 0 && !createMutation.isSuccess && !doneMutation.isSuccess && !deleteMutation.isSuccess
+          ? `${sessions.length} active air dry session${sessions.length !== 1 ? "s" : ""}.`
+          : sessions.length === 0 && !createMutation.isSuccess ? "No active air dry sessions." : ""}
+      </div>
       <div className="max-w-lg mx-auto px-5 pt-8">
         {/* Header */}
         <header className="mb-6">

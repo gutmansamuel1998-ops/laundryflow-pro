@@ -58,6 +58,11 @@ export default function IroningDashboard() {
         </Link>
       </div>
 
+      {/* Live region: announces ironing queue count after load */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {!isLoading && `${needsIroning.length} item${needsIroning.length !== 1 ? "s" : ""} in the ironing queue. ${sub}`}
+      </div>
+
       <div className="max-w-md mx-auto px-4 pt-8 space-y-6">
 
         {/* Hero: count + CTA */}

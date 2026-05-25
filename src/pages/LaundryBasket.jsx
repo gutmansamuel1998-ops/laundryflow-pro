@@ -98,6 +98,14 @@ Be concise and practical.`,
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      {/* Live region: announces AI analysis state and results */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {loading && "Analyzing your laundry load. Please wait."}
+        {result && !loading && (result.safe_to_wash_together
+          ? "Analysis complete. These items are safe to wash together."
+          : "Analysis complete. Some items may need to be washed separately. See warnings below."
+        )}
+      </div>
       <div className="max-w-lg mx-auto px-4 pt-8 space-y-6">
 
         {/* Header */}
