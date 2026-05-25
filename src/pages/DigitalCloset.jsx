@@ -447,10 +447,13 @@ const SAFETY_STYLES = {
                     </label>
                   </div>
                   )}
-                  <Input placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+                  <label htmlFor="add-item-name" className="sr-only">Item name</label>
+                  <Input id="add-item-name" placeholder="Item name (e.g. Blue wool sweater)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
                   {/* New garment toggle */}
                   <button
                     type="button"
+                    role="switch"
+                    aria-checked={form.is_new_garment}
                     onClick={() => setForm(f => ({ ...f, is_new_garment: !f.is_new_garment }))}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.is_new_garment ? "bg-amber-50 border-amber-300 text-amber-800" : "bg-secondary border-border text-muted-foreground"}`}
                   >
@@ -467,6 +470,8 @@ const SAFETY_STYLES = {
                   <div className="space-y-1.5">
                     <button
                       type="button"
+                      role="switch"
+                      aria-checked={form.is_wrinkle_free}
                       onClick={() => setForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
                     >
@@ -493,6 +498,8 @@ const SAFETY_STYLES = {
                   {!form.is_wrinkle_free && (
                     <button
                       type="button"
+                      role="switch"
+                      aria-checked={form.requires_ironing}
                       onClick={() => setForm(f => ({ ...f, requires_ironing: !f.requires_ironing }))}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${form.requires_ironing ? "bg-orange-50 border-orange-300 text-orange-800" : "bg-secondary border-border text-muted-foreground"}`}
                     >
@@ -543,8 +550,10 @@ const SAFETY_STYLES = {
                       </div>
                     </div>
                   </div>
-                  <Input placeholder="Fabric composition (e.g. 80% cotton, 20% polyester)" value={form.fabric_composition} onChange={e => setForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
-                  <Textarea placeholder="Care label instructions (e.g. Hand wash cold, do not tumble dry)" value={form.care_instructions} onChange={e => setForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[70px]" />
+                  <label htmlFor="add-fabric" className="sr-only">Fabric composition</label>
+                  <Input id="add-fabric" placeholder="Fabric composition (e.g. 80% cotton, 20% polyester)" value={form.fabric_composition} onChange={e => setForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
+                  <label htmlFor="add-care" className="sr-only">Care label instructions</label>
+                  <Textarea id="add-care" placeholder="Care label instructions (e.g. Hand wash cold, do not tumble dry)" value={form.care_instructions} onChange={e => setForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[70px]" />
                   <div>
                     <p className="text-xs text-muted-foreground mb-1.5">Preferred Drying Method</p>
                     <div className="flex flex-wrap gap-1.5">
@@ -556,7 +565,8 @@ const SAFETY_STYLES = {
                       ))}
                     </div>
                   </div>
-                  <Textarea placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
+                  <label htmlFor="add-notes" className="sr-only">Notes (optional)</label>
+                  <Textarea id="add-notes" placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                   <div className="flex gap-2">
                     <Button onClick={() => addMutation.mutate(form)} disabled={!form.name || addMutation.isPending} className="flex-1 rounded-xl gap-1.5">
                       {addMutation.isPending
@@ -775,29 +785,34 @@ const SAFETY_STYLES = {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search garments..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="pl-9 rounded-xl"
+                id="search-garments"
+                placeholder="Search garments..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="pl-9 rounded-xl"
+                aria-label="Search garments"
                 />
                 {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    <X className="w-3.5 h-3.5" />
+                  <button onClick={() => setSearchQuery("")} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 )}
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
+                aria-controls="filter-panel"
+                aria-label="Toggle filters"
                 className={`flex items-center gap-1.5 px-3 rounded-xl border text-sm font-medium transition-all ${showFilters || activeFilterCount > 0 ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border text-foreground"}`}
               >
-                <SlidersHorizontal className="w-4 h-4" />
+                <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
                 {activeFilterCount > 0 && <span className="text-xs">{activeFilterCount}</span>}
               </button>
             </div>
 
             <AnimatePresence>
               {showFilters && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden">
+                <motion.div id="filter-panel" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1.5">Category</p>
                     <div className="flex flex-wrap gap-1.5">
@@ -957,6 +972,7 @@ const SAFETY_STYLES = {
                     {!basketMode && (
                      <div className="flex flex-col gap-1 mt-1">
                        <button
+                         aria-pressed={!!item.wearing_today}
                          onClick={() => {
                            const today = new Date().toISOString().split("T")[0];
                            const isWearing = item.wearing_today;
@@ -970,6 +986,7 @@ const SAFETY_STYLES = {
                          {item.wearing_today ? "✓ Wearing today" : "👖 Wearing today?"}
                        </button>
                        <button
+                         aria-pressed={!!item.used_today}
                          onClick={() => editMutation.mutate({ id: item.id, data: { used_today: !item.used_today } })}
                          className={`w-full py-1.5 rounded-xl text-[11px] font-medium transition-all border ${item.used_today ? "bg-amber-100 border-amber-300 text-amber-800" : "bg-secondary border-border text-muted-foreground hover:text-foreground"}`}
                        >
@@ -1017,11 +1034,11 @@ const SAFETY_STYLES = {
                             </div>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
-                            <button onClick={() => markWorn(item)} title="Mark as worn today" className="p-1.5 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all">
-                              <Repeat2 className="w-4 h-4" />
+                            <button onClick={() => markWorn(item)} aria-label="Mark as worn today" className="p-1.5 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all">
+                              <Repeat2 className="w-4 h-4" aria-hidden="true" />
                             </button>
-                            <button onClick={() => setExpandedItem(null)} className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
-                              <X className="w-4 h-4" />
+                            <button onClick={() => setExpandedItem(null)} aria-label="Close details" className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition-all">
+                              <X className="w-4 h-4" aria-hidden="true" />
                             </button>
                           </div>
                         </div>
@@ -1061,9 +1078,12 @@ const SAFETY_STYLES = {
                                   <input type="file" accept="image/*" className="hidden" disabled={scanningTag} onChange={e => handleTagScan(e.target.files[0], "edit")} />
                                 </label>
                               </div>
-                              <Input placeholder="Item name" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
+                              <label htmlFor="edit-item-name" className="sr-only">Item name</label>
+                              <Input id="edit-item-name" placeholder="Item name" value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} className="rounded-xl" />
                               <button
                                type="button"
+                               role="switch"
+                               aria-checked={editForm.is_new_garment}
                                onClick={() => setEditForm(f => ({ ...f, is_new_garment: !f.is_new_garment }))}
                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.is_new_garment ? "bg-amber-50 border-amber-300 text-amber-800" : "bg-secondary border-border text-muted-foreground"}`}
                               >
@@ -1079,6 +1099,8 @@ const SAFETY_STYLES = {
                               <div className="space-y-1.5">
                                <button
                                  type="button"
+                                 role="switch"
+                                 aria-checked={editForm.is_wrinkle_free}
                                  onClick={() => setEditForm(f => ({ ...f, is_wrinkle_free: !f.is_wrinkle_free }))}
                                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.is_wrinkle_free ? "bg-sky-50 border-sky-300 text-sky-800" : "bg-secondary border-border text-muted-foreground"}`}
                                >
@@ -1105,6 +1127,8 @@ const SAFETY_STYLES = {
                               {!editForm.is_wrinkle_free && (
                                 <button
                                   type="button"
+                                  role="switch"
+                                  aria-checked={editForm.requires_ironing}
                                   onClick={() => setEditForm(f => ({ ...f, requires_ironing: !f.requires_ironing }))}
                                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-sm font-medium ${editForm.requires_ironing ? "bg-orange-50 border-orange-300 text-orange-800" : "bg-secondary border-border text-muted-foreground"}`}
                                 >
@@ -1151,8 +1175,10 @@ const SAFETY_STYLES = {
                                   ))}
                                 </div>
                               </div>
-                              <Input placeholder="Fabric composition" value={editForm.fabric_composition} onChange={e => setEditForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
-                              <Textarea placeholder="Care instructions" value={editForm.care_instructions} onChange={e => setEditForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[60px]" />
+                              <label htmlFor="edit-fabric" className="sr-only">Fabric composition</label>
+                              <Input id="edit-fabric" placeholder="Fabric composition" value={editForm.fabric_composition} onChange={e => setEditForm(f => ({ ...f, fabric_composition: e.target.value }))} className="rounded-xl" />
+                              <label htmlFor="edit-care" className="sr-only">Care instructions</label>
+                               <Textarea id="edit-care" placeholder="Care instructions" value={editForm.care_instructions} onChange={e => setEditForm(f => ({ ...f, care_instructions: e.target.value }))} className="rounded-xl resize-none min-h-[60px]" />
                               <div>
                                 <p className="text-xs text-muted-foreground mb-1">Preferred Drying Method</p>
                                 <div className="flex flex-wrap gap-1.5">
@@ -1164,7 +1190,8 @@ const SAFETY_STYLES = {
                                   ))}
                                 </div>
                               </div>
-                              <Textarea placeholder="Notes (optional)" value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
+                              <label htmlFor="edit-notes" className="sr-only">Notes (optional)</label>
+                              <Textarea id="edit-notes" placeholder="Notes (optional)" value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))} className="rounded-xl resize-none min-h-[50px]" />
                               <div className="flex gap-2 pt-1">
                                 <Button onClick={() => editMutation.mutate({ id: item.id, data: editForm })} disabled={!editForm.name || editMutation.isPending} className="flex-1 rounded-xl gap-1.5" size="sm">
                                   <Save className="w-3.5 h-3.5" /> {editMutation.isPending ? "Saving..." : "Save Changes"}
