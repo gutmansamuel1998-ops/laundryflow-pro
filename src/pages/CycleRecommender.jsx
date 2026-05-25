@@ -22,6 +22,7 @@ export default function CycleRecommender() {
   const [stains, setStains] = useState("");
   const [recommendation, setRecommendation] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const addItem = (val) => {
     const v = val.trim();
@@ -40,6 +41,7 @@ export default function CycleRecommender() {
     if (items.length === 0 && fabrics.length === 0) return;
     setLoading(true);
     setRecommendation(null);
+    setError(null);
 
     const prompt = `You are a laundry appliance expert. A user is loading their washing machine with the following:
 Clothing items: ${items.length > 0 ? items.join(", ") : "not specified"}
@@ -57,25 +59,29 @@ Return a JSON object with:
 - warnings: array of strings (max 3 short cautions, e.g. "Avoid fabric softener on wool")
 - reasoning: string (1–2 sentences explaining why these settings were chosen)`;
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          cycle_name: { type: "string" },
-          wash_temperature: { type: "string" },
-          cycle_duration: { type: "string" },
-          spin_speed: { type: "string" },
-          detergent_tip: { type: "string" },
-          dry_method: { type: "string" },
-          warnings: { type: "array", items: { type: "string" } },
-          reasoning: { type: "string" }
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            cycle_name: { type: "string" },
+            wash_temperature: { type: "string" },
+            cycle_duration: { type: "string" },
+            spin_speed: { type: "string" },
+            detergent_tip: { type: "string" },
+            dry_method: { type: "string" },
+            warnings: { type: "array", items: { type: "string" } },
+            reasoning: { type: "string" }
+          }
         }
-      }
-    });
-
-    setRecommendation(result);
-    setLoading(false);
+      });
+      setRecommendation(result);
+    } catch {
+      setError("Couldn't get a recommendation right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const reset = () => {
@@ -195,6 +201,15 @@ Return a JSON object with:
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                 {loading ? "Analyzing..." : "Get Cycle Recommendation"}
               </Button>
+
+              {error && (
+                <Card className="p-4 border-0 bg-destructive/5" role="alert">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="text-sm text-destructive">{error}</p>
+                  </div>
+                </Card>
+              )}
 
             </motion.div>
           ) : (

@@ -48,6 +48,7 @@ export default function StainGuidance() {
   const [activeLoads, setActiveLoads] = useState([]);
   const [savedToLoad, setSavedToLoad] = useState(null);
   const [savingLoad, setSavingLoad] = useState(false);
+  const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [fabricType, setFabricType] = useState("");
   const [closetItems, setClosetItems] = useState([]);
@@ -108,6 +109,7 @@ Be concise, calm, and practical.`;
   const handleSearch = async (customStain = null, uploadedUrl = null) => {
     const stain = customStain || stainType;
     setSavedToLoad(null);
+    setError(null);
     const imgUrl = uploadedUrl || imageUrl;
     if (!stain.trim() && !imgUrl) return;
 
@@ -115,51 +117,62 @@ Be concise, calm, and practical.`;
     setGuidance(null);
     setLoadingMsg(imgUrl ? "Analyzing your photo..." : "Getting AI guidance...");
 
-    const supplyNames = supplies.map(s => s.name);
+    try {
+      const supplyNames = supplies.map(s => s.name);
 
-    const response = await base44.integrations.Core.InvokeLLM({
-      prompt: buildPrompt(stain, supplyNames, !!imgUrl),
-      response_json_schema: {
-        type: "object",
-        properties: {
-          stain_identified: { type: "string" },
-          fabric_detected: { type: "string" },
-          severity: { type: "string" },
-          confidence: { type: "string" },
-          success_likelihood: { type: "string" },
-          success_note: { type: "string" },
-          steps: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                step_number: { type: "number" },
-                title: { type: "string" },
-                instruction: { type: "string" }
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: buildPrompt(stain, supplyNames, !!imgUrl),
+        response_json_schema: {
+          type: "object",
+          properties: {
+            stain_identified: { type: "string" },
+            fabric_detected: { type: "string" },
+            severity: { type: "string" },
+            confidence: { type: "string" },
+            success_likelihood: { type: "string" },
+            success_note: { type: "string" },
+            steps: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  step_number: { type: "number" },
+                  title: { type: "string" },
+                  instruction: { type: "string" }
+                }
               }
-            }
-          },
-          warnings: { type: "array", items: { type: "string" } },
-          recommended_supplies: { type: "array", items: { type: "string" } },
-          supply_tips: { type: "object" }
-        }
-      },
-      ...(imgUrl && { file_urls: [imgUrl] })
-    });
+            },
+            warnings: { type: "array", items: { type: "string" } },
+            recommended_supplies: { type: "array", items: { type: "string" } },
+            supply_tips: { type: "object" }
+          }
+        },
+        ...(imgUrl && { file_urls: [imgUrl] })
+      });
 
-    setGuidance(response);
-    setLoading(false);
+      setGuidance(response);
+    } catch {
+      setError("Something went wrong while analyzing the stain. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPreviewUrl(URL.createObjectURL(file));
+    setError(null);
     setLoading(true);
     setLoadingMsg("Uploading photo...");
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setImageUrl(file_url);
-    await handleSearch(stainType || null, file_url);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setImageUrl(file_url);
+      await handleSearch(stainType || null, file_url);
+    } catch {
+      setError("Failed to upload the photo. Please try again.");
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -351,6 +364,22 @@ Be concise, calm, and practical.`;
                 <div className="flex flex-col items-center gap-3">
                   <Loader2 className="w-8 h-8 text-primary animate-spin" />
                   <p className="text-sm text-muted-foreground">{loadingMsg}</p>
+                </div>
+              </Card>
+            )}
+
+            {/* Error */}
+            {error && !loading && (
+              <Card className="p-5 border-0 shadow-sm bg-destructive/5" role="alert">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-destructive mb-1">Analysis failed</p>
+                    <p className="text-sm text-muted-foreground">{error}</p>
+                    <Button size="sm" variant="outline" className="mt-3 rounded-xl" onClick={() => { setError(null); handleReset(); }}>
+                      Try again
+                    </Button>
+                  </div>
                 </div>
               </Card>
             )}

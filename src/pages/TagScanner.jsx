@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Upload, Loader2, Thermometer, Wind, Droplets, Sun, Scissors, AlertTriangle } from "lucide-react";
+import { Camera, Upload, Loader2, Thermometer, Wind, Droplets, Sun, Scissors, AlertTriangle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePremium } from "@/hooks/usePremium";
 import AIPremiumLock from "@/components/premium/AIPremiumLock";
@@ -32,6 +32,7 @@ export default function TagScanner() {
   const [imageUrl, setImageUrl] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -39,35 +40,41 @@ export default function TagScanner() {
 
     setLoading(true);
     setResult(null);
+    setError(null);
 
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setImageUrl(file_url);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setImageUrl(file_url);
 
-    const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract every care symbol/instruction visible. For each instruction, provide a plain-English description (e.g. 'Do not bleach', 'Tumble dry on low heat', 'Hand wash in cold water'). Categorize each instruction. If the image is unclear, do your best and note any uncertainty.`,
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          instructions: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                category: { type: "string", enum: ["washing", "drying", "ironing", "bleaching", "dry_cleaning", "general"] },
-                instruction: { type: "string" },
-                is_warning: { type: "boolean" }
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract every care symbol/instruction visible. For each instruction, provide a plain-English description (e.g. 'Do not bleach', 'Tumble dry on low heat', 'Hand wash in cold water'). Categorize each instruction. If the image is unclear, do your best and note any uncertainty.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            instructions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  category: { type: "string", enum: ["washing", "drying", "ironing", "bleaching", "dry_cleaning", "general"] },
+                  instruction: { type: "string" },
+                  is_warning: { type: "boolean" }
+                }
               }
-            }
-          },
-          summary: { type: "string" },
-          confidence: { type: "string", enum: ["high", "medium", "low"] }
+            },
+            summary: { type: "string" },
+            confidence: { type: "string", enum: ["high", "medium", "low"] }
+          }
         }
-      }
-    });
+      });
 
-    setResult(response);
-    setLoading(false);
+      setResult(response);
+    } catch {
+      setError("Couldn't analyze the tag. Please try a clearer photo or try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (premiumLoading) {
@@ -131,6 +138,21 @@ export default function TagScanner() {
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 <p className="text-sm text-muted-foreground">Analyzing tag...</p>
+              </div>
+            </Card>
+          )}
+
+          {error && !loading && (
+            <Card className="p-5 border-0 shadow-sm bg-destructive/5" role="alert">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-destructive mb-1">Scan failed</p>
+                  <p className="text-sm text-muted-foreground">{error}</p>
+                  <Button size="sm" variant="outline" className="mt-3 rounded-xl" onClick={() => { setError(null); setImageUrl(null); }}>
+                    Try again
+                  </Button>
+                </div>
               </div>
             </Card>
           )}
