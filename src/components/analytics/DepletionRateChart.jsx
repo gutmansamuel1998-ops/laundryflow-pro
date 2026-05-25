@@ -30,31 +30,59 @@ export default function DepletionRateChart({ supplies }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(180, data.length * 48)}>
-      <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, left: 10, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
-        <XAxis
-          type="number"
-          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-          tickFormatter={(v) => `${v}%/day`}
-        />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-          width={110}
-        />
-        <Tooltip
-          formatter={(v) => [`${v}% per day`, "Usage rate"]}
-          contentStyle={{ borderRadius: "10px", border: "1px solid hsl(var(--border))", fontSize: 12 }}
-        />
-        <Bar dataKey="dailyUsage" radius={[0, 6, 6, 0]} maxBarSize={28}>
-          {data.map((entry, i) => {
-            const color = entry.dailyUsage > 3 ? "#ba7b7b" : entry.dailyUsage > 1.5 ? "#c8a77b" : "#6aaa8c";
-            return <Cell key={i} fill={color} />;
-          })}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <>
+      {/* Visible chart for sighted users */}
+      <div aria-hidden="true">
+        <ResponsiveContainer width="100%" height={Math.max(180, data.length * 48)}>
+          <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, left: 10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
+            <XAxis
+              type="number"
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tickFormatter={(v) => `${v}%/day`}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              width={110}
+            />
+            <Tooltip
+              formatter={(v) => [`${v}% per day`, "Usage rate"]}
+              contentStyle={{ borderRadius: "10px", border: "1px solid hsl(var(--border))", fontSize: 12 }}
+            />
+            <Bar dataKey="dailyUsage" radius={[0, 6, 6, 0]} maxBarSize={28}>
+              {data.map((entry, i) => {
+                const color = entry.dailyUsage > 3 ? "#ba7b7b" : entry.dailyUsage > 1.5 ? "#c8a77b" : "#6aaa8c";
+                return <Cell key={i} fill={color} />;
+              })}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Semantic table for screen readers */}
+      <table className="sr-only" aria-label="Depletion rate ranking — supplies sorted by fastest daily usage">
+        <caption>Depletion Rate Ranking (sorted fastest to slowest)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Supply</th>
+            <th scope="col">Daily usage rate (% per day)</th>
+            <th scope="col">Estimated days remaining</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((entry, i) => (
+            <tr key={entry.name}>
+              <td>{i + 1}</td>
+              <td>{entry.name}</td>
+              <td>{entry.dailyUsage}% per day</td>
+              <td>{entry.daysLeft != null ? `${entry.daysLeft} days` : "Unknown"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
