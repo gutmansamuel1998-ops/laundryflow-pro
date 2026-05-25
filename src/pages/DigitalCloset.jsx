@@ -422,17 +422,17 @@ const SAFETY_STYLES = {
                     <label className="flex items-center gap-3 cursor-pointer">
                       {form.image_url ? (
                         <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
-                          <img src={form.image_url} alt="Garment" className="w-full h-full object-cover" />
+                          <img src={form.image_url} alt={form.name ? `Photo of ${form.name}` : "Garment photo"} className="w-full h-full object-cover" />
                           <button type="button" onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
                             <X className="w-2.5 h-2.5 text-white" />
                           </button>
                         </div>
                       ) : (
                         <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center flex-shrink-0 bg-secondary">
-                          {uploadingPhoto ? <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
+                          {uploadingPhoto ? <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" aria-hidden="true" /> : <Camera className="w-5 h-5 text-muted-foreground" aria-hidden="true" />}
                         </div>
-                      )}
-                      <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : form.image_url ? "Change photo" : "Upload photo"}</span>
+                        )}
+                        <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : form.image_url ? "Change photo" : "Upload photo"}</span>
                       <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={e => handlePhotoUpload(e.target.files[0], "add")} />
                     </label>
                   </div>
@@ -810,7 +810,7 @@ const SAFETY_STYLES = {
           <div className="space-y-2">
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
                 <Input
                 id="search-garments"
                 placeholder="Search garments..."
@@ -951,8 +951,8 @@ const SAFETY_STYLES = {
                           {basketMode && (
                             <div className="absolute top-2 right-2">
                               {basketSelected.includes(item.id)
-                                ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" />
-                                : <Square className="w-5 h-5 text-white drop-shadow" />}
+                                ? <CheckSquare className="w-5 h-5 text-primary drop-shadow" aria-hidden="true" />
+                                : <Square className="w-5 h-5 text-white drop-shadow" aria-hidden="true" />}
                             </div>
                           )}
                         </div>
@@ -1079,15 +1079,15 @@ const SAFETY_STYLES = {
                                 <label className="flex items-center gap-3 cursor-pointer">
                                   {editForm.image_url ? (
                                     <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-border flex-shrink-0">
-                                      <img src={editForm.image_url} alt="Garment" className="w-full h-full object-cover" />
+                                      <img src={editForm.image_url} alt={editForm.name ? `Photo of ${editForm.name}` : "Garment photo"} className="w-full h-full object-cover" />
                                       <button type="button" onClick={() => setEditForm(f => ({ ...f, image_url: "" }))} className="absolute top-0.5 right-0.5 bg-black/60 rounded-full p-0.5">
                                         <X className="w-2.5 h-2.5 text-white" />
                                       </button>
                                     </div>
                                   ) : (
                                     <div className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center flex-shrink-0 bg-secondary">
-                                      {uploadingPhoto ? <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" /> : <Camera className="w-5 h-5 text-muted-foreground" />}
-                                    </div>
+                                                   {uploadingPhoto ? <RefreshCw className="w-5 h-5 text-muted-foreground animate-spin" aria-hidden="true" /> : <Camera className="w-5 h-5 text-muted-foreground" aria-hidden="true" />}
+                                                 </div>
                                   )}
                                   <span className="text-sm text-primary font-medium">{uploadingPhoto ? "Uploading..." : editForm.image_url ? "Change photo" : "Upload photo"}</span>
                                   <input type="file" accept="image/*" className="hidden" disabled={uploadingPhoto} onChange={e => handlePhotoUpload(e.target.files[0], "edit")} />
