@@ -48,12 +48,12 @@ export default function TermsOfService() {
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Intellectual Property</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                All content, features, and functionality of LaundryFlow Pro are owned by ND Life Harbor and protected by copyright and trademark laws.
+                All content, features, and functionality of LaundryFlow Pro are owned by LifeHarbor Tech and protected by copyright and trademark laws.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Limitation of Liability</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                LaundryFlow Pro is provided "as is" without warranties. ND Life Harbor is not liable for any damages arising from use of the service, including laundry-related outcomes.
+                LaundryFlow Pro is provided "as is" without warranties. LifeHarbor Tech is not liable for any damages arising from use of the service, including laundry-related outcomes.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Termination</h2>

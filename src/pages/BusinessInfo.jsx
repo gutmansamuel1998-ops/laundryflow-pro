@@ -15,7 +15,7 @@ export default function BusinessInfo() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-2xl font-semibold tracking-tight">Business Info</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            About ND Life Harbor
+            About LifeHarbor Tech
           </p>
         </motion.div>
 
@@ -34,7 +34,7 @@ export default function BusinessInfo() {
               </h2>
             </div>
             <Card className="p-5 border-0 shadow-sm">
-              <h3 className="text-xl font-semibold mb-2">ND Life Harbor</h3>
+              <h3 className="text-xl font-semibold mb-2">LifeHarbor Tech</h3>
               <p className="text-sm text-muted-foreground">
                 Provider of LaundryFlow Pro — helping you manage laundry with calm, intelligent guidance
               </p>
