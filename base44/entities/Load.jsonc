@@ -1,0 +1,133 @@
+{
+  "name": "Load",
+  "type": "object",
+  "properties": {
+    "load_type": {
+      "type": "string",
+      "enum": [
+        "everyday_clothes",
+        "towels",
+        "bedding",
+        "delicates",
+        "mixed"
+      ],
+      "description": "Type of laundry load"
+    },
+    "current_state": {
+      "type": "string",
+      "enum": [
+        "load_created",
+        "washing",
+        "wash_finished",
+        "drying",
+        "dry_finished",
+        "completed",
+        "abandoned"
+      ],
+      "default": "load_created",
+      "description": "Current state of the load"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "abandoned"
+      ],
+      "default": "active"
+    },
+    "stage_start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the current stage started"
+    },
+    "wash_timer_minutes": {
+      "type": "number",
+      "default": 35,
+      "description": "Wash cycle duration in minutes"
+    },
+    "dry_timer_minutes": {
+      "type": "number",
+      "default": 45,
+      "description": "Dry cycle duration in minutes"
+    },
+    "wash_guidance": {
+      "type": "string",
+      "enum": [
+        "cold",
+        "warm",
+        "hot"
+      ],
+      "description": "Recommended water temperature"
+    },
+    "dry_guidance": {
+      "type": "string",
+      "enum": [
+        "tumble_low",
+        "tumble_medium",
+        "hang_dry"
+      ],
+      "description": "Recommended drying method"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about this load"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the load was completed"
+    },
+    "state_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string"
+          },
+          "entered_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Chronological record of state transitions"
+    },
+    "friction_detected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether friction has been detected for this load"
+    },
+    "friction_type": {
+      "type": "string",
+      "enum": [
+        "abandoned_at_transfer",
+        "prolonged_idle",
+        "never_started",
+        "none"
+      ],
+      "description": "Type of friction detected"
+    },
+    "wash_complete_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether wash complete email has been sent"
+    },
+    "dry_complete_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether dry complete email has been sent"
+    },
+    "idle_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether idle alert email has been sent"
+    }
+  },
+  "required": [
+    "load_type",
+    "current_state",
+    "status"
+  ]
+}

@@ -10,8 +10,8 @@ import { Home, Play, Layers, Sparkles, Settings, Package, Shirt } from "lucide-r
 const navItems = [
   { page: "DigitalCloset", label: "My Closet", icon: Shirt, emoji: "👖" },
   { page: "Home", label: "Home", icon: Home },
-  { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Loads", label: "Loads", icon: Layers },
+  { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Supplies", label: "Supplies", icon: Package },
   { page: "AIAssistant", label: "AI Help", icon: Sparkles },
   { page: "Settings", label: "Settings", icon: Settings },
