@@ -2,11 +2,12 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import Bubbles from '@/pages/Bubbles';
+import Assistant from '@/pages/Assistant';
+import AIAssistant from '@/pages/AIAssistant';
 import TagScanner from '@/pages/TagScanner';
 import StainGuidance from '@/pages/StainGuidance';
 import RoutineBuilder from '@/pages/RoutineBuilder';
@@ -87,8 +88,16 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/Assistant" element={<Navigate to="/Bubbles" replace />} />
-      <Route path="/AIAssistant" element={<Navigate to="/Bubbles" replace />} />
+      <Route path="/Assistant" element={
+        <LayoutWrapper currentPageName="Assistant">
+          <Assistant />
+        </LayoutWrapper>
+      } />
+      <Route path="/AIAssistant" element={
+        <LayoutWrapper currentPageName="AIAssistant">
+          <AIAssistant />
+        </LayoutWrapper>
+      } />
       <Route path="/TagScanner" element={
         <LayoutWrapper currentPageName="TagScanner">
           <TagScanner />

@@ -10,11 +10,11 @@ import PremiumUnlock from "@/components/premium/PremiumUnlock";
 
 const PREMIUM_FEATURES = [
   {
-    id: "bubbles",
+    id: "ai-assistant",
     icon: Sparkles,
-    title: "Bubbles 💬",
-    description: "Your warm laundry companion & accountability buddy",
-    route: "Bubbles"
+    title: "AI Laundry Assistant",
+    description: "Ask any laundry question in plain language",
+    route: "AIAssistant"
   },
   {
     id: "tag-scanner",
@@ -62,9 +62,9 @@ export default function Assistant() {
     <div className="min-h-screen pb-24">
       <div className="max-w-lg mx-auto px-5 pt-8">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-semibold tracking-tight">🚿 Help & Tools</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">AI Assistant</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Premium assistants & laundry tools
+            Premium tools to help with laundry questions
           </p>
         </motion.div>
 
