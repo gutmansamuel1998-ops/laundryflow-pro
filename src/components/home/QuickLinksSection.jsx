@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock } from "lucide-react";
+import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock, MessageCircle } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 
 const FREE_LINKS = [
