@@ -37,6 +37,7 @@ import IroningGuide from '@/pages/IroningGuide';
 import IroningQueue from '@/pages/IroningQueue';
 import IroningDashboard from '@/pages/IroningDashboard';
 import PremiumGuard from '@/components/premium/PremiumGuard';
+import Bubbles from '@/pages/Bubbles';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -236,6 +237,11 @@ const AuthenticatedApp = () => {
       <Route path="/IroningDashboard" element={
         <LayoutWrapper currentPageName="IroningDashboard">
           <IroningDashboard />
+        </LayoutWrapper>
+      } />
+      <Route path="/Bubbles" element={
+        <LayoutWrapper currentPageName="Bubbles">
+          <Bubbles />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />

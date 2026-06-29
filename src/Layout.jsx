@@ -5,7 +5,7 @@ import FeedbackModal from "@/components/FeedbackModal";
 import NotificationPermissionBanner from "@/components/notifications/NotificationPermissionBanner";
 import LowSupplyNotifier from "@/components/notifications/LowSupplyNotifier";
 import { createPageUrl } from "@/utils";
-import { Home, Play, Layers, Sparkles, Settings, Package, Shirt } from "lucide-react";
+import { Home, Play, Layers, Settings, Package, Shirt } from "lucide-react";
 
 const navItems = [
   { page: "DigitalCloset", label: "My Closet", icon: Shirt, emoji: "👖" },
@@ -13,7 +13,7 @@ const navItems = [
   { page: "Loads", label: "Loads", icon: Layers },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Supplies", label: "Supplies", icon: Package },
-  { page: "AIAssistant", label: "AI Help", icon: Sparkles },
+  { page: "Bubbles", label: "Bubbles", icon: null, emoji: "🫧" },
   { page: "Settings", label: "Settings", icon: Settings },
 ];
 
