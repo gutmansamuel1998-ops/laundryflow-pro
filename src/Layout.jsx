@@ -31,6 +31,13 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Skip navigation link — WCAG 2.4.1 */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[200] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-medium"
+      >
+        Skip to main content
+      </a>
       <NotificationPermissionBanner />
       <LowSupplyNotifier />
       <main id="main-content" className="pt-0">{children}</main>
@@ -55,7 +62,7 @@ export default function Layout({ children, currentPageName }) {
                   }`}
                 >
                   {item.emoji
-                    ? <span className="text-lg leading-none" aria-hidden="true">{item.emoji}</span>
+                    ? <span className="text-lg leading-none" role="img" aria-hidden="true">{item.emoji}</span>
                     : <Icon className="w-5 h-5" aria-hidden="true" strokeWidth={isActive ? 2.5 : 1.5} />}
                   <span className="text-[10px] font-medium">{item.label}</span>
                 </Link>

@@ -62,6 +62,7 @@ export default function QuickLinksSection() {
             <button
               key={page}
               onClick={() => navigate(createPageUrl("Premium"))}
+              aria-label={`${label} — Pro feature, upgrade to unlock`}
               className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 min-h-[56px] hover:border-primary/30 hover:shadow-sm transition-all opacity-60 text-left"
             >
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`} aria-hidden="true">

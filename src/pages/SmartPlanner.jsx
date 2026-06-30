@@ -152,15 +152,24 @@ export default function SmartPlanner() {
         {/* Tab bar */}
         <div className="flex gap-1 bg-secondary p-1 rounded-2xl mb-5" role="tablist" aria-label="Planner sections">
           {[
-            { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
-            { id: "weekly", label: "Plan My Week", icon: <Calendar className="w-3.5 h-3.5" /> },
-            { id: "history", label: "History", icon: <History className="w-3.5 h-3.5" /> },
+            { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-3.5 h-3.5" aria-hidden="true" /> },
+            { id: "weekly", label: "Plan My Week", icon: <Calendar className="w-3.5 h-3.5" aria-hidden="true" /> },
+            { id: "history", label: "History", icon: <History className="w-3.5 h-3.5" aria-hidden="true" /> },
           ].map(t => (
             <button
               key={t.id}
               role="tab"
+              id={`tab-${t.id}`}
               aria-selected={tab === t.id}
+              aria-controls={`tabpanel-${t.id}`}
+              tabIndex={tab === t.id ? 0 : -1}
               onClick={() => setTab(t.id)}
+              onKeyDown={(e) => {
+                const ids = ["dashboard", "weekly", "history"];
+                const i = ids.indexOf(t.id);
+                if (e.key === "ArrowRight") setTab(ids[(i + 1) % ids.length]);
+                if (e.key === "ArrowLeft") setTab(ids[(i - 1 + ids.length) % ids.length]);
+              }}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition-all ${
                 tab === t.id ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
@@ -173,7 +182,7 @@ export default function SmartPlanner() {
         {/* ── DASHBOARD TAB ── */}
         <AnimatePresence mode="wait">
           {tab === "dashboard" && (
-            <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="dashboard" role="tabpanel" id="tabpanel-dashboard" aria-labelledby="tab-dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {dashLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="w-9 h-9 animate-spin text-primary" aria-hidden="true" />
@@ -193,7 +202,7 @@ export default function SmartPlanner() {
 
           {/* ── WEEKLY WIZARD TAB ── */}
           {tab === "weekly" && (
-            <motion.div key="weekly" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="weekly" role="tabpanel" id="tabpanel-weekly" aria-labelledby="tab-weekly" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
 
               {wizardStep === "inventory" && (
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
@@ -389,7 +398,7 @@ export default function SmartPlanner() {
 
           {/* ── HISTORY TAB ── */}
           {tab === "history" && (
-            <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div key="history" role="tabpanel" id="tabpanel-history" aria-labelledby="tab-history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <p className="text-sm text-muted-foreground mb-4">Your recent planner recommendations.</p>
               <PlannerHistoryPanel history={plannerHistory} />
             </motion.div>

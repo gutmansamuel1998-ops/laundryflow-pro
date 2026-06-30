@@ -69,6 +69,7 @@ export default function NextAction({ load, onAction }) {
           <Button
             size="sm"
             onClick={() => onAction(load, actionKey)}
+            aria-label={`${config.action} — ${config.message}`}
             className="rounded-xl shadow-sm"
           >
             {config.action}

@@ -58,7 +58,7 @@ export default function WearingTodaySection() {
               <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {item.image_url
                   ? <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                  : <span className="text-xl">{CATEGORY_EMOJI[item.category] || "📦"}</span>
+                  : <span className="text-xl" aria-hidden="true">{CATEGORY_EMOJI[item.category] || "📦"}</span>
                 }
               </div>
               <div className="flex-1 min-w-0">
@@ -70,6 +70,7 @@ export default function WearingTodaySection() {
                 variant="outline"
                 onClick={() => moveMutation.mutate(item)}
                 disabled={moveMutation.isPending}
+                aria-label={`Add ${item.name} to laundry basket`}
                 className="gap-1.5 rounded-xl text-xs flex-shrink-0"
               >
                 <ShoppingBasket className="w-3.5 h-3.5" aria-hidden="true" /> Basket
