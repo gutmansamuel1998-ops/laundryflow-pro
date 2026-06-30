@@ -9,17 +9,78 @@
     "category": {
       "type": "string",
       "enum": [
+        "shirts",
+        "pants",
+        "jeans",
+        "shorts",
+        "dresses",
+        "skirts",
+        "jackets",
+        "sweaters",
+        "coats",
+        "pajamas",
+        "underwear",
+        "socks",
+        "towels",
+        "bedding",
+        "uniforms",
+        "activewear",
+        "swimwear",
+        "accessories",
         "tops",
         "bottoms",
         "outerwear",
-        "underwear",
-        "activewear",
         "delicates",
-        "bedding",
-        "towels",
         "other"
       ],
       "description": "Clothing category"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "white",
+        "light",
+        "dark",
+        "color",
+        "mixed"
+      ],
+      "description": "Color group for sorting/washing"
+    },
+    "laundry_status": {
+      "type": "string",
+      "enum": [
+        "clean",
+        "dirty",
+        "in_wash",
+        "drying",
+        "unavailable"
+      ],
+      "description": "Current laundry readiness status of the item"
+    },
+    "laundry_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "delicate",
+          "air_dry",
+          "hang_dry",
+          "wash_separately",
+          "heavy_fabric",
+          "stain_prone",
+          "bleach_safe",
+          "athletic_wear",
+          "school_uniform",
+          "work_uniform",
+          "frequently_worn",
+          "seasonal"
+        ]
+      },
+      "description": "Laundry care tags for organizing and planning"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Optional: household member or person this item belongs to (for Family/Two-Person profiles)"
     },
     "lifestyle": {
       "type": "string",
@@ -33,25 +94,22 @@
         "outdoor",
         "other"
       ],
-      "description": "Lifestyle / occasion tag for the item"
+      "description": "Lifestyle / occasion tag"
     },
     "is_new_garment": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this item has never been washed before (first wash precaution for color bleeding)"
+      "description": "First wash precaution \u2014 warns about color bleeding"
     },
     "is_wrinkle_free": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this item is wrinkle-free / non-iron fabric"
+      "description": "No ironing needed \u2014 excluded from ironing queue"
     },
-    "fabric_composition": {
-      "type": "string",
-      "description": "Fabric content e.g. '80% cotton, 20% polyester'"
-    },
-    "care_instructions": {
-      "type": "string",
-      "description": "Raw care label instructions from the garment tag"
+    "requires_ironing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Appears in ironing queue after washing"
     },
     "preferred_dry_method": {
       "type": "string",
@@ -63,51 +121,43 @@
         "lay_flat",
         "air_dry"
       ],
-      "description": "Preferred drying method for this garment to prevent shrinkage"
+      "description": "Preferred drying method"
     },
-    "color": {
+    "fabric_composition": {
       "type": "string",
-      "enum": [
-        "white",
-        "light",
-        "dark",
-        "color",
-        "mixed"
-      ],
-      "description": "Color group for sorting"
+      "description": "Fabric content e.g. '80% cotton, 20% polyester'"
+    },
+    "care_instructions": {
+      "type": "string",
+      "description": "Care label instructions from the garment tag"
     },
     "image_url": {
       "type": "string",
-      "description": "Optional photo of the garment or tag"
+      "description": "Optional photo of the garment"
     },
     "notes": {
       "type": "string",
-      "description": "Any personal notes about this item"
+      "description": "Personal notes about this item"
     },
     "wear_count": {
       "type": "number",
       "default": 0,
-      "description": "Number of times this item has been worn"
+      "description": "Number of times worn"
     },
     "last_worn": {
       "type": "string",
       "format": "date",
-      "description": "Date this item was last worn (YYYY-MM-DD)"
+      "description": "Date last worn (YYYY-MM-DD)"
     },
     "wearing_today": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this item is currently being worn today"
+      "description": "Currently being worn today"
     },
     "used_today": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this item was used today (e.g. a towel) but not worn \u2014 needs laundering"
-    },
-    "requires_ironing": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether this item requires ironing after washing"
+      "description": "Used today (e.g. towel) but not worn \u2014 needs laundering"
     },
     "ironing_heat": {
       "type": "string",
@@ -117,21 +167,21 @@
         "medium",
         "high"
       ],
-      "description": "Recommended iron heat setting for this garment"
+      "description": "Recommended iron heat setting"
     },
     "ironing_notes": {
       "type": "string",
-      "description": "Specific ironing instructions for this item (e.g. 'iron inside out', 'use steam')"
+      "description": "Specific ironing instructions"
     },
     "needs_ironing_now": {
       "type": "boolean",
       "default": false,
-      "description": "Whether this item is currently in the ironing queue"
+      "description": "Currently in ironing queue"
     },
     "last_ironed": {
       "type": "string",
       "format": "date",
-      "description": "Date this item was last ironed (YYYY-MM-DD)"
+      "description": "Date last ironed (YYYY-MM-DD)"
     }
   },
   "required": [
