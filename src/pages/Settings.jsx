@@ -23,6 +23,9 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [hasPremium, setHasPremium] = useState(false);
   const [settings, setSettings] = useState({
+    laundry_profile: "private",
+    two_person_household: false,
+    roommate_count: 0,
     laundry_environment: "private",
     preferred_days_of_week: [],
     preferred_time_windows: [],
@@ -50,6 +53,9 @@ export default function Settings() {
       setHasPremium(u?.has_premium === true);
       setSettings(prev => ({
         ...prev,
+        laundry_profile: u?.laundry_profile || (u?.laundry_environment === "shared" ? "dorm" : "private"),
+        two_person_household: u?.two_person_household || false,
+        roommate_count: u?.roommate_count || 0,
         laundry_environment: u?.laundry_environment || "private",
         preferred_days_of_week: u?.preferred_days_of_week || [],
         preferred_time_windows: u?.preferred_time_windows || [],
@@ -119,27 +125,94 @@ export default function Settings() {
         </header>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-          {/* Environment */}
+          {/* Laundry Profile */}
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Building2 className="w-4 h-4 text-muted-foreground" />
-              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Laundry Environment</h2>
+              <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Laundry Profile</h2>
             </div>
-            <Card className="p-4 border-0 shadow-sm">
-              <Select
-                value={settings.laundry_environment}
-                onValueChange={(v) => setSettings(prev => ({ ...prev, laundry_environment: v }))}
-              >
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="private">Private Laundry (at home)</SelectItem>
-                  <SelectItem value="shared">Shared Laundry Room (dorm, building)</SelectItem>
-                </SelectContent>
-              </Select>
-              {settings.laundry_environment === "shared" && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  Dorm Mode enabled — reminders will trigger a bit earlier so machines stay available.
-                </p>
+            <Card className="p-4 border-0 shadow-sm space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: "private", emoji: "🏠", label: "Private" },
+                  { value: "dorm", emoji: "🏢", label: "Dorm / Apt" },
+                  { value: "family", emoji: "👨‍👩‍👧", label: "Family" },
+                ].map(({ value, emoji, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setSettings(prev => ({ ...prev, laundry_profile: value }))}
+                    aria-pressed={settings.laundry_profile === value}
+                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-medium transition-all ${
+                      settings.laundry_profile === value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-secondary text-muted-foreground hover:border-primary/40"
+                    }`}
+                  >
+                    <span className="text-xl" aria-hidden="true">{emoji}</span>
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Private sub-setting */}
+              {settings.laundry_profile === "private" && (
+                <div className="pt-1">
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Optimised for one person managing their own laundry at home.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="two-person">Two-person household</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Gently expands load and supply assumptions for two people
+                      </p>
+                    </div>
+                    <Switch
+                      id="two-person"
+                      checked={settings.two_person_household}
+                      onCheckedChange={(v) => setSettings(prev => ({ ...prev, two_person_household: v }))}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Dorm sub-setting */}
+              {settings.laundry_profile === "dorm" && (
+                <div className="pt-1 space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Tailored for shared laundry facilities — dorms, apartments, condos, and similar buildings.
+                    Reminders account for communal machine availability.
+                  </p>
+                  <div>
+                    <Label htmlFor="roommate-count" className="text-sm mb-2 block">Number of roommates</Label>
+                    <Select
+                      value={String(settings.roommate_count)}
+                      onValueChange={(v) => setSettings(prev => ({ ...prev, roommate_count: Number(v) }))}
+                    >
+                      <SelectTrigger id="roommate-count" className="rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">Just me (no roommates)</SelectItem>
+                        <SelectItem value="1">1 roommate</SelectItem>
+                        <SelectItem value="2">2 roommates</SelectItem>
+                        <SelectItem value="3">3 roommates</SelectItem>
+                        <SelectItem value="4">4+ roommates</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Helps LaundryFlow understand machine demand — no roommate accounts are created.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Family sub-setting */}
+              {settings.laundry_profile === "family" && (
+                <div className="pt-1">
+                  <p className="text-xs text-muted-foreground">
+                    Designed for managing laundry for an entire household. Assumes higher laundry volume,
+                    faster supply usage, and recurring household loads.
+                  </p>
+                </div>
               )}
             </Card>
           </section>

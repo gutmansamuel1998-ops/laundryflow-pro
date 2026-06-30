@@ -8,107 +8,65 @@
         "admin",
         "user"
       ],
-      "default": "user",
-      "description": "User role"
+      "default": "user"
     },
-    "has_completed_onboarding": {
+    "has_premium": {
+      "type": "boolean",
+      "default": false
+    },
+    "laundry_profile": {
+      "type": "string",
+      "enum": [
+        "private",
+        "dorm",
+        "family"
+      ],
+      "default": "private",
+      "description": "Adaptive Laundry Profile: private, dorm/apartment, or family"
+    },
+    "two_person_household": {
       "type": "boolean",
       "default": false,
-      "description": "Whether user has completed initial setup"
+      "description": "Private profile optional: managing laundry for two people"
+    },
+    "roommate_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Dorm/Apartment profile: number of roommates sharing laundry facilities"
     },
     "laundry_environment": {
       "type": "string",
-      "enum": [
-        "shared",
-        "in_unit",
-        "off_site"
-      ],
-      "description": "Type of laundry facility access"
+      "description": "Legacy field \u2014 superseded by laundry_profile"
     },
     "preferred_days_of_week": {
       "type": "array",
       "items": {
         "type": "number"
-      },
-      "description": "Days user prefers to do laundry (0=Sunday, 6=Saturday)"
+      }
     },
     "preferred_time_windows": {
       "type": "array",
       "items": {
-        "type": "string",
-        "enum": [
-          "morning",
-          "afternoon",
-          "evening"
-        ]
-      },
-      "description": "Time windows user prefers for laundry"
+        "type": "string"
+      }
     },
     "precise_time_preferences": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "day": {
-            "type": "number",
-            "description": "Day of week (0=Sunday, 6=Saturday)"
-          },
-          "start_time": {
-            "type": "string",
-            "description": "Start time in HH:MM format (e.g., '09:00')"
-          },
-          "end_time": {
-            "type": "string",
-            "description": "End time in HH:MM format (e.g., '11:00')"
-          }
-        }
-      },
-      "description": "Precise time ranges for laundry on specific days"
-    },
-    "environmental_anchors": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "trigger": {
-            "type": "string"
-          },
-          "load_type": {
-            "type": "string"
-          }
-        }
-      },
-      "description": "Environmental triggers for laundry suggestions"
-    },
-    "friction_detection_enabled": {
-      "type": "boolean",
-      "default": true,
-      "description": "Enable friction detection alerts"
-    },
-    "idle_threshold_minutes": {
-      "type": "number",
-      "default": 120,
-      "description": "Minutes before a load is considered idle"
-    },
-    "forgotten_threshold_minutes": {
-      "type": "number",
-      "default": 30,
-      "description": "Minutes before a finished load is considered forgotten"
+        "type": "object"
+      }
     },
     "enable_laundry_reminders": {
       "type": "boolean",
-      "default": true,
-      "description": "Enable scheduled laundry reminder notifications"
+      "default": true
     },
-    "has_premium": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether user has Premium subscription"
+    "forgotten_threshold_minutes": {
+      "type": "number",
+      "default": 30
     },
-    "premium_trial_used": {
+    "enable_supply_alerts": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether user has used Premium trial"
+      "default": true
     },
     "text_size": {
       "type": "string",
@@ -118,53 +76,44 @@
         "large",
         "xlarge"
       ],
-      "default": "normal",
-      "description": "Preferred text size"
+      "default": "normal"
     },
     "reduced_motion": {
       "type": "boolean",
-      "default": false,
-      "description": "Reduce animations and motion"
+      "default": false
     },
     "high_contrast": {
       "type": "boolean",
-      "default": false,
-      "description": "Enable high contrast mode"
+      "default": false
     },
     "dyslexia_font": {
       "type": "boolean",
-      "default": false,
-      "description": "Use dyslexia-friendly font"
+      "default": false
     },
-    "keyboard_navigation": {
+    "environmental_anchors": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "friction_detection_enabled": {
       "type": "boolean",
-      "default": false,
-      "description": "Enable enhanced keyboard navigation mode"
+      "default": true
     },
-    "voice_commands_enabled": {
-      "type": "boolean",
-      "default": false,
-      "description": "Enable voice commands"
-    },
-    "enable_supply_alerts": {
-      "type": "boolean",
-      "default": true,
-      "description": "Enable low supply alerts"
-    },
-    "alert_channels": {
-      "type": "object",
-      "description": "Notification channel preferences per event"
+    "idle_threshold_minutes": {
+      "type": "number",
+      "default": 120
     },
     "max_idle_time_load_created": {
       "type": "number",
-      "default": 240,
-      "description": "Max minutes before alerting on an uncreated load"
+      "default": 240
+    },
+    "voice_commands_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "alert_channels": {
+      "type": "object"
     }
-  },
-  "required": [
-    "laundry_environment",
-    "preferred_days_of_week",
-    "preferred_time_windows",
-    "environmental_anchors"
-  ]
+  }
 }
