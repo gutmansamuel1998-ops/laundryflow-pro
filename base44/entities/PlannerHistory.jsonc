@@ -1,0 +1,35 @@
+{
+  "name": "PlannerHistory",
+  "type": "object",
+  "properties": {
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this plan was generated"
+    },
+    "next_action_title": {
+      "type": "string",
+      "description": "The recommended next action at time of generation"
+    },
+    "next_action_emoji": {
+      "type": "string"
+    },
+    "current_status": {
+      "type": "string",
+      "description": "Status summary at time of generation"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "deferred",
+        "skipped"
+      ],
+      "description": "What the user did with the recommendation"
+    }
+  },
+  "required": [
+    "generated_at",
+    "next_action_title"
+  ]
+}

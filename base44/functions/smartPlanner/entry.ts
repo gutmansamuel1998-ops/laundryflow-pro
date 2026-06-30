@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   try {
@@ -6,63 +6,109 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { dirtyInventory, preferredDays, supplies } = await req.json();
+    const body = await req.json();
+    const mode = body.mode || 'dashboard'; // 'dashboard' | 'weekly'
 
-    const supplyContext = supplies.map(s =>
-      `${s.name}: ${s.current_level}% remaining (low threshold: ${s.low_threshold}%)`
-    ).join('\n');
+    // ── WEEKLY WIZARD MODE (legacy) ──
+    if (mode === 'weekly') {
+      const { dirtyInventory, preferredDays, supplies } = body;
 
-    const inventoryContext = Object.entries(dirtyInventory)
-      .filter(([, count]) => count > 0)
-      .map(([type, count]) => `${type.replace(/_/g, ' ')}: ${count} items`)
-      .join('\n');
+      const supplyContext = (supplies || []).map((s: any) =>
+        `${s.name}: ${s.current_level}% remaining (low threshold: ${s.low_threshold}%)`
+      ).join('\n');
 
-    const daysContext = preferredDays.join(', ');
+      const inventoryContext = Object.entries(dirtyInventory || {})
+        .filter(([, count]) => (count as number) > 0)
+        .map(([type, count]) => `${type.replace(/_/g, ' ')}: ${count} items`)
+        .join('\n');
 
-    const prompt = `You are a laundry scheduling AI assistant. Your job is to create the optimal weekly laundry schedule.
+      const prompt = `You are a laundry scheduling assistant. Create an optimal weekly laundry schedule.
 
-Current dirty clothes inventory:
-${inventoryContext || 'No dirty clothes specified'}
+Dirty clothes inventory:
+${inventoryContext || 'None specified'}
 
-User's preferred wash days this week:
-${daysContext}
+Preferred wash days: ${(preferredDays || []).join(', ')}
 
-Current supply levels:
+Supply levels:
 ${supplyContext || 'No supply data'}
 
-Supply usage estimates per load:
-- everyday_clothes: uses ~8% detergent, ~6% fabric softener
-- towels: uses ~10% detergent, ~4% fabric softener
-- bedding: uses ~12% detergent, ~5% fabric softener  
-- delicates: uses ~5% detergent, ~8% fabric softener
-- mixed: uses ~9% detergent, ~6% fabric softener
+Supply usage per load: everyday_clothes ~8% detergent, towels ~10%, bedding ~12%, delicates ~5%, mixed ~9%.
 
-Create an optimized schedule that:
-1. Groups compatible load types together to minimize total machine cycles
-2. Prioritizes loads based on urgency (larger piles first) and supply efficiency
-3. Warns if supplies may run low before all loads can be completed
-4. Suggests the best order across the preferred days
+Create a schedule that groups compatible loads, prioritises urgency, warns about low supplies. Keep tone calm and supportive.`;
 
-Return a JSON response with this exact structure:
-{
-  "schedule": [
-    {
-      "day": "Monday",
-      "loads": [
-        {
-          "load_type": "everyday_clothes",
-          "items_count": 15,
-          "priority": "high",
-          "wash_temp": "cold|warm|hot",
-          "reason": "brief reason for scheduling this load today"
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            schedule: { type: "array", items: { type: "object" } },
+            supply_warnings: { type: "array", items: { type: "string" } },
+            efficiency_tips: { type: "array", items: { type: "string" } },
+            overall_summary: { type: "string" }
+          }
         }
-      ],
-      "supply_usage_summary": "brief note on supply impact for this day"
+      });
+
+      return Response.json(result);
     }
-  ],
-  "supply_warnings": ["warning if any supply will run critically low"],
-  "efficiency_tips": ["tip1", "tip2"],
-  "overall_summary": "1-2 sentence summary of the plan"
+
+    // ── DASHBOARD MODE ──
+    const { loads, supplies, closetItems, schedules, profile, twoPerson } = body;
+
+    const activeLoads = (loads || []).filter((l: any) => l.status === 'active');
+    const completedLoads = (loads || []).filter((l: any) => l.status === 'completed').slice(0, 5);
+    const lowSupplies = (supplies || []).filter((s: any) => s.current_level <= s.low_threshold);
+    const dirtyItems = (closetItems || []).filter((i: any) => i.laundry_status === 'dirty');
+    const inWashItems = (closetItems || []).filter((i: any) => i.laundry_status === 'in_wash');
+    const dryingItems = (closetItems || []).filter((i: any) => i.laundry_status === 'drying');
+
+    const today = new Date().toISOString().split('T')[0];
+    const upcomingSchedules = (schedules || []).filter((s: any) => s.date >= today && !s.completed).slice(0, 3);
+
+    const profileContext = profile === 'family'
+      ? 'Family household — prioritise children\'s clothes, uniforms, towels, high volume.'
+      : profile === 'dorm'
+      ? 'Dorm/shared laundry — consider laundry trip efficiency and machine availability.'
+      : twoPerson
+      ? 'Private household with two people — slightly higher clothing and supply throughput.'
+      : 'Private single-person household.';
+
+    const prompt = `You are a calm, supportive laundry planning assistant. Your job is to review the user's current laundry situation and provide gentle, helpful guidance — not pressure.
+
+PROFILE: ${profileContext}
+
+ACTIVE LOADS (${activeLoads.length}):
+${activeLoads.map((l: any) => `- ${l.load_type} — currently ${l.current_state}`).join('\n') || 'None'}
+
+RECENTLY COMPLETED LOADS (${completedLoads.length}):
+${completedLoads.map((l: any) => `- ${l.load_type} completed`).join('\n') || 'None'}
+
+CLOTHING WITH LAUNDRY STATUS:
+- Dirty: ${dirtyItems.map((i: any) => i.name).join(', ') || 'none tracked'}
+- In wash: ${inWashItems.map((i: any) => i.name).join(', ') || 'none tracked'}
+- Drying: ${dryingItems.map((i: any) => i.name).join(', ') || 'none tracked'}
+
+SUPPLY LEVELS:
+${(supplies || []).map((s: any) => `- ${s.name}: ${s.current_level}% (low at ${s.low_threshold}%)`).join('\n') || 'No supply data'}
+
+UPCOMING SCHEDULED LAUNDRY:
+${upcomingSchedules.map((s: any) => `- ${s.date}${s.label ? ': ' + s.label : ''}`).join('\n') || 'Nothing scheduled'}
+
+Based on this information, provide a calm, supportive planning summary. Be honest if there isn't much data yet.
+Keep language warm and non-urgent. Never guilt or pressure the user. One recommendation at a time.
+
+Return JSON:
+{
+  "data_confidence": "low|medium|high",
+  "next_action": {
+    "title": "short action label, e.g. Wash towels",
+    "reason": "one sentence, calm and supportive",
+    "emoji": "single relevant emoji"
+  },
+  "current_status": "1-2 sentence calm description of laundry situation right now",
+  "potential_issues": ["gentle issue description", ...],
+  "suggestions": ["helpful optional suggestion", ...],
+  "encouraging_note": "brief warm closing note (optional, only if genuinely useful)"
 }`;
 
     const result = await base44.integrations.Core.InvokeLLM({
@@ -70,10 +116,19 @@ Return a JSON response with this exact structure:
       response_json_schema: {
         type: "object",
         properties: {
-          schedule: { type: "array", items: { type: "object" } },
-          supply_warnings: { type: "array", items: { type: "string" } },
-          efficiency_tips: { type: "array", items: { type: "string" } },
-          overall_summary: { type: "string" }
+          data_confidence: { type: "string", enum: ["low", "medium", "high"] },
+          next_action: {
+            type: "object",
+            properties: {
+              title: { type: "string" },
+              reason: { type: "string" },
+              emoji: { type: "string" }
+            }
+          },
+          current_status: { type: "string" },
+          potential_issues: { type: "array", items: { type: "string" } },
+          suggestions: { type: "array", items: { type: "string" } },
+          encouraging_note: { type: "string" }
         }
       }
     });
@@ -81,6 +136,6 @@ Return a JSON response with this exact structure:
     return Response.json(result);
   } catch (error) {
     console.error('Smart planner error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: (error as Error).message }, { status: 500 });
   }
 });
