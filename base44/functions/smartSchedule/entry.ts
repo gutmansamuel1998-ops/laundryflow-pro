@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
-    const { action = 'suggest', profile = 'private', twoPerson = false, roommateCount = 0, loads = [], supplies = [], schedules = [] } = body;
+    const { action = 'suggest', profile = 'private', twoPerson = false, roommateCount = 0, loads = [], supplies = [], schedules = [], funds = [] } = body;
 
     // ── NOTIFY action: send a gentle reminder email ──
     if (action === 'notify') {
@@ -60,6 +60,10 @@ ${supplyContext}
 
 Upcoming scheduled laundry:
 ${scheduledContext}
+
+Laundry funds (payment resources, not a budget):
+${funds.length > 0 ? funds.map((f: any) => `${f.label}: ${f.balance} ${f.unit} (low at ${f.low_threshold})`).join('\n') : 'Not tracked'}
+If a fund is at or below its low threshold, you may gently suggest preparing it before the next laundry window (e.g. "Before tomorrow's laundry trip, consider refilling your laundry card") in gentle_nudges. Never frame this as budgeting advice.
 
 Your task: suggest realistic, flexible laundry windows for today and the next few days. Be gentle and supportive. Never use urgent or pressuring language. Never say "you must" or "you need to". Use windows like "This Morning", "This Afternoon", "This Evening", "Tomorrow", "This Weekend", "Early Next Week".
 

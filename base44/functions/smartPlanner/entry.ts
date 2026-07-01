@@ -53,7 +53,7 @@ Create a schedule that groups compatible loads, prioritises urgency, warns about
     }
 
     // ── DASHBOARD MODE ──
-    const { loads, supplies, closetItems, schedules, profile, twoPerson } = body;
+    const { loads, supplies, closetItems, schedules, profile, twoPerson, funds } = body;
 
     const activeLoads = (loads || []).filter((l: any) => l.status === 'active');
     const completedLoads = (loads || []).filter((l: any) => l.status === 'completed').slice(0, 5);
@@ -93,6 +93,10 @@ ${(supplies || []).map((s: any) => `- ${s.name}: ${s.current_level}% (low at ${s
 
 UPCOMING SCHEDULED LAUNDRY:
 ${upcomingSchedules.map((s: any) => `- ${s.date}${s.label ? ': ' + s.label : ''}`).join('\n') || 'Nothing scheduled'}
+
+LAUNDRY FUNDS (payment resources, not a budget):
+${(funds || []).length > 0 ? funds.map((f: any) => `- ${f.label}: ${f.balance} ${f.unit} (low at ${f.low_threshold})`).join('\n') : 'Not tracked'}
+If any fund is at or below its low threshold, you may gently mention it in potential_issues or suggestions (e.g. "You may want to refill your laundry card before your next trip"). Never treat this as a budgeting concern.
 
 Based on this information, provide a calm, supportive planning summary. Be honest if there isn't much data yet.
 Keep language warm and non-urgent. Never guilt or pressure the user. One recommendation at a time.

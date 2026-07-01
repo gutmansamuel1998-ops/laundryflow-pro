@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Card } from "@/components/ui/card";
-import { ClipboardList, MapPin, Sparkles } from "lucide-react";
+import { ClipboardList, MapPin, Sparkles, Wallet } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
 import TripChecklist from "@/components/dorm/TripChecklist";
 import LaundryRoomInfoForm from "@/components/dorm/LaundryRoomInfoForm";
@@ -146,6 +148,16 @@ export default function DormUtilities() {
               <LaundryRoomInfoForm info={localRoomInfo} onChange={handleRoomInfoChange} />
             </Card>
           </section>
+
+          <Link
+            to={createPageUrl("LaundryFunds")}
+            className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 hover:border-primary/30 hover:shadow-sm transition-all"
+          >
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 text-amber-600" aria-hidden="true">
+              <Wallet className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium text-foreground leading-tight">Track your Laundry Funds</span>
+          </Link>
         </motion.div>
       </div>
     </div>

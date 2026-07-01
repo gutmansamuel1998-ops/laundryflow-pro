@@ -43,6 +43,7 @@ export default function Settings() {
     max_idle_time_load_created: 240,
     voice_commands_enabled: false,
     dorm_utilities_enabled: false,
+    uses_laundromat: false,
     alert_channels: {
       wash_finished: { push: true },
       dryer_finished: { push: true },
@@ -74,6 +75,7 @@ export default function Settings() {
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
         voice_commands_enabled: u?.voice_commands_enabled || false,
         dorm_utilities_enabled: u?.dorm_utilities_enabled || false,
+        uses_laundromat: u?.uses_laundromat || false,
         alert_channels: u?.alert_channels || {
           wash_finished: { push: true },
           dryer_finished: { push: true },
@@ -173,6 +175,19 @@ export default function Settings() {
                       id="two-person"
                       checked={settings.two_person_household}
                       onCheckedChange={(v) => setSettings(prev => ({ ...prev, two_person_household: v }))}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between pt-3 mt-3 border-t border-border/50">
+                    <div>
+                      <Label htmlFor="uses-laundromat">Uses Laundromat</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Turn on Laundry Funds to track your laundry card, credits, or quarters
+                      </p>
+                    </div>
+                    <Switch
+                      id="uses-laundromat"
+                      checked={settings.uses_laundromat}
+                      onCheckedChange={(v) => setSettings(prev => ({ ...prev, uses_laundromat: v }))}
                     />
                   </div>
                 </div>

@@ -59,6 +59,8 @@ export default function SmartPlanner() {
   const { data: closetItems = [] } = useQuery({ queryKey: ["clothing-items"], queryFn: () => base44.entities.ClothingItem.list("-created_date", 50) });
   const { data: schedules = [] } = useQuery({ queryKey: ["laundry-schedules"], queryFn: () => base44.entities.LaundrySchedule.list("date", 10) });
   const { data: plannerHistory = [] } = useQuery({ queryKey: ["planner-history"], queryFn: () => base44.entities.PlannerHistory.list("-generated_at", 20) });
+  const { data: funds = [] } = useQuery({ queryKey: ["laundry-funds"], queryFn: () => base44.entities.LaundryFund.list() });
+  const enabledFunds = funds.filter((f) => f.enabled);
 
   const savePlannerHistory = useMutation({
     mutationFn: (data) => base44.entities.PlannerHistory.create(data),
@@ -88,6 +90,7 @@ export default function SmartPlanner() {
       schedules,
       profile,
       twoPerson,
+      funds: enabledFunds,
     });
     const result = response.data;
     setDashResult(result);

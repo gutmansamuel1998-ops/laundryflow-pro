@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock, Users, ClipboardList } from "lucide-react";
+import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock, Users, ClipboardList, Wallet } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
 import { useLaundryProfile } from "@/hooks/useLaundryProfile";
 
@@ -27,7 +27,7 @@ const PREMIUM_LINKS = [
 
 export default function QuickLinksSection() {
   const { isPremium } = usePremium();
-  const { isFamily, showDormUtilities } = useLaundryProfile();
+  const { isFamily, showDormUtilities, showLaundryFunds } = useLaundryProfile();
   const navigate = useNavigate();
 
   return (
@@ -54,6 +54,17 @@ export default function QuickLinksSection() {
               <ClipboardList className="w-4 h-4" />
             </div>
             <span className="text-sm font-medium text-foreground leading-tight">Dorm Utilities</span>
+          </Link>
+        )}
+        {showLaundryFunds && (
+          <Link
+            to={createPageUrl("LaundryFunds")}
+            className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 min-h-[56px] hover:border-primary/30 hover:shadow-sm transition-all"
+          >
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 text-amber-600" aria-hidden="true">
+              <Wallet className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium text-foreground leading-tight">Laundry Funds</span>
           </Link>
         )}
         {FREE_LINKS.map(({ page, label, icon: Icon, color }) => (

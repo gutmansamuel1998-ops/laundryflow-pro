@@ -1,0 +1,48 @@
+{
+  "name": "LaundryFund",
+  "type": "object",
+  "properties": {
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "laundry_card",
+        "credits",
+        "quarters",
+        "cash"
+      ],
+      "description": "Type of laundry payment resource being tracked"
+    },
+    "label": {
+      "type": "string",
+      "description": "Display name for this resource (e.g. Laundry Card, Quarters)"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "dollars",
+        "credits"
+      ],
+      "default": "dollars",
+      "description": "How this resource's balance is measured"
+    },
+    "balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Current balance of this resource"
+    },
+    "low_threshold": {
+      "type": "number",
+      "default": 5,
+      "description": "Balance below which a gentle low-resource reminder appears"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this resource is currently tracked/shown"
+    }
+  },
+  "required": [
+    "resource_type",
+    "label"
+  ]
+}

@@ -45,6 +45,11 @@ export default function SmartScheduler() {
     queryFn: () => base44.entities.LaundrySchedule.list("date", 5),
   });
 
+  const { data: funds = [] } = useQuery({
+    queryKey: ["laundry-funds"],
+    queryFn: () => base44.entities.LaundryFund.list(),
+  });
+
   // Auto-generate on first load once profile is ready
   useEffect(() => {
     if (!profileLoading && !hasGenerated) {
@@ -63,6 +68,7 @@ export default function SmartScheduler() {
       loads,
       supplies,
       schedules,
+      funds: funds.filter((f) => f.enabled),
     });
     setResult(response.data);
     setIsLoading(false);
