@@ -70,6 +70,12 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      // Use shared-facility-friendly wording for Dorm/Apartment profiles
+      const isDormProfile = user.laundry_profile === 'dorm' || user.laundry_environment === 'shared';
+      const dormNote = isDormProfile
+        ? "\n\nSince you use a shared laundry room, you may want to prepare before heading over — and give yourself enough time to return and retrieve your clothes.\n"
+        : "\n\nThis is a great time to start a load if you have laundry waiting!\n";
+
       // Send notification email
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: user.email,
@@ -77,9 +83,7 @@ Deno.serve(async (req) => {
         body: `Hi${user.full_name ? ' ' + user.full_name.split(' ')[0] : ''}!
 
 It's one of your preferred laundry times, and you don't have any active loads right now.
-
-This is a great time to start a load if you have laundry waiting!
-
+${dormNote}
 Open LaundryFlow Pro to get started: ${Deno.env.get('BASE44_APP_URL') || 'your app'}
 
 ---

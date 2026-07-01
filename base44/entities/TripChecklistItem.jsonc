@@ -1,0 +1,33 @@
+{
+  "name": "TripChecklistItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Item name (e.g. Laundry Bag, Detergent, Quarters)"
+    },
+    "checked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item has been packed/checked off"
+    },
+    "hidden": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this item is hidden from the active checklist"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Sort order in the checklist"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this was one of the seeded default items"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

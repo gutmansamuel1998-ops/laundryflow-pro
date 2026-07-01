@@ -37,6 +37,7 @@ import IroningGuide from '@/pages/IroningGuide';
 import IroningQueue from '@/pages/IroningQueue';
 import IroningDashboard from '@/pages/IroningDashboard';
 import HouseholdManagement from '@/pages/HouseholdManagement';
+import DormUtilities from '@/pages/DormUtilities';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -242,6 +243,11 @@ const AuthenticatedApp = () => {
       <Route path="/HouseholdManagement" element={
         <LayoutWrapper currentPageName="HouseholdManagement">
           <HouseholdManagement />
+        </LayoutWrapper>
+      } />
+      <Route path="/DormUtilities" element={
+        <LayoutWrapper currentPageName="DormUtilities">
+          <DormUtilities />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />

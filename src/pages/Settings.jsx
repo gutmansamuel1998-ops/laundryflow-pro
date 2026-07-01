@@ -42,6 +42,7 @@ export default function Settings() {
     idle_threshold_minutes: 120,
     max_idle_time_load_created: 240,
     voice_commands_enabled: false,
+    dorm_utilities_enabled: false,
     alert_channels: {
       wash_finished: { push: true },
       dryer_finished: { push: true },
@@ -72,6 +73,7 @@ export default function Settings() {
         idle_threshold_minutes: u?.idle_threshold_minutes ?? 120,
         max_idle_time_load_created: u?.max_idle_time_load_created ?? 240,
         voice_commands_enabled: u?.voice_commands_enabled || false,
+        dorm_utilities_enabled: u?.dorm_utilities_enabled || false,
         alert_channels: u?.alert_channels || {
           wash_finished: { push: true },
           dryer_finished: { push: true },
@@ -212,6 +214,23 @@ export default function Settings() {
                     Designed for managing laundry for an entire household. Assumes higher laundry volume,
                     faster supply usage, and recurring household loads.
                   </p>
+                </div>
+              )}
+
+              {/* Dorm Utilities opt-in for non-dorm profiles */}
+              {settings.laundry_profile !== "dorm" && (
+                <div className="pt-3 border-t border-border/50 flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="dorm-utilities">Enable Dorm Utilities</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Turn on the trip checklist and laundry room info tools if you regularly use a shared laundry room
+                    </p>
+                  </div>
+                  <Switch
+                    id="dorm-utilities"
+                    checked={settings.dorm_utilities_enabled}
+                    onCheckedChange={(v) => setSettings(prev => ({ ...prev, dorm_utilities_enabled: v }))}
+                  />
                 </div>
               )}
             </Card>

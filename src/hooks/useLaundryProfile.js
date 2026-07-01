@@ -18,6 +18,7 @@ export function useLaundryProfile() {
   const [profile, setProfile] = useState("private");
   const [twoPerson, setTwoPerson] = useState(false);
   const [roommateCount, setRoommateCount] = useState(0);
+  const [dormUtilitiesEnabled, setDormUtilitiesEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,16 +30,21 @@ export function useLaundryProfile() {
       setProfile(resolved);
       setTwoPerson(u?.two_person_household || false);
       setRoommateCount(u?.roommate_count || 0);
+      setDormUtilitiesEnabled(u?.dorm_utilities_enabled || false);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  const isDorm = profile === "dorm";
 
   return {
     profile,
     twoPerson,
     roommateCount,
+    dormUtilitiesEnabled,
     isPrivate: profile === "private",
-    isDorm: profile === "dorm",
+    isDorm,
     isFamily: profile === "family",
+    showDormUtilities: isDorm || dormUtilitiesEnabled,
     loading,
   };
 }
