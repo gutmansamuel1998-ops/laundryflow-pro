@@ -23,22 +23,32 @@ const LOAD_COLORS = {
   mixed: "bg-amber-100 text-amber-700",
 };
 
-export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd, onUpdate, onDelete }) {
+export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd, onUpdate, onDelete, isFamily = false, householdMembers = [], householdCategoryOptions = [] }) {
   const [label, setLabel] = useState("");
   const [recurring, setRecurring] = useState("none");
   const [loadTypes, setLoadTypes] = useState([]);
   const [reminder, setReminder] = useState(true);
   const [adding, setAdding] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [householdCategory, setHouseholdCategory] = useState("");
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const toggleLoad = (val) =>
     setLoadTypes((prev) => prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]);
 
+  const toggleMember = (name) =>
+    setSelectedMembers((prev) => prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]);
+
   const handleAdd = () => {
     if (loadTypes.length === 0) { setSaveError("Please select at least one load type."); return; }
     setSaveError("");
-    onAdd({ date: format(day, "yyyy-MM-dd"), label, recurring, load_types: loadTypes, reminder_enabled: reminder, completed: false });
+    onAdd({
+      date: format(day, "yyyy-MM-dd"), label, recurring, load_types: loadTypes, reminder_enabled: reminder, completed: false,
+      ...(householdCategory ? { household_category: householdCategory } : {}),
+      ...(selectedMembers.length > 0 ? { household_members: selectedMembers } : {}),
+    });
     setLabel(""); setRecurring("none"); setLoadTypes([]); setReminder(true); setAdding(false);
+    setHouseholdCategory(""); setSelectedMembers([]);
   };
 
   if (!day) return null;
@@ -77,6 +87,12 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
                   {s.recurring !== "none" && (
                     <Badge variant="outline" className="text-[10px] px-1.5 py-0">↻ {s.recurring}</Badge>
                   )}
+                  {s.household_category && (
+                    <Badge className="text-[10px] px-1.5 py-0 bg-violet-100 text-violet-700">{s.household_category}</Badge>
+                  )}
+                  {(s.household_members || []).map((m) => (
+                    <Badge key={m} variant="outline" className="text-[10px] px-1.5 py-0">👤 {m}</Badge>
+                  ))}
                   {s.reminder_enabled
                     ? <Bell className="w-3 h-3 text-primary ml-1 mt-0.5" />
                     : <BellOff className="w-3 h-3 text-muted-foreground ml-1 mt-0.5" />}
@@ -153,6 +169,38 @@ export default function DayScheduleDrawer({ day, schedules, open, onClose, onAdd
                 {reminder ? <Bell className="w-4 h-4 text-primary" aria-hidden="true" /> : <BellOff className="w-4 h-4" aria-hidden="true" />}
               </Button>
             </div>
+            {isFamily && householdCategoryOptions.length > 0 && (
+              <div>
+                <label htmlFor="household-category" className="text-xs text-muted-foreground mb-1 block">Household category (optional)</label>
+                <Select value={householdCategory} onValueChange={setHouseholdCategory}>
+                  <SelectTrigger id="household-category" className="rounded-xl">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {householdCategoryOptions.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {isFamily && householdMembers.length > 0 && (
+              <div>
+                <p id="drawer-members-label" className="text-xs text-muted-foreground mb-1.5">Whose laundry? (optional)</p>
+                <div role="group" aria-labelledby="drawer-members-label" className="flex flex-wrap gap-1.5">
+                  {householdMembers.map((name) => (
+                    <button
+                      key={name}
+                      onClick={() => toggleMember(name)}
+                      aria-pressed={selectedMembers.includes(name)}
+                      className={`px-3 py-1 rounded-lg text-xs transition-colors ${selectedMembers.includes(name) ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/70"}`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {saveError && (
               <p id="drawer-save-error" role="alert" className="text-xs text-destructive flex items-center gap-1">
                 <span aria-hidden="true">⚠</span> {saveError}

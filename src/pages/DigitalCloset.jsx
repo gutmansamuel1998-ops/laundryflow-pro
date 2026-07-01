@@ -63,6 +63,13 @@ export default function DigitalCloset() {
     queryFn: () => base44.entities.ClothingItem.list("-created_date"),
   });
 
+  const { data: householdMembers = [] } = useQuery({
+    queryKey: ["household-members"],
+    queryFn: () => base44.entities.HouseholdMember.list("-created_date"),
+    enabled: profile === "family",
+    select: (data) => data.map((m) => m.name),
+  });
+
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.ClothingItem.create(data),
     onSuccess: (newItem) => {
@@ -204,6 +211,7 @@ export default function DigitalCloset() {
                   isPremium={isPremium}
                   profile={profile}
                   twoPerson={twoPerson}
+                  householdMembers={householdMembers}
                 />
               </Card>
             </motion.div>
@@ -460,6 +468,7 @@ export default function DigitalCloset() {
                       isPremium={isPremium}
                       profile={profile}
                       twoPerson={twoPerson}
+                      householdMembers={householdMembers}
                       onClose={() => setExpandedItem(null)}
                       onEdit={(id) => setEditingItem(id)}
                       onSave={(data) => editMutation.mutate({ id: item.id, data })}

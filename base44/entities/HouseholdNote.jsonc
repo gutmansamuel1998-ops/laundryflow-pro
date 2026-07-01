@@ -1,0 +1,13 @@
+{
+  "name": "HouseholdNote",
+  "type": "object",
+  "properties": {
+    "text": {
+      "type": "string",
+      "description": "A lightweight household-wide laundry note (e.g. \"Emma's uniforms should always be air dried.\")"
+    }
+  },
+  "required": [
+    "text"
+  ]
+}

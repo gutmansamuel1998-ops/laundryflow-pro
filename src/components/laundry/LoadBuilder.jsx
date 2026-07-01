@@ -35,12 +35,16 @@ const firstWashTips = [
 const tempLabels = { cold: "Cold water", warm: "Warm water", hot: "Hot water" };
 const dryLabels = { tumble_low: "Tumble dry low", tumble_medium: "Tumble dry medium", hang_dry: "Hang dry" };
 
-export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, preselectedType }) {
+export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, preselectedType, householdMembers = [] }) {
   const [selected, setSelected] = useState(preselectedType || null);
   const [step, setStep] = useState(preselectedType ? 2 : 1);
   const [showDelicates, setShowDelicates] = useState(false);
   const [showSelectionError, setShowSelectionError] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState([]);
   const { recommendation, isLoading: recLoading } = useLoadRecommendation();
+
+  const toggleMember = (name) =>
+    setSelectedMembers((prev) => prev.includes(name) ? prev.filter((m) => m !== name) : [...prev, name]);
 
   // Accept the AI suggestion: pre-select it and jump to step 2 with AI timers
   const handleAcceptSuggestion = (rec) => {
@@ -69,6 +73,7 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
       dry_guidance: isFirstWash ? "hang_dry" : (suggestedTimers?.dryMethod || guidance.dry),
       wash_timer_minutes: isFirstWash ? 25 : (suggestedTimers?.wash || 35),
       dry_timer_minutes: isFirstWash ? 45 : (suggestedTimers?.dry || 45),
+      ...(selectedMembers.length > 0 ? { household_members: selectedMembers } : {}),
     });
   };
 
@@ -216,6 +221,27 @@ export default function LoadBuilder({ onCreateLoad, onCancel, isFirstLoad, prese
             <p className="text-xs text-muted-foreground mb-6">
               You can adjust timers once you start the load.
             </p>
+
+            {householdMembers.length > 0 && (
+              <div className="mb-6">
+                <p id="load-members-label" className="text-xs text-muted-foreground mb-1.5">Whose laundry is this? (optional)</p>
+                <div role="group" aria-labelledby="load-members-label" className="flex flex-wrap gap-1.5">
+                  {householdMembers.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => toggleMember(name)}
+                      aria-pressed={selectedMembers.includes(name)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${
+                        selectedMembers.includes(name) ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border text-foreground"
+                      }`}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {selected === "first_wash" && (
               <div className="rounded-2xl bg-amber-50 border border-amber-300 p-4 mb-6 space-y-2">

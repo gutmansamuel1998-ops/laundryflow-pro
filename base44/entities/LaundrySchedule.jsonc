@@ -45,6 +45,17 @@
       },
       "description": "Types of loads planned for this day"
     },
+    "household_category": {
+      "type": "string",
+      "description": "Optional recurring household laundry category (e.g. School Uniforms, Bedding) \u2014 Family profile only"
+    },
+    "household_members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional household member names this session is for (Family profile only)"
+    },
     "completed": {
       "type": "boolean",
       "default": false,

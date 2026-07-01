@@ -49,6 +49,13 @@ export default function Home() {
     queryFn: () => base44.entities.Load.filter({ status: "active" }, "-created_date", 3),
   });
 
+  const { data: householdMembers = [] } = useQuery({
+    queryKey: ["household-members"],
+    queryFn: () => base44.entities.HouseholdMember.list("-created_date"),
+    enabled: user?.laundry_profile === "family",
+    select: (data) => data.map((m) => m.name),
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Load.create(data),
     onSuccess: (newLoad) => {
@@ -121,6 +128,7 @@ export default function Home() {
                 onCancel={() => { setPreselectedLoadType(null); setShowBuilder(false); }}
                 isFirstLoad={activeLoads.length === 0}
                 preselectedType={preselectedLoadType}
+                householdMembers={householdMembers}
               />
             </motion.div>
           ) : (

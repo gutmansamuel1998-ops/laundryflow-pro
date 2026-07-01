@@ -1,8 +1,9 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock } from "lucide-react";
+import { BookOpen, Calendar, ScanLine, ShoppingCart, Wind, Shirt, Droplets, Zap, BarChart2, Brain, CalendarClock, Lock, Users } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
+import { useLaundryProfile } from "@/hooks/useLaundryProfile";
 
 const FREE_LINKS = [
   { page: "FabricCareLibrary", label: "Fabric Care Library", icon: BookOpen,     color: "bg-blue-50 text-blue-600" },
@@ -26,12 +27,24 @@ const PREMIUM_LINKS = [
 
 export default function QuickLinksSection() {
   const { isPremium } = usePremium();
+  const { isFamily } = useLaundryProfile();
   const navigate = useNavigate();
 
   return (
     <section className="mt-8 mb-4">
       <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">More Features</h2>
       <div className="grid grid-cols-2 gap-3">
+        {isFamily && (
+          <Link
+            to={createPageUrl("HouseholdManagement")}
+            className="flex items-center gap-3 bg-card border border-border rounded-2xl px-4 py-3.5 min-h-[56px] hover:border-primary/30 hover:shadow-sm transition-all"
+          >
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-violet-50 text-violet-600" aria-hidden="true">
+              <Users className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium text-foreground leading-tight">Household</span>
+          </Link>
+        )}
         {FREE_LINKS.map(({ page, label, icon: Icon, color }) => (
           <Link
             key={page}

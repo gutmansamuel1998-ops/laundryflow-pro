@@ -17,6 +17,7 @@ export default function ClosetItemDetail({
   isPremium,
   profile,
   twoPerson,
+  householdMembers = [],
   onClose,
   onEdit,
   onSave,
@@ -70,6 +71,7 @@ export default function ClosetItemDetail({
             isPremium={isPremium}
             profile={profile}
             twoPerson={twoPerson}
+            householdMembers={householdMembers}
           />
         ) : (
           <>

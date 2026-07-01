@@ -1,0 +1,33 @@
+{
+  "name": "HouseholdMember",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Household member's name or label (e.g. Emma, Dad, Mom)"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Optional photo or avatar for this household member"
+    },
+    "clothing_notes": {
+      "type": "string",
+      "description": "Optional notes about this member's clothing (e.g. sizes, styles)"
+    },
+    "preferred_laundry_notes": {
+      "type": "string",
+      "description": "Optional preferred laundry handling notes for this member"
+    },
+    "favorite_detergent": {
+      "type": "string",
+      "description": "Optional favorite or required detergent for this member's laundry"
+    },
+    "special_care_reminders": {
+      "type": "string",
+      "description": "Optional special care reminders (e.g. allergies, delicate items)"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

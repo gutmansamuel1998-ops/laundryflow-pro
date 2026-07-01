@@ -1,0 +1,17 @@
+{
+  "name": "HouseholdCategory",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Custom recurring household laundry category name (e.g. Baby Clothes, Pet Bedding)"
+    },
+    "emoji": {
+      "type": "string",
+      "description": "Optional emoji icon for this category"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

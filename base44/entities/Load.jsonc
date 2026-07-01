@@ -73,6 +73,13 @@
       "type": "string",
       "description": "Optional notes about this load"
     },
+    "household_members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional household member names this load is for (Family profile only)"
+    },
     "completed_at": {
       "type": "string",
       "format": "date-time",

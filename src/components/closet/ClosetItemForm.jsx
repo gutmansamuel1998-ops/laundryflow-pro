@@ -33,6 +33,7 @@ export default function ClosetItemForm({
   isPremium,
   profile = "private",
   twoPerson = false,
+  householdMembers = [],
   title = "New Garment",
   saveLabel = "Save Garment",
 }) {
@@ -190,6 +191,20 @@ export default function ClosetItemForm({
           <label htmlFor="assigned-to" className="text-xs font-medium text-foreground mb-0.5 block">
             {ownerLabel} <span className="text-muted-foreground font-normal">(optional)</span>
           </label>
+          {profile === "family" && householdMembers.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-1.5">
+              {householdMembers.map((name) => (
+                <TagButton
+                  key={name}
+                  active={form.assigned_to === name}
+                  onClick={() => set("assigned_to", form.assigned_to === name ? "" : name)}
+                  aria-label={name}
+                >
+                  {name}
+                </TagButton>
+              ))}
+            </div>
+          )}
           <Input
             id="assigned-to"
             placeholder={profile === "family" ? "e.g. Alex, Emma, Mom, Dad" : "e.g. Person 1, Person 2"}

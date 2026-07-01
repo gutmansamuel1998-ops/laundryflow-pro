@@ -11,6 +11,8 @@ import CalendarGrid from "@/components/calendar/CalendarGrid";
 import FrequencyHeatmap from "@/components/calendar/FrequencyHeatmap";
 import DayScheduleDrawer from "@/components/calendar/DayScheduleDrawer";
 import { isBefore, startOfDay } from "date-fns";
+import { useLaundryProfile } from "@/hooks/useLaundryProfile";
+import { DEFAULT_HOUSEHOLD_CATEGORIES } from "@/components/household/HouseholdConstants";
 
 export default function LaundryCalendar() {
   const navigate = useNavigate();
@@ -19,10 +21,30 @@ export default function LaundryCalendar() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const { isFamily } = useLaundryProfile();
+
   const { data: schedules = [] } = useQuery({
     queryKey: ["laundry-schedules"],
     queryFn: () => base44.entities.LaundrySchedule.list("-date", 200),
   });
+
+  const { data: householdMembers = [] } = useQuery({
+    queryKey: ["household-members"],
+    queryFn: () => base44.entities.HouseholdMember.list("-created_date"),
+    enabled: isFamily,
+    select: (data) => data.map((m) => m.name),
+  });
+
+  const { data: customCategories = [] } = useQuery({
+    queryKey: ["household-categories"],
+    queryFn: () => base44.entities.HouseholdCategory.list("-created_date"),
+    enabled: isFamily,
+    select: (data) => data.map((c) => c.name),
+  });
+
+  const householdCategoryOptions = isFamily
+    ? [...DEFAULT_HOUSEHOLD_CATEGORIES.map((c) => c.name), ...customCategories]
+    : [];
 
   // Expand recurring schedules into virtual entries for the current month
   const allSchedules = useMemo(() => {
@@ -162,6 +184,9 @@ export default function LaundryCalendar() {
         onAdd={(data) => createMutation.mutate(data)}
         onUpdate={(id, data) => updateMutation.mutate({ id, data })}
         onDelete={(id) => deleteMutation.mutate(id)}
+        isFamily={isFamily}
+        householdMembers={householdMembers}
+        householdCategoryOptions={householdCategoryOptions}
       />
     </div>
   );
