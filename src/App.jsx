@@ -37,6 +37,7 @@ import IroningDashboard from '@/pages/IroningDashboard';
 import HouseholdManagement from '@/pages/HouseholdManagement';
 import DormUtilities from '@/pages/DormUtilities';
 import LaundryFunds from '@/pages/LaundryFunds';
+import Bubbles from '@/pages/Bubbles';
 import PremiumGuard from '@/components/premium/PremiumGuard';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -242,6 +243,11 @@ const AuthenticatedApp = () => {
       <Route path="/LaundryFunds" element={
         <LayoutWrapper currentPageName="LaundryFunds">
           <LaundryFunds />
+        </LayoutWrapper>
+      } />
+      <Route path="/Bubbles" element={
+        <LayoutWrapper currentPageName="Bubbles">
+          <Bubbles />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />

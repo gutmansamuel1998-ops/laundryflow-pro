@@ -13,6 +13,7 @@ const navItems = [
   { page: "Loads", label: "Loads", icon: Layers },
   { page: "LaundryMode", label: "Laundry", icon: Play },
   { page: "Supplies", label: "Supplies", icon: Package },
+  { page: "Bubbles", label: "Bubbles", emoji: "🫧" },
   { page: "Settings", label: "Settings", icon: Settings },
 ];
 
