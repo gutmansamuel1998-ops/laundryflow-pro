@@ -90,7 +90,7 @@ export default function SockMatch({ paused = false, pausedReason = "" }) {
   const [faceUp, setFaceUp] = useState([]);
   const [announce, setAnnounce] = useState("");
   const [feedback, setFeedback] = useState("");
-  const { cards, moves, cleared, score, best, streak, round, lastRound } = state;
+  const { cards, moves, cleared, score, best, streak, lastRound } = state;
   const boardDone = cards.every((c) => c.matched);
 
   // Latest values for effects and delayed callbacks that must not go stale.
@@ -193,7 +193,6 @@ export default function SockMatch({ paused = false, pausedReason = "" }) {
     }, 1200);
     return () => clearTimeout(t);
     // playEvent only reads refs, so it is safe to leave out of the dependency list.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faceUp, paused]);
 
   const flip = (i) => {
