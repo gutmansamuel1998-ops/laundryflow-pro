@@ -11,6 +11,8 @@ import {
 } from "@/lib/notify";
 import { BigButton, MinutesStepper, OptionGroup, Panel, ToggleRow } from "@/components/session/ui";
 import CarePanel from "@/components/session/CarePanel";
+import { gameAudio, TIMER_VOLUME } from "@/lib/gameAudio";
+import { sensoryProfile, soundForEvent } from "@/lib/gameRewards";
 
 const REMINDER_OPTIONS = [
   { value: "off", label: "Off", hint: "No pop-up reminders. Messages still show inside the app." },
@@ -60,6 +62,7 @@ export default function SettingsCare() {
   const prefs = usePrefs();
   const [permission, setPermission] = useState(getPermission());
   const [testResult, setTestResult] = useState("");
+  const [audioMessage, setAudioMessage] = useState("");
 
   // Mirror accessibility choices onto the existing account fields so the earlier Settings page
   // shows the same values. Best effort: the local setting always applies immediately.
@@ -95,6 +98,34 @@ export default function SettingsCare() {
     );
     setTestResult(ok ? "Test sent. Look for it in your notifications." : "Couldn't show a notification. Check your browser's site settings.");
   };
+
+  // Sound tests run from a button press, which is what lets the browser start audio.
+  const testAudio = async (kind) => {
+    const status = await gameAudio.unlock();
+    if (status === "unsupported") {
+      setAudioMessage("This browser can't play sounds here. Everything still works, silently.");
+      return;
+    }
+    if (status !== "ready") {
+      setAudioMessage("Your browser is blocking sound. Try the button again, or check this site's sound settings.");
+      return;
+    }
+    if (kind === "timer") {
+      gameAudio.play("timer_done", { channel: "timer", volume: TIMER_VOLUME });
+      setAudioMessage("Played the timer-finished alert. If you didn't hear it, check your device volume and silent mode.");
+      return;
+    }
+    const profile = sensoryProfile(prefs, false);
+    const snd = soundForEvent("round", profile);
+    if (!snd) {
+      setAudioMessage("Game sound is off or the volume is at 0, so nothing played.");
+      return;
+    }
+    gameAudio.play(snd.name, { streak: snd.streak, volume: profile.volume, channel: "game" });
+    setAudioMessage("Played a game sound. If you didn't hear it, check your device volume and silent mode.");
+  };
+
+  const volumePercent = Math.round((Number.isFinite(prefs.gameVolume) ? prefs.gameVolume : 0.5) * 100);
 
   const notificationsOn = prefs.notificationsEnabled && permission === "granted";
   const blocked = permission === "denied" || permission === "unsupported";
@@ -216,6 +247,61 @@ export default function SettingsCare() {
           checked={prefs.showGame}
           onChange={(v) => setPrefs({ showGame: v })}
         />
+      </Panel>
+
+      {/* Game and sound: everything here is optional. Sound never starts until you tap or press a key. */}
+      <Panel aria-labelledby="sound-heading" className="space-y-5">
+        <h2 id="sound-heading" className="text-xl font-semibold">
+          Game and sound
+        </h2>
+        <ToggleRow
+          id="game-sound"
+          label="Game sounds"
+          hint="Soft sounds when you play Sock Match. The game works the same with sound off."
+          checked={prefs.gameSound}
+          onChange={(v) => setPrefs({ gameSound: v })}
+        />
+        <label className="block text-base">
+          <span className="font-medium">Game volume: {volumePercent}%</span>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={10}
+            value={volumePercent}
+            disabled={!prefs.gameSound}
+            aria-valuetext={`${volumePercent} percent`}
+            onChange={(e) => setPrefs({ gameVolume: Number(e.target.value) / 100 })}
+            className="mt-2 block h-11 w-full"
+          />
+        </label>
+        <ToggleRow
+          id="reduced-sensory"
+          label="Calmer game"
+          hint="Quieter, fewer sounds, and no confetti or card movement."
+          checked={prefs.reducedSensory}
+          onChange={(v) => setPrefs({ reducedSensory: v })}
+        />
+        <ToggleRow
+          id="timer-sound"
+          label="Timer alert sounds"
+          hint="A short tone at 5 minutes left, 1 minute left, and when a timer ends. Lower and longer than game sounds, so you can tell them apart. Needs this page open, and you must have tapped once since opening it."
+          checked={prefs.timerSound}
+          onChange={(v) => setPrefs({ timerSound: v })}
+        />
+        <div className="space-y-3">
+          <BigButton variant="secondary" onClick={() => testAudio("game")}>
+            Test game sound
+          </BigButton>
+          <BigButton variant="secondary" onClick={() => testAudio("timer")}>
+            Test timer alert
+          </BigButton>
+          {audioMessage && (
+            <p role="status" className="text-base">
+              {audioMessage}
+            </p>
+          )}
+        </div>
       </Panel>
 
       {/* Care: a secondary link to the same shared guide. The primary places are Home (before you
