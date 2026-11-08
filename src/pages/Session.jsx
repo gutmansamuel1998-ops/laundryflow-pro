@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useLaundrySession, useCompletedCount } from "@/hooks/useLaundrySession";
 import { useNow } from "@/hooks/useNow";
-import { usePrefs, animationsEnabled } from "@/lib/sessionPrefs";
+import { usePrefs, setPrefs, animationsEnabled } from "@/lib/sessionPrefs";
 import {
   DEFAULTS,
   NEXT_ACTION,
@@ -252,10 +252,12 @@ export default function Session() {
             </div>
             <BigButton
               disabled={pending}
-              onClick={() => act(async () => {
-                await actions.startDry(dryMinutes, airDry);
-                if (!airDry) { /* remember the dryer length for next time */ }
-              })}
+              onClick={() =>
+                act(async () => {
+                  await actions.startDry(dryMinutes, airDry);
+                  if (!airDry) setPrefs({ defaultDryMinutes: dryMinutes }); // remember for next time
+                })
+              }
             >
               {airDry ? "Start air-dry timer" : "I started my dryer"}
             </BigButton>
@@ -311,7 +313,7 @@ export default function Session() {
           >
             {gameOpen ? "Hide the game" : "Play Sock Match"}
           </BigButton>
-          <div id="game-area" className="mt-4" hidden={!gameOpen}>
+          <div id="game-area" className="mt-4">
             {gameOpen && <SockMatch paused={gamePaused} pausedReason={GAME_PAUSE_REASON[phase] || ""} />}
           </div>
         </Panel>
