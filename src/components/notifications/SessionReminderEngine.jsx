@@ -4,7 +4,7 @@ import { useNow } from "@/hooks/useNow";
 import { usePrefs } from "@/lib/sessionPrefs";
 import { getDueEvents } from "@/lib/laundrySession";
 import { readFired, writeFired } from "@/lib/reminderStore";
-import { showLaundryNotification } from "@/lib/notify";
+import { ensureServiceWorker, showLaundryNotification } from "@/lib/notify";
 
 // Mounted once in the Layout so reminders keep working on every page (and while the tab is in
 // the background). It only ever shows a notification. It never changes the laundry state.
@@ -13,6 +13,11 @@ export default function SessionReminderEngine({ currentPageName }) {
   const prefs = usePrefs();
   const timed = !!load && (load.current_state === "washing" || load.current_state === "drying");
   const now = useNow(timed);
+
+  // Notifications on mobile need the service worker registered before the first reminder.
+  useEffect(() => {
+    if (prefs.notificationsEnabled) ensureServiceWorker();
+  }, [prefs.notificationsEnabled]);
 
   useEffect(() => {
     if (!timed) return;
