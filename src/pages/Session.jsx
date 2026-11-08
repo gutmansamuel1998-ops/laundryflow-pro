@@ -106,7 +106,8 @@ export default function Session() {
   const prefs = usePrefs();
   const count = useCompletedCount();
   const timedStage = !!load && (load.current_state === "washing" || load.current_state === "drying");
-  const now = useNow(timedStage);
+  const endMs = timedStage ? getTimer(load, 0)?.endMs : undefined;
+  const now = useNow(timedStage, 1000, endMs); // also wakes exactly when the timer ends, so the game pauses at once
 
   const phase = getPhase(load, now);
   const timer = getTimer(load, now);
