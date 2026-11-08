@@ -19,6 +19,8 @@ import BubblesCard from "@/components/session/BubblesCard";
 import SockMatch from "@/components/session/SockMatch";
 import StartPanel from "@/components/session/StartPanel";
 import AdSlot from "@/components/session/AdSlot";
+import CarePanel from "@/components/session/CarePanel";
+import { careViewForPhase } from "@/lib/careContent";
 import { BigButton, Chip, MinutesStepper, Panel, ToggleRow } from "@/components/session/ui";
 
 const GAME_PAUSE_REASON = {
@@ -110,6 +112,7 @@ export default function Session() {
   const timer = getTimer(load, now);
   const info = PHASE_INFO[phase] || PHASE_INFO.none;
   const line = bubblesLine(phase, timer);
+  const care = careViewForPhase(phase); // optional, collapsed guidance for this stage (none at Put Away)
 
   const [justCompleted, setJustCompleted] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
@@ -297,6 +300,10 @@ export default function Session() {
           </>
         )}
       </section>
+
+      {/* Care guidance for this stage: offered, never imposed. Collapsed by default; keyed by view so a
+          new stage starts collapsed. Reads no timer state, so opening it cannot affect the countdown. */}
+      {care && <CarePanel key={care.view} view={care.view} label={care.label} />}
 
       {/* ── Optional game: never required, pauses when a timer ends ───────────── */}
       {waiting && prefs.showGame && (
