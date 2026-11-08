@@ -7,6 +7,7 @@ import { NEXT_ACTION, PHASE_INFO, getPhase, getTimer } from "@/lib/laundrySessio
 import SessionTimer from "@/components/session/SessionTimer";
 import StartPanel from "@/components/session/StartPanel";
 import { BigButton, Panel } from "@/components/session/ui";
+import CarePanel from "@/components/session/CarePanel";
 
 // V1 Home: start laundry, or resume the current session with its next action and timer.
 // The previous (feature-heavy) Home is preserved at /LegacyHome.
@@ -52,6 +53,9 @@ export default function Home() {
           <StartPanel onStarted={goToSession} />
         </Panel>
       )}
+
+      {/* Available before (and without) starting a load. Collapsed so it never competes with Start. */}
+      <CarePanel view="all" label="Laundry Care Guide" />
 
       {count > 0 && !running && (
         <p className="text-center text-base text-muted-foreground">
