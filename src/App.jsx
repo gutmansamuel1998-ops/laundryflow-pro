@@ -39,6 +39,9 @@ import DormUtilities from '@/pages/DormUtilities';
 import LaundryFunds from '@/pages/LaundryFunds';
 import Bubbles from '@/pages/Bubbles';
 import PremiumGuard from '@/components/premium/PremiumGuard';
+import Session from '@/pages/Session';
+import SettingsCare from '@/pages/SettingsCare';
+import HomeLegacy from '@/legacy/HomeLegacy';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -248,6 +251,22 @@ const AuthenticatedApp = () => {
       <Route path="/Bubbles" element={
         <LayoutWrapper currentPageName="Bubbles">
           <Bubbles />
+        </LayoutWrapper>
+      } />
+      <Route path="/Session" element={
+        <LayoutWrapper currentPageName="Session">
+          <Session />
+        </LayoutWrapper>
+      } />
+      <Route path="/SettingsCare" element={
+        <LayoutWrapper currentPageName="SettingsCare">
+          <SettingsCare />
+        </LayoutWrapper>
+      } />
+      {/* Previous (pre-V1) home screen, preserved and reachable from Settings & Care > Earlier features */}
+      <Route path="/LegacyHome" element={
+        <LayoutWrapper currentPageName="LegacyHome">
+          <HomeLegacy />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
