@@ -15,6 +15,10 @@ export const DEFAULT_PREFS = {
   textSize: "normal", // small | normal | large | xlarge
   highContrast: false,
   dyslexiaFont: false,
+  gameSound: true, // Sock Match sound effects (only ever play after a tap/key press)
+  gameVolume: 0.5, // 0 to 1, applies to game sounds
+  timerSound: true, // short tones for the 5-minute, 1-minute and timer-finished alerts
+  reducedSensory: false, // "Calmer game": quieter, fewer sounds, no confetti or card pop
 };
 
 const TEXT_SIZES = { small: "87.5%", normal: "100%", large: "125%", xlarge: "200%" };
