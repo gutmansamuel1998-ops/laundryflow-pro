@@ -10,7 +10,7 @@ import {
   showLaundryNotification,
 } from "@/lib/notify";
 import { BigButton, MinutesStepper, OptionGroup, Panel, ToggleRow } from "@/components/session/ui";
-import CareGuide from "@/components/session/CareGuide";
+import CarePanel from "@/components/session/CarePanel";
 
 const REMINDER_OPTIONS = [
   { value: "off", label: "Off", hint: "No pop-up reminders. Messages still show inside the app." },
@@ -218,13 +218,17 @@ export default function SettingsCare() {
         />
       </Panel>
 
-      {/* Care */}
-      <Panel aria-labelledby="care-heading">
-        <h2 id="care-heading" className="mb-4 text-xl font-semibold">
+      {/* Care: a secondary link to the same shared guide. The primary places are Home (before you
+          start) and each Laundry Session stage, so no one has to come here for care instructions. */}
+      <section aria-labelledby="care-heading" className="space-y-3">
+        <h2 id="care-heading" className="text-xl font-semibold">
           Care
         </h2>
-        <CareGuide />
-      </Panel>
+        <p className="text-sm text-muted-foreground">
+          This is the same guide you'll find on Home and during your laundry.
+        </p>
+        <CarePanel view="all" label="Laundry Care Guide" />
+      </section>
 
       {/* Earlier features: hidden from the menu, nothing deleted */}
       <details className="rounded-3xl border-2 border-border p-5">
