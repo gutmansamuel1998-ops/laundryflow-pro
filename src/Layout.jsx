@@ -2,32 +2,28 @@ import React, { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
-import NotificationPermissionBanner from "@/components/notifications/NotificationPermissionBanner";
-import LowSupplyNotifier from "@/components/notifications/LowSupplyNotifier";
+import SessionReminderEngine from "@/components/notifications/SessionReminderEngine";
 import { createPageUrl } from "@/utils";
-import { Home, Play, Layers, Settings, Package, Shirt } from "lucide-react";
+import { applyPrefsToDocument, hasSavedPrefs, seedPrefsFromUser } from "@/lib/sessionPrefs";
+import { Home, Play, Settings } from "lucide-react";
 
+// V1 navigation: three destinations only. The previous seven-item menu is preserved in
+// src/legacy/LayoutLegacy.jsx, and every earlier page still works at its own URL.
 const navItems = [
-  { page: "DigitalCloset", label: "My Closet", icon: Shirt, emoji: "👖" },
   { page: "Home", label: "Home", icon: Home },
-  { page: "Loads", label: "Loads", icon: Layers },
-  { page: "LaundryMode", label: "Laundry", icon: Play },
-  { page: "Supplies", label: "Supplies", icon: Package },
-  { page: "Bubbles", label: "Bubbles", emoji: "🫧" },
-  { page: "Settings", label: "Settings", icon: Settings },
+  { page: "Session", label: "Laundry Session", icon: Play },
+  { page: "SettingsCare", label: "Settings & Care", icon: Settings },
 ];
 
 export default function Layout({ children, currentPageName }) {
   useEffect(() => {
-    base44.auth.me().then((u) => {
-      const sizeMap = { small: "87.5%", normal: "100%", large: "125%", xlarge: "200%" };
-      document.documentElement.style.fontSize = sizeMap[u?.text_size] || "100%";
-      document.documentElement.classList.toggle("high-contrast", u?.high_contrast === true);
-      document.documentElement.classList.toggle("dyslexia-font", u?.dyslexia_font === true);
-    }).catch(() => {});
+    // Accessibility preferences apply instantly from this device. On a brand-new device,
+    // adopt the values already saved on the account (text size, contrast, font, motion).
+    applyPrefsToDocument();
+    if (!hasSavedPrefs()) {
+      base44.auth.me().then(seedPrefsFromUser).catch(() => {});
+    }
   }, []);
-  // Hide nav during onboarding-like flows or laundry mode
-  const hideNav = false;
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,39 +34,32 @@ export default function Layout({ children, currentPageName }) {
       >
         Skip to main content
       </a>
-      <NotificationPermissionBanner />
-      <LowSupplyNotifier />
-      <main id="main-content" className="pt-0">{children}</main>
+      <SessionReminderEngine currentPageName={currentPageName} />
+      <main id="main-content">{children}</main>
 
       <FeedbackModal />
-      {!hideNav && (
-        <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-border/50 z-50 safe-area-pb">
-          <div className="max-w-lg mx-auto flex items-center justify-around py-2 px-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentPageName === item.page;
-              return (
+      <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb">
+        <ul className="max-w-lg mx-auto flex items-stretch justify-around px-2 py-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentPageName === item.page;
+            return (
+              <li key={item.page} className="flex-1">
                 <Link
-                  key={item.page}
                   to={createPageUrl(item.page)}
-                  aria-label={item.label}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex flex-col items-center gap-0.5 px-3 py-2 min-h-[44px] min-w-[44px] rounded-xl transition-all ${
-                    isActive
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                  className={`flex flex-col items-center justify-center gap-1 min-h-[60px] rounded-xl px-2 py-2 text-center ${
+                    isActive ? "bg-secondary font-bold text-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {item.emoji
-                    ? <span className="text-lg leading-none" role="img" aria-hidden="true">{item.emoji}</span>
-                    : <Icon className="w-5 h-5" aria-hidden="true" strokeWidth={isActive ? 2.5 : 1.5} />}
-                  <span className="text-[10px] font-medium">{item.label}</span>
+                  <Icon className="w-6 h-6" aria-hidden="true" strokeWidth={isActive ? 2.5 : 1.75} />
+                  <span className="text-xs leading-tight">{item.label}</span>
                 </Link>
-              );
-            })}
-          </div>
-        </nav>
-      )}
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </div>
   );
 }
