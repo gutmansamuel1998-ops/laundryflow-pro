@@ -5,7 +5,7 @@ import React from "react";
 
 const stroke = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
 
-function Symbol({ children }) {
+function SymbolArt({ children }) {
   return (
     <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" focusable="false" {...stroke}>
       {children}
@@ -18,58 +18,58 @@ const SYMBOLS = [
     name: "Washing (tub)",
     meaning: "Machine washing is fine. A number is the highest water temperature in °C. A hand in the tub means hand wash only.",
     art: (
-      <Symbol>
+      <SymbolArt>
         <path d="M3 7h18l-2 12H5L3 7z" />
         <path d="M7 12c1.2-1 2.3-1 3.5 0s2.3 1 3.5 0 2.3-1 3 0" />
-      </Symbol>
+      </SymbolArt>
     ),
   },
   {
     name: "Bleaching (triangle)",
     meaning: "An empty triangle means bleach is allowed. Two diagonal lines inside means non-chlorine bleach only.",
     art: (
-      <Symbol>
+      <SymbolArt>
         <path d="M12 4l9 16H3L12 4z" />
-      </Symbol>
+      </SymbolArt>
     ),
   },
   {
     name: "Tumble drying (square with a circle)",
     meaning: "You can use the dryer. Dots show the heat: one dot is low, two dots is medium.",
     art: (
-      <Symbol>
+      <SymbolArt>
         <rect x="4" y="4" width="16" height="16" />
         <circle cx="12" cy="12" r="5" />
-      </Symbol>
+      </SymbolArt>
     ),
   },
   {
     name: "Ironing (iron)",
     meaning: "You can iron. Dots show the heat: one dot is cool, three dots is hot.",
     art: (
-      <Symbol>
+      <SymbolArt>
         <path d="M3 18h18v-1c0-4-3-8-8-8H7a2 2 0 0 0-2 2v7z" />
-      </Symbol>
+      </SymbolArt>
     ),
   },
   {
     name: "Dry cleaning (circle)",
     meaning: "Take it to a professional dry cleaner. A letter inside tells the cleaner which solvent to use.",
     art: (
-      <Symbol>
+      <SymbolArt>
         <circle cx="12" cy="12" r="8" />
-      </Symbol>
+      </SymbolArt>
     ),
   },
   {
     name: "Crossed out (any symbol with an X)",
     meaning: "Do NOT do that thing. For example, a crossed-out square with a circle means do not tumble dry.",
     art: (
-      <Symbol>
+      <SymbolArt>
         <rect x="4" y="4" width="16" height="16" />
         <circle cx="12" cy="12" r="5" />
         <path d="M3 3l18 18M21 3L3 21" />
-      </Symbol>
+      </SymbolArt>
     ),
   },
 ];
