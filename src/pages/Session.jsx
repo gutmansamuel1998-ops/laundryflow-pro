@@ -103,7 +103,7 @@ function Celebration({ count, onAgain }) {
 }
 
 export default function Session() {
-  const { load, isLoading, pending, error, clearError, actions } = useLaundrySession();
+  const { load, isLoading, pending, error, clearError, actions, readOnly, showingSaved } = useLaundrySession();
   const prefs = usePrefs();
   const count = useCompletedCount();
   const timedStage = !!load && (load.current_state === "washing" || load.current_state === "drying");
@@ -184,6 +184,15 @@ export default function Session() {
         </div>
         <StepList phase={phase} />
       </header>
+
+      {/* Native app only: with no connection the screen is view-only. Nothing is changed or queued. */}
+      {readOnly && (
+        <div role="status" className="rounded-2xl border-2 p-4 text-base">
+          {showingSaved
+            ? "You're offline. This is your last saved session. When the timer ends, check your laundry, then confirm the step once you're back online."
+            : "You're offline. You can look, but changes wait until you're back online."}
+        </div>
+      )}
 
       <SessionTimer phase={phase} timer={timer} />
 
