@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
+import { legacyAi } from "@/lib/legacyAi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

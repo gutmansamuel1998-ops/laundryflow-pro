@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
+import { legacyAi } from "@/lib/legacyAi";
 import { usePremium } from "@/hooks/usePremium";
 
 /**

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
+import { legacyAi } from "@/lib/legacyAi";
 import { usePremium } from "@/hooks/usePremium";
 import AIPremiumLock from "@/components/premium/AIPremiumLock";
 import { Card } from "@/components/ui/card";
