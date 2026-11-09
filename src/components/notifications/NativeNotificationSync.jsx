@@ -4,6 +4,7 @@ import { useLaundrySession } from "@/hooks/useLaundrySession";
 import { usePrefs } from "@/lib/sessionPrefs";
 import { nativeAdapter, nativeScheduler, isNativePlatform } from "@/lib/nativeNotifications";
 import { routeForTap } from "@/lib/notificationPlan";
+import { useAuth } from "@/lib/AuthContext";
 
 // Mounted once in the Layout. In the native app it keeps the operating system's scheduled reminders
 // equal to the current laundry session, and sends a tap on a reminder to the session screen.
@@ -19,6 +20,9 @@ export default function NativeNotificationSync() {
   const { load, known } = useLaundrySession();
   const prefs = usePrefs();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  // Reminders on a phone belong to one signed-in person; the scheduler cancels the previous person's when this changes.
+  const owner = user ? String(user.id || user.email || "") : "";
   const native = isNativePlatform();
   const [resumes, setResumes] = useState(0);
 
@@ -28,14 +32,16 @@ export default function NativeNotificationSync() {
     : "none";
 
   useEffect(() => {
-    if (!native || !known) return;
+    // Never schedule until we know who is signed in, so reminders can't be filed under the wrong person.
+    if (!native || !known || !owner) return;
     nativeScheduler.sync({
       load,
       prefs: { notificationsEnabled: prefs.notificationsEnabled, reminderLevel: prefs.reminderLevel },
       nowMs: Date.now(),
+      owner,
     });
     // `load` is represented by sessionKey so unrelated record changes do not trigger a rebuild.
-  }, [native, known, sessionKey, prefs.notificationsEnabled, prefs.reminderLevel, resumes]);
+  }, [native, known, owner, sessionKey, prefs.notificationsEnabled, prefs.reminderLevel, resumes]);
 
   // Coming back to the app: re-check that the schedule still exists (a restart or a system setting
   // change may have removed it), and notice a permission the user changed in system settings.
