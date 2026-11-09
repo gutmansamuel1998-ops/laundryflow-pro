@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { stripTypeScriptTypes } from "node:module";
+import { makeStore } from "./testSupport/usageStore.js";
 
 // Phase 3C containment tests. They run the real function source with mocked platform dependencies
 // (no network, no payments, no real records, no paid AI).
@@ -155,6 +156,7 @@ test("missing public key fails closed", async () => {
 
 // ---- Legacy AI containment ---------------------------------------------------------------------
 function legacy(name, ctx) {
+  const usage = makeStore();
   const entities = new Proxy({}, { get: () => new Proxy({}, { get: () => async () => [] }) });
   const Core = {
     InvokeLLM: async () => { ctx.llm++; return { product_name: null, suggested_unit: "loads", predictions: [], tasks: [], suggestions: [] }; },
@@ -165,7 +167,8 @@ function legacy(name, ctx) {
     integrations: { Core },
     entities,
     agents: { getConversation: async () => ({ created_by_id: "u1", agent_name: "bubbles" }) },
-    asServiceRole: { integrations: { Core }, entities },
+    // Phase 3F: model-calling functions reserve AI budget in AiUsage (service role); everything else stays a stub.
+    asServiceRole: { integrations: { Core }, entities: new Proxy(entities, { get: (t, k) => (k === "AiUsage" ? usage.api : t[k]) }) },
   };
   return load(name, { createClientFromRequest: () => client });
 }
