@@ -5,6 +5,12 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Phase 3C containment: the scheduled run (platform automation = app admin) is skipped so it
+    // cannot trigger paid AI usage; interactive callers must be Premium (mirrors the client PremiumGuard).
+    if (user.role === 'admin') {
+      return Response.json({ skipped: true, reason: 'legacy_ai_contained' }, { status: 200 });
+    }
+    if (!user.has_premium) return Response.json({ error: 'premium_required' }, { status: 403 });
 
     // Gather laundry history (last 90 days) and current supplies
     const ninetyDaysAgo = new Date();
