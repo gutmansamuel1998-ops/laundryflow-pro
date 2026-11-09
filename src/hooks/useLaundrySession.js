@@ -1,7 +1,11 @@
+import { useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import * as S from "@/lib/laundrySession";
 import { rearmAfterExtension } from "@/lib/reminderStore";
+import { isNativePlatform } from "@/lib/nativeNotifications";
+import { readSessionCache, writeSessionCache } from "@/lib/sessionCache";
+import { useOwnerKey } from "@/hooks/useOwnerKey";
 
 const SESSION_KEY = ["v1-session"];
 const COUNT_KEY = ["v1-completed-count"];
@@ -16,6 +20,8 @@ async function fetchCurrentLoad() {
 // triggered by an explicit user action; nothing here advances a stage because a timer ended.
 export function useLaundrySession() {
   const qc = useQueryClient();
+  const native = isNativePlatform();
+  const owner = useOwnerKey();
 
   const query = useQuery({
     queryKey: SESSION_KEY,
@@ -23,9 +29,31 @@ export function useLaundrySession() {
     staleTime: 10000,
     refetchInterval: 60000,
     refetchOnWindowFocus: true,
+    // Native app: give up quickly when there is no connection so the saved copy can be shown.
+    ...(native ? { retry: 1 } : {}),
   });
 
-  const load = query.data && query.data.status === "active" ? query.data : null;
+  // Native app only. Offline = the server cannot be reached right now (paused or failed).
+  const offline = native && (query.fetchStatus === "paused" || query.isError);
+  // The saved copy is only ever read for the same signed-in person, and only while offline with nothing in memory.
+  const cached = useMemo(
+    () => (offline && query.data === undefined && owner ? readSessionCache({ owner }) : null),
+    [offline, query.data, owner]
+  );
+
+  const serverLoad = query.data && query.data.status === "active" ? query.data : null;
+  const load = serverLoad || cached;
+  // While offline the laundry is view-only: no change can be queued and replayed later.
+  const readOnly = offline;
+  const showingSaved = !!cached && !serverLoad;
+
+  // Keep the saved copy equal to the last confirmed server answer (never an unconfirmed change).
+  const settled = query.isSuccess && !query.isFetching;
+  useEffect(() => {
+    if (!native || !owner || !settled) return;
+    writeSessionCache({ load: serverLoad, owner });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [native, owner, settled, query.dataUpdatedAt]);
 
   const update = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Load.update(id, data),
@@ -47,7 +75,7 @@ export function useLaundrySession() {
 
   const apply = (data) => update.mutateAsync({ id: load.id, data });
 
-  const actions = {
+  const liveActions = {
     // Start the washer timer. Reuses a never-started legacy load, otherwise creates a new one.
     startWash: async (minutes) => {
       const now = Date.now();
@@ -75,13 +103,22 @@ export function useLaundrySession() {
     },
   };
 
+  // Offline: every action refuses (the screen also disables its buttons), so nothing is queued.
+  const actions = readOnly
+    ? Object.fromEntries(
+        Object.keys(liveActions).map((name) => [name, async () => Promise.reject(new Error("offline"))])
+      )
+    : liveActions;
+
   return {
     load,
+    readOnly,
+    showingSaved,
     isLoading: query.isLoading,
     // True once the server has answered at least once. While false (loading, or offline at startup)
     // "no session" really means "unknown", so nothing may be cancelled on that basis.
     known: query.isSuccess,
-    pending: update.isPending || create.isPending,
+    pending: update.isPending || create.isPending || readOnly,
     error: update.error || create.error || null,
     clearError: () => {
       update.reset();
