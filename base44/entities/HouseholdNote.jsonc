@@ -1,13 +1,25 @@
 {
   "name": "HouseholdNote",
-  "type": "object",
   "properties": {
     "text": {
-      "type": "string",
-      "description": "A lightweight household-wide laundry note (e.g. \"Emma's uniforms should always be air dried.\")"
+      "description": "A lightweight household-wide laundry note (e.g. \"Emma's uniforms should always be air dried.\")",
+      "type": "string"
     }
   },
   "required": [
     "text"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
