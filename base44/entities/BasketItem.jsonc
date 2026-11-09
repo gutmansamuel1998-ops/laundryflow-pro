@@ -1,40 +1,52 @@
 {
   "name": "BasketItem",
-  "type": "object",
   "properties": {
-    "item_id": {
-      "type": "string",
-      "description": "ID of the ClothingItem"
-    },
-    "item_name": {
-      "type": "string",
-      "description": "Display name of the clothing item"
+    "description": {
+      "description": "Optional description or notes for this basket item (up to 1000 characters)",
+      "type": "string"
     },
     "item_category": {
-      "type": "string",
-      "description": "Category of the clothing item"
+      "description": "Category of the clothing item",
+      "type": "string"
+    },
+    "item_id": {
+      "description": "ID of the ClothingItem",
+      "type": "string"
     },
     "item_image_url": {
-      "type": "string",
-      "description": "Optional photo URL"
+      "description": "Optional photo URL",
+      "type": "string"
     },
-    "description": {
-      "type": "string",
-      "description": "Optional description or notes for this basket item (up to 1000 characters)"
+    "item_name": {
+      "description": "Display name of the clothing item",
+      "type": "string"
     },
     "status": {
-      "type": "string",
+      "default": "in_basket",
+      "description": "Current status of this basket entry",
       "enum": [
         "in_basket",
         "in_load",
         "removed"
       ],
-      "default": "in_basket",
-      "description": "Current status of this basket entry"
+      "type": "string"
     }
   },
   "required": [
     "item_name",
     "status"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
