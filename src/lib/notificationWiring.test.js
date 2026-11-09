@@ -51,7 +51,7 @@ test("the scheduler only ever asks about permission, never requests it", () => {
 });
 
 test("the sync component waits for server data before cancelling anything", () => {
-  assert.match(sync, /if \(!native \|\| !known\) return;/);
+  assert.match(sync, /if \(!native \|\| !known \|\| !owner\) return;/);
   assert.match(hook, /known: query\.isSuccess/);
 });
 
