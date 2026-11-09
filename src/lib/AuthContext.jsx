@@ -2,6 +2,12 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+import { currentRuntime } from '@/lib/runtimeConfig';
+import { completeNativeLogin, closeNativeBrowser, listenForAuthReturn, signOutNative } from '@/lib/nativeAuth';
+import { nativeScheduler } from '@/lib/nativeNotifications';
+
+// Web: unchanged. Native app: absolute addresses and browser-based sign-in (see src/lib/nativeAuth.js).
+const runtime = currentRuntime(appParams.appBaseUrl);
 
 const AuthContext = createContext();
 
@@ -17,6 +23,36 @@ export const AuthProvider = ({ children }) => {
     checkAppState();
   }, []);
 
+  // Native app only: the phone's browser hands the token back through a link that reopens the app.
+  useEffect(() => {
+    if (!runtime.native) return undefined;
+    let stop = () => {};
+    let cancelled = false;
+    listenForAuthReturn({
+      onUrl: (url) => {
+        const result = completeNativeLogin(url, {
+          setToken: (token) => {
+            base44.auth.setToken(token);
+            appParams.token = token;
+          },
+        });
+        if (result.ok) {
+          closeNativeBrowser();
+          checkAppState();
+        }
+      },
+    })
+      .then((off) => {
+        if (cancelled) off();
+        else stop = off;
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      stop();
+    };
+  }, []);
+
   const checkAppState = async () => {
     try {
       setIsLoadingPublicSettings(true);
@@ -25,7 +61,7 @@ export const AuthProvider = ({ children }) => {
       // First, check app public settings (with token if available)
       // This will tell us if auth is required, user not registered, etc.
       const appClient = createAxiosClient({
-        baseURL: `/api/apps/public`,
+        baseURL: runtime.publicApiBase,
         headers: {
           'X-App-Id': appParams.appId
         },
@@ -113,7 +149,13 @@ export const AuthProvider = ({ children }) => {
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
-    
+
+    if (runtime.native) {
+      // Cancel this person's scheduled reminders first so the next person on this phone never gets them.
+      signOutNative({ cancelNotifications: () => nativeScheduler.cancelAll() });
+      return;
+    }
+
     if (shouldRedirect) {
       // Use the SDK's logout method which handles token cleanup and redirect
       base44.auth.logout(window.location.href);
@@ -124,6 +166,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
+    // Native app: the sign-in screen starts browser sign-in when the person taps the button.
+    if (runtime.native) return;
     // Use the SDK's redirectToLogin method
     base44.auth.redirectToLogin(window.location.href);
   };
@@ -136,6 +180,7 @@ export const AuthProvider = ({ children }) => {
       isLoadingPublicSettings,
       authError,
       appPublicSettings,
+      isNative: runtime.native,
       logout,
       navigateToLogin,
       checkAppState
