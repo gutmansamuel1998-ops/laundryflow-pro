@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -267,36 +268,15 @@ export default function FabricCareLibrary() {
     if (!uploadedImage) return;
     setIsAnalyzing(true);
     setAiResult(null);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: uploadedImage });
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a fabric care expert. The user has uploaded a photo of a clothing care tag. 
-Analyze the image and identify ALL laundry care symbols visible on the tag.
-For each symbol found, explain what it means in simple terms and provide practical washing/care advice.
-Also provide an overall care summary for this garment.`,
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          overall_summary: { type: "string" },
-          symbols_found: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                symbol_name: { type: "string" },
-                category: { type: "string" },
-                meaning: { type: "string" },
-                practical_tip: { type: "string" }
-              }
-            }
-          },
-          care_warnings: { type: "array", items: { type: "string" } },
-          recommended_wash_temp: { type: "string" }
-        }
-      }
-    });
-    setAiResult(result);
-    setIsAnalyzing(false);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: uploadedImage });
+      const result = await legacyAi("fabric_tag_analyze", { file_url });
+      setAiResult(result);
+    } catch (err) {
+      setAiResult({ overall_summary: legacyAiMessage(err), symbols_found: [], care_warnings: [] });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const clearUpload = () => {

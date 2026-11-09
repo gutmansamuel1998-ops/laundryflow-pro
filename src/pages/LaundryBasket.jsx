@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -53,53 +54,14 @@ export default function LaundryBasket() {
     setLoading(true);
     setResult(null);
 
-    const garments = selectedItems.map(i => ({
-      name: i.name,
-      category: i.category,
-      fabric: i.fabric_composition || "unknown",
-      care: i.care_instructions || "not provided",
-      color: i.color,
-      is_new_garment: i.is_new_garment || false,
-    }));
-
-    const supplyList = supplies.map(s => s.name).join(", ") || "standard detergent";
-
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a laundry expert. The user is about to wash the following items together. Items marked "is_new_garment: true" are brand-new and may bleed color — factor this into your warnings and recommendations.
-
-Items:
-${JSON.stringify(garments, null, 2)}
-
-Available supplies: ${supplyList}
-
-Provide:
-1. Recommended water temperature (cold/warm/hot) and why
-2. Best wash cycle (delicate/normal/heavy)
-3. Detergent to use and how much (e.g. "1 scoop of regular detergent")
-4. Drying method (tumble low / tumble medium / air dry / hang dry) and time in minutes if tumble
-5. Any conflict warnings if items shouldn't be washed together (e.g. wool + hot water risk)
-6. Any fabric-specific tips
-
-Be concise and practical.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          water_temp: { type: "string" },
-          water_temp_reason: { type: "string" },
-          wash_cycle: { type: "string" },
-          detergent: { type: "string" },
-          detergent_amount: { type: "string" },
-          dry_method: { type: "string" },
-          dry_time_minutes: { type: "number" },
-          conflicts: { type: "array", items: { type: "string" } },
-          tips: { type: "array", items: { type: "string" } },
-          safe_to_wash_together: { type: "boolean" },
-        }
-      }
-    });
-
-    setResult(res);
-    setLoading(false);
+    try {
+      const res = await legacyAi("basket_plan", { item_ids: selectedItems.map(i => i.id) });
+      setResult(res);
+    } catch (err) {
+      setSelectionError(legacyAiMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const TEMP_COLOR = { cold: "bg-blue-100 text-blue-700", warm: "bg-amber-100 text-amber-700", hot: "bg-red-100 text-red-700" };

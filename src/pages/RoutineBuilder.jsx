@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,31 +42,10 @@ export default function RoutineBuilder() {
     setRoutine(null);
 
     try {
-      const prompt = `Create a simple weekly laundry routine suggestion for someone with:
-- Household size: ${inputs.household_size} person(s)
-- Target loads per week: ${inputs.loads_per_week}
-- Environment: ${inputs.environment === "shared" ? "shared laundry room" : "in-unit laundry"}
-
-Provide a suggested schedule with specific days and load types (e.g., "Monday — gym clothes", "Thursday — everyday clothes"). Keep it optional and flexible in tone. Format as a simple list.`;
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            routine: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  day: { type: "string" },
-                  load_type: { type: "string" }
-                }
-              }
-            },
-            note: { type: "string" }
-          }
-        }
+      const response = await legacyAi("routine_build", {
+        household_size: Number(inputs.household_size),
+        loads_per_week: Number(inputs.loads_per_week),
+        environment: inputs.environment,
       });
 
       setRoutine(response);

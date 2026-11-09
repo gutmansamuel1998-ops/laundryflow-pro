@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,28 +47,7 @@ export default function TagScanner() {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setImageUrl(file_url);
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are an expert clothing care analyst. Analyze this clothing care tag image and extract every care symbol/instruction visible. For each instruction, provide a plain-English description (e.g. 'Do not bleach', 'Tumble dry on low heat', 'Hand wash in cold water'). Categorize each instruction. If the image is unclear, do your best and note any uncertainty.`,
-        file_urls: [file_url],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            instructions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  category: { type: "string", enum: ["washing", "drying", "ironing", "bleaching", "dry_cleaning", "general"] },
-                  instruction: { type: "string" },
-                  is_warning: { type: "boolean" }
-                }
-              }
-            },
-            summary: { type: "string" },
-            confidence: { type: "string", enum: ["high", "medium", "low"] }
-          }
-        }
-      });
+      const response = await legacyAi("tag_scan", { file_url });
 
       setResult(response);
     } catch {

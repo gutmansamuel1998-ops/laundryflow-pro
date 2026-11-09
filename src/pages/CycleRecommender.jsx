@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,39 +44,8 @@ export default function CycleRecommender() {
     setRecommendation(null);
     setError(null);
 
-    const prompt = `You are a laundry appliance expert. A user is loading their washing machine with the following:
-Clothing items: ${items.length > 0 ? items.join(", ") : "not specified"}
-Fabric types: ${fabrics.length > 0 ? fabrics.join(", ") : "not specified"}
-Stains or concerns: ${stains.trim() || "none mentioned"}
-
-Recommend the optimal wash cycle settings. Consider fabric care AND stain removal together.
-Return a JSON object with:
-- cycle_name: string (e.g. "Gentle Warm", "Heavy Duty Cold")
-- wash_temperature: string (e.g. "30°C / Cold", "40°C / Warm", "60°C / Hot")
-- cycle_duration: string (e.g. "35–45 minutes")
-- spin_speed: string (e.g. "800 RPM – Low", "1200 RPM – High")
-- detergent_tip: string (short tip on detergent type/amount)
-- dry_method: string (e.g. "Tumble dry low", "Hang dry", "Lay flat to dry")
-- warnings: array of strings (max 3 short cautions, e.g. "Avoid fabric softener on wool")
-- reasoning: string (1–2 sentences explaining why these settings were chosen)`;
-
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            cycle_name: { type: "string" },
-            wash_temperature: { type: "string" },
-            cycle_duration: { type: "string" },
-            spin_speed: { type: "string" },
-            detergent_tip: { type: "string" },
-            dry_method: { type: "string" },
-            warnings: { type: "array", items: { type: "string" } },
-            reasoning: { type: "string" }
-          }
-        }
-      });
+      const result = await legacyAi("cycle_recommend", { items, fabrics, stains });
       setRecommendation(result);
     } catch {
       setError("Couldn't get a recommendation right now. Please try again.");

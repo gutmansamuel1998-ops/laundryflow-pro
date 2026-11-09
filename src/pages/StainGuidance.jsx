@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { usePremium } from "@/hooks/usePremium";
 import AIPremiumLock from "@/components/premium/AIPremiumLock";
 import { Card } from "@/components/ui/card";
@@ -69,32 +70,6 @@ export default function StainGuidance() {
     setShowClosetPicker(false);
   };
 
-  const buildPrompt = (stain, supplyNames, fromPhoto) => {
-    const supplyList = supplyNames.length > 0 ? supplyNames.join(", ") : "none listed";
-    const stainContext = stain ? `The stain type is: "${stain}".` : "Identify the stain type from the image.";
-    const fabricContext = fabricType
-      ? `The fabric is: "${fabricType}". Tailor ALL instructions specifically for this fabric — adjust temperature, agitation, and chemical recommendations accordingly.`
-      : "";
-    const photoContext = fromPhoto ? "The user has uploaded a photo of the stain — use it to identify stain type, severity (fresh/set-in/dried), and fabric if possible." : "";
-    return `You are a laundry expert. ${stainContext} ${fabricContext} ${photoContext}
-
-Analyze the stain (and image if provided) and return a JSON object with:
-- stain_identified: string (name of the stain you identified or confirmed)
-- fabric_detected: string (use the provided fabric type if given, otherwise detect from image or say "Unknown")
-- severity: "fresh" | "set-in" | "dried" (estimate based on image or description)
-- confidence: "high" | "medium" | "low"
-- success_likelihood: "high" | "medium" | "low" (chance of full removal)
-- success_note: string (brief explanation of the likelihood)
-- steps: array of objects with { step_number: number, title: string, instruction: string }
-  (4-6 concrete, actionable steps covering pre-treatment, washing, and drying — tailored to the fabric)
-- warnings: array of strings (e.g. avoid heat, test first — max 2)
-- recommended_supplies: array of strings chosen ONLY from this list of supplies the user already owns: [${supplyList}]
-  (return empty array if none are relevant)
-- supply_tips: object mapping each recommended supply name to a short tip on how to use it for this stain
-
-Be concise, calm, and practical.`;
-  };
-
   const handleSaveToLoad = async (loadId) => {
     if (!guidance || !loadId) return;
     setSavingLoad(true);
@@ -120,36 +95,10 @@ Be concise, calm, and practical.`;
     setLoadingMsg(imgUrl ? "Analyzing your photo..." : "Getting AI guidance...");
 
     try {
-      const supplyNames = supplies.map(s => s.name);
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: buildPrompt(stain, supplyNames, !!imgUrl),
-        response_json_schema: {
-          type: "object",
-          properties: {
-            stain_identified: { type: "string" },
-            fabric_detected: { type: "string" },
-            severity: { type: "string" },
-            confidence: { type: "string" },
-            success_likelihood: { type: "string" },
-            success_note: { type: "string" },
-            steps: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  step_number: { type: "number" },
-                  title: { type: "string" },
-                  instruction: { type: "string" }
-                }
-              }
-            },
-            warnings: { type: "array", items: { type: "string" } },
-            recommended_supplies: { type: "array", items: { type: "string" } },
-            supply_tips: { type: "object" }
-          }
-        },
-        ...(imgUrl && { file_urls: [imgUrl] })
+      const response = await legacyAi("stain_guidance", {
+        stain: (stain || "").trim(),
+        fabric: fabricType || "",
+        ...(imgUrl && { file_url: imgUrl }),
       });
 
       setGuidance(response);

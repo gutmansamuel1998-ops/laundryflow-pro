@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -86,63 +87,14 @@ export default function LoadPlanner() {
     setIsLoading(true);
     setResult(null);
 
-    const supplyList = supplies.map(s => ({ name: s.name, level: s.current_level }));
-
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a laundry expert. The user wants to wash the following garments:
-
-"${garments}"
-
-Available supplies (with current level %):
-${JSON.stringify(supplyList, null, 2)}
-
-Analyze the garment mix and provide optimal wash cycle settings to maximize fabric longevity. Consider:
-- Fabric types implied by the garment names
-- Color sorting (whites, darks, colors)
-- Delicacy levels
-- Which available supplies to use and how much
-- Any garments that should be washed separately
-
-Respond with a JSON matching the schema exactly.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          load_summary: { type: "string" },
-          loads: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                load_name: { type: "string" },
-                garments_included: { type: "array", items: { type: "string" } },
-                wash_temp: { type: "string", enum: ["cold", "warm", "hot"] },
-                wash_temp_celsius: { type: "string" },
-                spin_speed: { type: "string" },
-                dry_method: { type: "string", enum: ["tumble_low", "tumble_medium", "hang_dry"] },
-                cycle_type: { type: "string" },
-                supplies_to_use: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      name: { type: "string" },
-                      amount: { type: "string" },
-                      reason: { type: "string" }
-                    }
-                  }
-                },
-                longevity_tips: { type: "array", items: { type: "string" } },
-                warnings: { type: "array", items: { type: "string" } }
-              }
-            }
-          },
-          separate_items: { type: "array", items: { type: "string" } }
-        }
-      }
-    });
-
-    setResult(res);
-    setIsLoading(false);
+    try {
+      const res = await legacyAi("load_planner", { garments });
+      setResult(res);
+    } catch (err) {
+      setGarmentsError(legacyAiMessage(err));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

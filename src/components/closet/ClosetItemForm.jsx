@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,6 +43,7 @@ export default function ClosetItemForm({
   const [showOptional, setShowOptional] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [scanningTag, setScanningTag] = useState(false);
+  const [scanError, setScanError] = useState("");
   const firstFieldRef = useRef(null);
 
   useEffect(() => {
@@ -64,28 +66,23 @@ export default function ClosetItemForm({
   const handleTagScan = async (file) => {
     if (!file) return;
     setScanningTag(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze this clothing care tag. Extract fabric composition, care instructions summary, and whether the item is wrinkle-free/non-iron.`,
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          fabric_composition: { type: "string" },
-          care_instructions: { type: "string" },
-          is_wrinkle_free: { type: "boolean" },
-        }
-      }
-    });
-    setForm(f => ({
-      ...f,
-      image_url: f.image_url || file_url,
-      fabric_composition: result.fabric_composition || f.fabric_composition,
-      care_instructions: result.care_instructions || f.care_instructions,
-      is_wrinkle_free: result.is_wrinkle_free ?? f.is_wrinkle_free,
-    }));
-    setShowOptional(true);
-    setScanningTag(false);
+    setScanError("");
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const result = await legacyAi("closet_item_tag_scan", { file_url });
+      setForm(f => ({
+        ...f,
+        image_url: f.image_url || file_url,
+        fabric_composition: result.fabric_composition || f.fabric_composition,
+        care_instructions: result.care_instructions || f.care_instructions,
+        is_wrinkle_free: result.is_wrinkle_free ?? f.is_wrinkle_free,
+      }));
+      setShowOptional(true);
+    } catch (err) {
+      setScanError(legacyAiMessage(err));
+    } finally {
+      setScanningTag(false);
+    }
   };
 
   const handleSave = () => {
@@ -137,6 +134,8 @@ export default function ClosetItemForm({
           <input type="file" accept="image/*" className="hidden" disabled={scanningTag} onChange={e => handleTagScan(e.target.files[0])} />
         </label>
       )}
+
+      {scanError && <p role="alert" className="text-xs text-destructive">{scanError}</p>}
 
       {/* ── ESSENTIAL FIELDS ── */}
       <div>

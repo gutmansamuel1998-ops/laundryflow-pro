@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,34 +24,23 @@ export default function ClosetSetupStep({ onNext, onBack }) {
     setScanning(true);
     setForm(null);
 
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze this image of a clothing item or care tag. Extract all the care information you can see.
-Return the item name (describe what it looks like if no label, e.g. "Blue cotton t-shirt"), fabric composition, care instructions, and best color group (white/light/dark/color/mixed) and category (tops/bottoms/outerwear/underwear/activewear/delicates/bedding/towels/other).
-If this is a care tag, extract exactly what the tag says for care_instructions.`,
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          fabric_composition: { type: "string" },
-          care_instructions: { type: "string" },
-          color: { type: "string" },
-          category: { type: "string" },
-        }
-      }
-    });
-
-    setForm({
-      name: result.name || "",
-      category: CATEGORIES.includes(result.category) ? result.category : "tops",
-      fabric_composition: result.fabric_composition || "",
-      care_instructions: result.care_instructions || "",
-      color: COLORS.includes(result.color) ? result.color : "color",
-      notes: "",
-    });
-    setScanning(false);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const result = await legacyAi("closet_scan", { file_url });
+      setForm({
+        name: result.name || "",
+        category: CATEGORIES.includes(result.category) ? result.category : "tops",
+        fabric_composition: result.fabric_composition || "",
+        care_instructions: result.care_instructions || "",
+        color: COLORS.includes(result.color) ? result.color : "color",
+        notes: "",
+      });
+    } catch (_err) {
+      // The scan is optional: fall back to a blank form so the person can still add the item by hand.
+      setForm({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "" });
+    } finally {
+      setScanning(false);
+    }
   };
 
   const handleSave = async () => {

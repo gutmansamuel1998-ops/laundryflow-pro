@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePremium } from "@/hooks/usePremium";
 import { useLaundryProfile } from "@/hooks/useLaundryProfile";
@@ -125,21 +126,18 @@ export default function DigitalCloset() {
     setCheckCycleError("");
     setIsChecking(true);
     setCheckResult(null);
-    const garments = items.map(i => ({ name: i.name, category: i.category, fabric: i.fabric_composition || "unknown", care: i.care_instructions || "none", color: i.color }));
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a fabric care expert. Wash cycle: ${selectedCycle}. Supplies: ${selectedSupplies.join(", ") || "none"}. Garments: ${JSON.stringify(garments)}. Check each for cycle and supply safety. Return overall_safe, summary, garment_results (name, cycle_safety, supply_safety, cycle_warning, supply_warning, recommendation), and tips.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          overall_safe: { type: "boolean" },
-          summary: { type: "string" },
-          garment_results: { type: "array", items: { type: "object", properties: { name: { type: "string" }, cycle_safety: { type: "string", enum: ["safe","risky","damaging"] }, supply_safety: { type: "string", enum: ["safe","risky","damaging"] }, cycle_warning: { type: "string" }, supply_warning: { type: "string" }, recommendation: { type: "string" } } } },
-          tips: { type: "array", items: { type: "string" } }
-        }
-      }
-    });
-    setCheckResult(result);
-    setIsChecking(false);
+    try {
+      const result = await legacyAi("closet_wash_check", {
+        cycle: selectedCycle,
+        supplies: selectedSupplies,
+        item_ids: items.map(i => i.id),
+      });
+      setCheckResult(result);
+    } catch (err) {
+      setCheckCycleError(legacyAiMessage(err));
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   const filteredItems = items.filter(item => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { legacyAi, legacyAiMessage } from "@/lib/legacyAi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,40 +54,22 @@ export default function SmartWash() {
   const [stainDetail, setStainDetail] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
   const canSubmit = fabric && color;
 
   const handleAnalyze = async () => {
     setLoading(true);
     setResult(null);
-    const prompt = `You are a laundry expert. Based on the following load details, suggest optimal wash cycle settings.
-
-Fabric type: ${fabric}
-Color: ${color}
-Stain type: ${stain}${stainDetail ? ` (details: ${stainDetail})` : ""}
-
-Respond with specific, practical recommendations. Be concise.`;
-
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          water_temp: { type: "string" },
-          water_temp_detail: { type: "string" },
-          spin_speed: { type: "string" },
-          spin_speed_detail: { type: "string" },
-          duration_minutes: { type: "number" },
-          duration_detail: { type: "string" },
-          pre_treatment: { type: "string" },
-          summary: { type: "string" },
-          warnings: { type: "array", items: { type: "string" } }
-        }
-      }
-    });
-
-    setResult(res);
-    setLoading(false);
+    setError("");
+    try {
+      const res = await legacyAi("smart_wash", { fabric, color, stain, stain_detail: stainDetail });
+      setResult(res);
+    } catch (err) {
+      setError(legacyAiMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -163,6 +146,7 @@ Respond with specific, practical recommendations. Be concise.`;
 
           {/* Results */}
           <AnimatePresence>
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             {result && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
