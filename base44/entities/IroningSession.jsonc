@@ -1,37 +1,49 @@
 {
   "name": "IroningSession",
-  "type": "object",
   "properties": {
     "item_names": {
-      "type": "string",
-      "description": "Names of items queued for ironing (comma-separated)"
+      "description": "Names of items queued for ironing (comma-separated)",
+      "type": "string"
+    },
+    "notes": {
+      "description": "Optional notes for this ironing session",
+      "type": "string"
+    },
+    "notified": {
+      "default": false,
+      "description": "Whether a reminder email has been sent for this session",
+      "type": "boolean"
     },
     "scheduled_for": {
-      "type": "string",
+      "description": "Date the user plans to iron (YYYY-MM-DD)",
       "format": "date",
-      "description": "Date the user plans to iron (YYYY-MM-DD)"
+      "type": "string"
     },
     "status": {
-      "type": "string",
+      "default": "pending",
+      "description": "Whether this ironing session is still pending or completed",
       "enum": [
         "pending",
         "done"
       ],
-      "default": "pending",
-      "description": "Whether this ironing session is still pending or completed"
-    },
-    "notified": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether a reminder email has been sent for this session"
-    },
-    "notes": {
-      "type": "string",
-      "description": "Optional notes for this ironing session"
+      "type": "string"
     }
   },
   "required": [
     "item_names",
     "scheduled_for"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
