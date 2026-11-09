@@ -4,6 +4,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, relative } from "node:path";
 import { stripTypeScriptTypes } from "node:module";
+import { makeStore } from "./testSupport/usageStore.js";
 
 // Phase 3E tests. They run the real `legacyAi` function source and the real browser helper with mocked platform
 // dependencies: no network, no paid AI, no real records, no real entitlements.
@@ -36,9 +37,12 @@ const USERS = {
 };
 
 function makeWorld(extra = {}) {
+  const usageStore = makeStore();
+  if (extra.usageBroken) usageStore.flags.failCreate = true;
   const world = {
     llm: [],
-    usage: [],
+    usageStore,
+    usage: usageStore.rows,
     usageBroken: false,
     llmThrows: false,
     llmReply: () => ({ water_temp: "cold", safe_to_wash_together: true, tips: ["a"], evil_extra: "drop me" }),
@@ -70,13 +74,7 @@ function makeWorld(extra = {}) {
       entities: { Supply: table(() => world.supplies), ClothingItem: table(() => world.closet), Load: table(() => world.loads) },
       asServiceRole: {
         entities: {
-          AiUsage: {
-            filter: async (q, _s, limit) => {
-              if (world.usageBroken) throw new Error("store down");
-              return world.usage.filter((r) => r.user_id === q.user_id && r.day === q.day).slice(0, limit ?? 1000);
-            },
-            create: async (row) => { if (world.usageBroken) throw new Error("store down"); world.usage.push(row); return row; },
-          },
+          AiUsage: world.usageStore.api,
         },
       },
       integrations: {
@@ -120,10 +118,11 @@ const PREMIUM_OPS = Object.keys(VALID).filter((o) => !FREE_OPS.includes(o));
 // Free-op inputs that a Free user can satisfy with their own records.
 const FREE_VALID = { ...VALID, basket_plan: { item_ids: ["free1"] } };
 
-// Advance the clock so the per-minute burst limiter does not interfere with daily-budget tests.
+// Advance the clock so the per-minute limit does not interfere with daily-budget tests. Starts at a fixed midday time
+// (UTC) so the test can never straddle midnight.
 async function withClock(fn) {
   const real = Date.now;
-  let t = real();
+  let t = Date.UTC(2026, 10, 9, 12, 0, 0);
   Date.now = () => t;
   try { return await fn(() => { t += 61000; }); } finally { Date.now = real; }
 }
@@ -138,12 +137,13 @@ test("legacyAi is not a prompt proxy: no client prompt, schema or file_urls reac
   assert.match(src, /SCHEMAS\[name\]/);
   // The only service-role use is the server-owned usage counter.
   const svc = src.match(/asServiceRole\.entities\.(\w+)/g) || [];
-  assert.ok(svc.length > 0 && svc.every((s) => s.endsWith("AiUsage")), `service role limited to AiUsage, saw ${svc}`);
+  assert.ok(svc.length > 0 && svc.every((s) => /(AiUsage|BubblesMessage)$/.test(s)), `service role limited to the usage and saved-chat stores, saw ${svc}`);
 });
 
 test("server operations match the browser helper and the 12 migrated call sites", () => {
   const serverOps = [...code(readFn("legacyAi")).matchAll(/^  (\w+): \{\n    validate:/gm)].map((m) => m[1]).sort();
-  assert.deepEqual(serverOps, Object.keys(VALID).sort());
+  const BUBBLES_OPS = ["bubbles_chat", "bubbles_history"]; // Phase 3F additions, tested in phase3fQuotaAndBubbles.test.js
+  assert.deepEqual(serverOps, [...Object.keys(VALID), ...BUBBLES_OPS].sort());
   const helper = readFileSync(join(here, "legacyAi.js"), "utf8");
   const helperOps = [...helper.matchAll(/^  "(\w+)",$/gm)].map((m) => m[1]).sort();
   assert.deepEqual(helperOps, serverOps);
@@ -456,19 +456,15 @@ test("daily budget: Free 20 and Premium 120, shared across function instances, r
   assert.equal(w.llm.length, 20 + 120);
 });
 
-test("if the usage store is down the per-instance counter still limits (never unlimited)", async () => {
+test("if the usage store is down the request is refused before the model is called (never unlimited)", async () => {
   const w = makeWorld({ usageBroken: true });
   const h = loadFn("legacyAi", w.createClientFromRequest);
-  let ok = 0, refused = 0;
-  await withClock(async (tick) => {
-    for (let i = 0; i < 25; i++) {
-      const res = await call(h, { op: "load_planner", input: VALID.load_planner }, { user: "free" });
-      if (res.status === 200) ok++; else if (res.status === 429) refused++;
-      tick();
-    }
-  });
-  assert.equal(ok, 20);
-  assert.equal(refused, 5);
+  for (let i = 0; i < 3; i++) {
+    const res = await call(h, { op: "load_planner", input: VALID.load_planner }, { user: "free" });
+    assert.equal(res.status, 503);
+    assert.equal((await json(res)).error, "usage_unavailable");
+  }
+  assert.equal(w.llm.length, 0);
 });
 
 // ---- 6. browser helper --------------------------------------------------------------------------------------------
