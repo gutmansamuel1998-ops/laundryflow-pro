@@ -4,7 +4,7 @@ import { useLaundrySession } from "@/hooks/useLaundrySession";
 import { usePrefs } from "@/lib/sessionPrefs";
 import { nativeAdapter, nativeScheduler, isNativePlatform } from "@/lib/nativeNotifications";
 import { routeForTap } from "@/lib/notificationPlan";
-import { useAuth } from "@/lib/AuthContext";
+import { useOwnerKey } from "@/hooks/useOwnerKey";
 
 // Mounted once in the Layout. In the native app it keeps the operating system's scheduled reminders
 // equal to the current laundry session, and sends a tap on a reminder to the session screen.
@@ -20,9 +20,9 @@ export default function NativeNotificationSync() {
   const { load, known } = useLaundrySession();
   const prefs = usePrefs();
   const navigate = useNavigate();
-  const { user } = useAuth();
   // Reminders on a phone belong to one signed-in person; the scheduler cancels the previous person's when this changes.
-  const owner = user ? String(user.id || user.email || "") : "";
+  // The label is a one-way hash, so the phone never stores the raw account id or email for this.
+  const owner = useOwnerKey();
   const native = isNativePlatform();
   const [resumes, setResumes] = useState(0);
 
