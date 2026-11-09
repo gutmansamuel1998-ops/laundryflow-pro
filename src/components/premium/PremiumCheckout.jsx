@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { base44 } from "@/api/base44Client";
 import { Sparkles, Loader2 } from "lucide-react";
+import { CHECKOUT_AVAILABLE, CHECKOUT_UNAVAILABLE_MESSAGE } from "./checkoutAvailability";
 
 export default function PremiumCheckout() {
   const [loading, setLoading] = useState(false);
 
   const handleCheckout = async () => {
+    if (!CHECKOUT_AVAILABLE) return; // purchases temporarily disabled (security containment)
     try {
       setLoading(true);
 
@@ -39,8 +41,14 @@ export default function PremiumCheckout() {
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
         <h3 className="text-2xl font-bold mb-2">LaundryFun Pro Premium</h3>
-        <div className="text-4xl font-bold text-primary mb-1">$9.99</div>
-        <p className="text-sm text-muted-foreground">per month</p>
+        {CHECKOUT_AVAILABLE ? (
+          <>
+            <div className="text-4xl font-bold text-primary mb-1">$9.99</div>
+            <p className="text-sm text-muted-foreground">per month</p>
+          </>
+        ) : (
+          <p role="status" className="text-sm text-muted-foreground">{CHECKOUT_UNAVAILABLE_MESSAGE}</p>
+        )}
       </div>
 
       <div className="space-y-3 mb-6">
@@ -62,6 +70,7 @@ export default function PremiumCheckout() {
         </div>
       </div>
 
+      {CHECKOUT_AVAILABLE && (
       <Button
         onClick={handleCheckout}
         disabled={loading}
@@ -79,10 +88,13 @@ export default function PremiumCheckout() {
           </>
         )}
       </Button>
+      )}
 
+      {CHECKOUT_AVAILABLE && (
       <p className="text-xs text-center text-muted-foreground mt-4">
         Secure payment powered by Base44 Payments
       </p>
+      )}
     </Card>
   );
 }
