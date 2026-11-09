@@ -1,0 +1,33 @@
+{
+  "name": "LFScrLock",
+  "properties": {
+    "note": {
+      "type": "string"
+    },
+    "premium_like": {
+      "default": false,
+      "rls": {
+        "update": {
+          "user_condition": {
+            "collaborator_role": "editor"
+          }
+        }
+      },
+      "type": "boolean"
+    }
+  },
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object",
+  "required": []
+}
