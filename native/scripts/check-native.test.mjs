@@ -54,4 +54,6 @@ test("the check fails if exact alarms come back, a hosted URL is set, or backups
   assert.match(text, /intent filter/);
   assert.match(text, /URL scheme/);
   assert.match(text, /NATIVE_SCHEME/);
+  assert.match(text, /loggingBehavior/);
+  assert.match(text, /webContentsDebuggingEnabled/);
 });
