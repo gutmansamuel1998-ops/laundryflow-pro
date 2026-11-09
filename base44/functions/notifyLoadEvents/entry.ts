@@ -4,6 +4,11 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
+    // Scheduled/system job: only the platform automation (an app admin) may run it.
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (caller.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+
     // Fetch all active loads
     const loads = await base44.asServiceRole.entities.Load.filter({ status: 'active' });
     const now = Date.now();
@@ -31,8 +36,8 @@ Deno.serve(async (req) => {
             body: `Hi ${firstName}!\n\nYour wash cycle is done. Don't let that load sit — transfer it to the dryer now to avoid wrinkles or mildew.\n\nOpen LaundryFun Pro to log the next step.\n\n— LaundryFun Pro`
           });
           await base44.asServiceRole.entities.Load.update(load.id, { wash_complete_notified: true });
-          notificationsSent.push({ type: 'wash_complete', load_id: load.id, user: user.email });
-          console.log(`Wash complete alert sent to ${user.email} for load ${load.id}`);
+          notificationsSent.push({ type: 'wash_complete', load_id: load.id });
+          console.log(`Wash complete alert sent for load ${load.id}`);
         }
       }
 
@@ -46,8 +51,8 @@ Deno.serve(async (req) => {
             body: `Hi ${firstName}!\n\nYour drying cycle is finished. Fold or hang your clothes soon to prevent wrinkles.\n\nOpen LaundryFun Pro to mark this load as complete.\n\n— LaundryFun Pro`
           });
           await base44.asServiceRole.entities.Load.update(load.id, { dry_complete_notified: true });
-          notificationsSent.push({ type: 'dry_complete', load_id: load.id, user: user.email });
-          console.log(`Dry complete alert sent to ${user.email} for load ${load.id}`);
+          notificationsSent.push({ type: 'dry_complete', load_id: load.id });
+          console.log(`Dry complete alert sent for load ${load.id}`);
         }
       }
 
@@ -75,8 +80,8 @@ Deno.serve(async (req) => {
             body: `Hi ${firstName}!\n\nYour laundry load has ${label} for about ${hoursIdle} hour${hoursIdle !== 1 ? 's' : ''}.\n\nDon't let it sit too long — open LaundryFun Pro to take the next step.\n\n— LaundryFun Pro`
           });
           await base44.asServiceRole.entities.Load.update(load.id, { idle_notified: true });
-          notificationsSent.push({ type: 'idle', load_id: load.id, user: user.email, state: load.current_state });
-          console.log(`Idle alert sent to ${user.email} for load ${load.id} in state ${load.current_state}`);
+          notificationsSent.push({ type: 'idle', load_id: load.id, state: load.current_state });
+          console.log(`Idle alert sent for load ${load.id} in state ${load.current_state}`);
         }
       }
     }
@@ -85,11 +90,10 @@ Deno.serve(async (req) => {
       success: true,
       loads_checked: loads.length,
       notifications_sent: notificationsSent.length,
-      detail: notificationsSent
     });
 
   } catch (error) {
-    console.error('notifyLoadEvents error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('notifyLoadEvents error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Job failed' }, { status: 500 });
   }
 });
