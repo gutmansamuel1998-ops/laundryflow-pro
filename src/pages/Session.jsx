@@ -20,6 +20,7 @@ import SockMatch from "@/components/session/SockMatch";
 import StartPanel from "@/components/session/StartPanel";
 import AdSlot from "@/components/session/AdSlot";
 import CarePanel from "@/components/session/CarePanel";
+import ReminderPrompt from "@/components/session/ReminderPrompt";
 import { careViewForPhase } from "@/lib/careContent";
 import { BigButton, Chip, MinutesStepper, Panel, ToggleRow } from "@/components/session/ui";
 
@@ -187,6 +188,9 @@ export default function Session() {
       <SessionTimer phase={phase} timer={timer} />
 
       <BubblesCard headline={line.headline} detail={line.detail} urgent={phase === "wash_elapsed" || phase === "dry_elapsed"} />
+
+      {/* Native app only: an optional offer to turn on reminders while a timer is running. */}
+      {(phase === "wash_running" || phase === "dry_running") && <ReminderPrompt />}
 
       {error && (
         <div role="alert" className="space-y-2 rounded-2xl border-2 border-destructive p-4">
