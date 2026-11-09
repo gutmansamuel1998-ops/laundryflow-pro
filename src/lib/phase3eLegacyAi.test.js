@@ -56,7 +56,8 @@ function makeWorld(extra = {}) {
     ...extra,
   };
   // The platform applies the entity rule (creator-only) no matter what the query says.
-  const scoped = (rows, user, q = {}) => rows.filter((r) => r.created_by_id === user.id && Object.entries(q).every(([k, v]) => r[k] === v));
+  // world.rls=false removes the platform rule so the tests also prove the function scopes its own queries.
+  const scoped = (rows, user, q = {}) => rows.filter((r) => (world.rls === false || r.created_by_id === user.id) && Object.entries(q).every(([k, v]) => r[k] === v));
   world.createClientFromRequest = (req) => {
     const who = req.headers.get("x-test-user");
     const user = who && USERS[who] ? USERS[who] : null;
@@ -384,8 +385,8 @@ test("model failures return a generic error and never leak internals", async () 
 });
 
 // ---- 4. cross-user access -----------------------------------------------------------------------------------------
-test("a caller can never read another person's closet items or supplies through legacyAi", async () => {
-  const w = makeWorld();
+for (const rls of [true, false]) test(`a caller can never read another person's closet items or supplies through legacyAi (platform rule ${rls ? "on" : "OFF: function must scope by itself"})`, async () => {
+  const w = makeWorld({ rls });
   const h = loadFn("legacyAi", w.createClientFromRequest);
   await withClock(async (tick) => {
     const mixed = await call(h, { op: "basket_plan", input: { item_ids: ["other1", "mine1"] } });
@@ -411,8 +412,8 @@ test("a caller can never read another person's closet items or supplies through 
   assert.ok(pp.includes("FreeSoap") && !pp.includes("Detergent") && !pp.includes("OTHER-SUPPLY-SECRET"));
 });
 
-test("load_recommendation uses only the caller's own record and loads", async () => {
-  const w = makeWorld();
+for (const rls of [true, false]) test(`load_recommendation uses only the caller's own record and loads (platform rule ${rls ? "on" : "OFF"})`, async () => {
+  const w = makeWorld({ rls });
   const h = loadFn("legacyAi", w.createClientFromRequest);
   assert.equal((await call(h, { op: "load_recommendation", input: { user_id: "u-other", anchors: [{ label: "INJECTED-ANCHOR" }] } })).status, 200);
   const p = w.llm[0].prompt;
