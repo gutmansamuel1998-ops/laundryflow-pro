@@ -1,8 +1,13 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Scheduled/system job: only the platform automation (an app admin) may run it.
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (caller.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     // Get all users
     const users = await base44.asServiceRole.entities.User.list();
@@ -93,10 +98,11 @@ To adjust your notification preferences, visit Settings in the app.`
 
     return Response.json({ 
       message: 'Reminder check completed',
-      timestamp: now.toISOString()
+      timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('sendLaundryReminder error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Job failed' }, { status: 500 });
   }
 });
