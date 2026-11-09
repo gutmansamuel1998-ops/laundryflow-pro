@@ -52,7 +52,10 @@ function makeWorld(extra = {}) {
       { id: "other1", created_by_id: "u-other", name: "SECRET-OTHER-ITEM", category: "tops", fabric_composition: "silk", color: "dark" },
       { id: "free1", created_by_id: "u-free", name: "Free Tee", category: "tops", fabric_composition: "cotton", color: "white" },
     ],
-    loads: [{ id: "l1", created_by_id: "u-premium", load_type: "towels", current_state: "done", created_date: "2026-11-01" }],
+    loads: [
+      { id: "l1", created_by_id: "u-premium", load_type: "towels", current_state: "done", created_date: "2026-11-01" },
+      { id: "l2", created_by_id: "u-other", load_type: "OTHER-LOAD-SECRET", current_state: "done", created_date: "2026-11-02" },
+    ],
     ...extra,
   };
   // The platform applies the entity rule (creator-only) no matter what the query says.
@@ -418,7 +421,7 @@ for (const rls of [true, false]) test(`load_recommendation uses only the caller'
   assert.equal((await call(h, { op: "load_recommendation", input: { user_id: "u-other", anchors: [{ label: "INJECTED-ANCHOR" }] } })).status, 200);
   const p = w.llm[0].prompt;
   assert.ok(p.includes("after gym") && p.includes("towels"));
-  assert.ok(!p.includes("INJECTED-ANCHOR") && !p.includes("u-other"));
+  assert.ok(!p.includes("INJECTED-ANCHOR") && !p.includes("u-other") && !p.includes("OTHER-LOAD-SECRET"));
 });
 
 // ---- 5. usage limits ----------------------------------------------------------------------------------------------
