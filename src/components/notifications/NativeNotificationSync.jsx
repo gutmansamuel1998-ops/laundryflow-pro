@@ -35,7 +35,6 @@ export default function NativeNotificationSync() {
       nowMs: Date.now(),
     });
     // `load` is represented by sessionKey so unrelated record changes do not trigger a rebuild.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [native, known, sessionKey, prefs.notificationsEnabled, prefs.reminderLevel, resumes]);
 
   // Coming back to the app: re-check that the schedule still exists (a restart or a system setting
