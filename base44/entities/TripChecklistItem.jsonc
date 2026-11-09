@@ -1,33 +1,45 @@
 {
   "name": "TripChecklistItem",
-  "type": "object",
   "properties": {
-    "name": {
-      "type": "string",
-      "description": "Item name (e.g. Laundry Bag, Detergent, Quarters)"
-    },
     "checked": {
-      "type": "boolean",
       "default": false,
-      "description": "Whether this item has been packed/checked off"
+      "description": "Whether this item has been packed/checked off",
+      "type": "boolean"
     },
     "hidden": {
-      "type": "boolean",
       "default": false,
-      "description": "Whether this item is hidden from the active checklist"
-    },
-    "order": {
-      "type": "number",
-      "default": 0,
-      "description": "Sort order in the checklist"
+      "description": "Whether this item is hidden from the active checklist",
+      "type": "boolean"
     },
     "is_default": {
-      "type": "boolean",
       "default": false,
-      "description": "Whether this was one of the seeded default items"
+      "description": "Whether this was one of the seeded default items",
+      "type": "boolean"
+    },
+    "name": {
+      "description": "Item name (e.g. Laundry Bag, Detergent, Quarters)",
+      "type": "string"
+    },
+    "order": {
+      "default": 0,
+      "description": "Sort order in the checklist",
+      "type": "number"
     }
   },
   "required": [
     "name"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
