@@ -78,6 +78,9 @@ export function useLaundrySession() {
   return {
     load,
     isLoading: query.isLoading,
+    // True once the server has answered at least once. While false (loading, or offline at startup)
+    // "no session" really means "unknown", so nothing may be cancelled on that basis.
+    known: query.isSuccess,
     pending: update.isPending || create.isPending,
     error: update.error || create.error || null,
     clearError: () => {
