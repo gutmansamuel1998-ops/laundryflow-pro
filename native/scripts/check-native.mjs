@@ -48,6 +48,9 @@ export function analyze({ config, appManifest, pluginManifests, plist, authSourc
   if (config?.webDir !== "../dist") errors.push(`webDir should be ../dist, found ${config?.webDir}`);
   if (config?.appId !== "com.laundryfun.pro") errors.push(`appId changed to ${config?.appId}; update src/lib/nativeAuth.js, the manifest and Info.plist too`);
 
+  if (config?.loggingBehavior !== "none") errors.push('capacitor.config.json must set "loggingBehavior": "none" (web view logs can carry sign-in data)');
+  if (config?.android?.webContentsDebuggingEnabled !== false) errors.push("android.webContentsDebuggingEnabled must be false (remote debugging exposes the app's storage)");
+
   const { merged, removed } = mergedPermissions(appManifest, pluginManifests);
   for (const p of FORBIDDEN_PERMISSIONS) {
     if (merged.includes(p)) errors.push(`${p} is present in the merged Android manifest (needs approval)`);
