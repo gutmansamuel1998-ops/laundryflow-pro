@@ -371,6 +371,7 @@ test("Bubbles chat: Premium chats, history is saved server-side, in order, and o
     assert.ok(!prompt.includes("OTHER-LOAD-SECRET") && !prompt.includes("OTHER-SUPPLY-SECRET") && !prompt.includes("OTHER-PRIVATE-CHAT"), "never another person's data");
     assert.ok(!w.llm[0].response_json_schema.properties.__proto__?.polluted);
     assert.equal(rowsFor(w, "u-premium").length, 1, "the chat used one unit of the AI budget");
+    Date.now = () => NOON + 5000; // the next message arrives a few seconds later (restored by atNoon)
     r = await chat(h, "ok what next?");
     assert.equal(r.status, 200);
     assert.ok(w.llm[1].prompt.includes("I have towels in the washer") && w.llm[1].prompt.includes("Hi from Bubbles"), "earlier turns are part of the next prompt");
