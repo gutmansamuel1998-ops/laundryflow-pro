@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { MINUTE, extendUpdate } from "./laundrySession.js";
+import { T0, washing, drying } from "./notificationTestKit.js";
 import {
   MIN_LEAD_MS,
   NOTIFICATION_KIND,
@@ -11,26 +12,6 @@ import {
   reminderCopy,
   routeForTap,
 } from "./notificationPlan.js";
-
-export const T0 = Date.parse("2026-01-01T12:00:00.000Z");
-
-export const washing = (over = {}) => ({
-  id: "L1",
-  status: "active",
-  current_state: "washing",
-  stage_start_time: new Date(T0).toISOString(),
-  wash_timer_minutes: 35,
-  ...over,
-});
-export const drying = (over = {}) => ({
-  id: "L1",
-  status: "active",
-  current_state: "drying",
-  stage_start_time: new Date(T0).toISOString(),
-  dry_timer_minutes: 45,
-  dry_guidance: "tumble_medium",
-  ...over,
-});
 
 const byEvent = (plan) => Object.fromEntries(plan.map((p) => [p.event, p]));
 
