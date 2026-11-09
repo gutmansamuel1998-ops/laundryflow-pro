@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
 import SessionReminderEngine from "@/components/notifications/SessionReminderEngine";
+import NativeNotificationSync from "@/components/notifications/NativeNotificationSync";
 import { createPageUrl } from "@/utils";
 import { applyPrefsToDocument, hasSavedPrefs, seedPrefsFromUser } from "@/lib/sessionPrefs";
 import { Home, Play, Settings } from "lucide-react";
@@ -35,6 +36,7 @@ export default function Layout({ children, currentPageName }) {
         Skip to main content
       </a>
       <SessionReminderEngine currentPageName={currentPageName} />
+      <NativeNotificationSync />
       <main id="main-content">{children}</main>
 
       <FeedbackModal />
