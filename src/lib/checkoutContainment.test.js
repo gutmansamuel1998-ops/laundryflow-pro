@@ -36,6 +36,6 @@ test("both purchase entry points are hidden and their handlers are inert while d
 test("the webhook and the restore-access check are not modified by the containment", () => {
   const webhook = code(read("../../base44/functions/wixPaymentsWebhook/entry.ts"));
   assert.doesNotMatch(webhook, /CHECKOUT_TEMPORARILY_DISABLED/);
-  const restore = code(read("../components/premium/RestorePremiumSection.jsx"));
+  const restore = code(read("../components/home/RestorePremiumSection.jsx"));
   assert.doesNotMatch(restore, /CHECKOUT_AVAILABLE/);
 });
