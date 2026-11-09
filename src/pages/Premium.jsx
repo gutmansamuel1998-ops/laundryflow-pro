@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { CHECKOUT_AVAILABLE, CHECKOUT_UNAVAILABLE_MESSAGE } from "@/components/premium/checkoutAvailability";
 import {
   Sparkles, Brain, CalendarClock, BarChart2, Package,
   ShieldCheck, Zap, CheckCircle2, ArrowRight, Star, MessageCircle, Loader2
@@ -100,6 +101,7 @@ export default function Premium() {
   };
 
   const handleCheckout = async () => {
+    if (!CHECKOUT_AVAILABLE) return; // purchases temporarily disabled (security containment)
     const plan = PLANS.find(p => p.id === selected);
     setLoading(true);
     setError(null);
@@ -133,8 +135,16 @@ export default function Premium() {
 
       <div className="px-5 max-w-lg mx-auto space-y-6 mt-6">
 
+        {/* Purchases temporarily unavailable (security containment) */}
+        {!CHECKOUT_AVAILABLE && (
+          <div role="status" className="rounded-2xl border border-border bg-card p-5 text-center">
+            <p className="text-sm font-semibold text-foreground mb-1">Premium purchases are paused</p>
+            <p className="text-xs text-muted-foreground">{CHECKOUT_UNAVAILABLE_MESSAGE}</p>
+          </div>
+        )}
+
         {/* Pricing Cards */}
-        {(()=>{
+        {CHECKOUT_AVAILABLE && (()=>{
           const plans = PLANS;
           return (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
@@ -226,6 +236,7 @@ export default function Premium() {
         </div>
 
         {/* Bottom CTA */}
+        {CHECKOUT_AVAILABLE && (
         <div className="text-center pt-2 pb-4">
           <p className="text-xs text-muted-foreground mb-3">Join thousands of users doing laundry smarter.</p>
           <button
@@ -237,6 +248,7 @@ export default function Premium() {
             {loading ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <><Sparkles className="w-4 h-4" aria-hidden="true" /><span>Upgrade to Premium</span></>}
           </button>
         </div>
+        )}
 
         {/* Restore Access */}
         <div className="border-t border-border pt-5 pb-8 text-center">
