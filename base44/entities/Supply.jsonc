@@ -1,31 +1,45 @@
 {
   "name": "Supply",
-  "type": "object",
   "properties": {
-    "name": {
-      "type": "string",
-      "description": "Supply item name (e.g. Detergent, Fabric Softener)"
+    "current_level": {
+      "default": 100,
+      "description": "Current supply level as percentage (0-100)",
+      "maximum": 100,
+      "minimum": 0,
+      "type": "number"
     },
     "description": {
-      "type": "string",
-      "description": "Optional description of this supply item (up to 1000 characters)"
+      "description": "Optional description of this supply item (up to 1000 characters)",
+      "type": "string"
     },
-    "current_level": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 100,
-      "default": 100,
-      "description": "Current supply level as percentage (0-100)"
+    "estimated_days_remaining": {
+      "description": "Calculated estimate of days until supply runs out",
+      "type": "number"
+    },
+    "last_restocked": {
+      "description": "When the supply was last restocked",
+      "format": "date-time",
+      "type": "string"
     },
     "low_threshold": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 100,
       "default": 20,
-      "description": "Percentage threshold for low supply notification"
+      "description": "Percentage threshold for low supply notification",
+      "maximum": 100,
+      "minimum": 0,
+      "type": "number"
+    },
+    "name": {
+      "description": "Supply item name (e.g. Detergent, Fabric Softener)",
+      "type": "string"
+    },
+    "notified_low": {
+      "default": false,
+      "description": "Whether low notification has been sent",
+      "type": "boolean"
     },
     "unit": {
-      "type": "string",
+      "default": "loads",
+      "description": "Unit of measurement",
       "enum": [
         "loads",
         "ml",
@@ -33,42 +47,40 @@
         "cups",
         "scoops"
       ],
-      "default": "loads",
-      "description": "Unit of measurement"
-    },
-    "last_restocked": {
-      "type": "string",
-      "format": "date-time",
-      "description": "When the supply was last restocked"
-    },
-    "notified_low": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether low notification has been sent"
+      "type": "string"
     },
     "usage_history": {
-      "type": "array",
+      "description": "Historical tracking of supply levels for usage estimation",
       "items": {
-        "type": "object",
         "properties": {
           "date": {
-            "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "type": "string"
           },
           "level": {
             "type": "number"
           }
-        }
+        },
+        "type": "object"
       },
-      "description": "Historical tracking of supply levels for usage estimation"
-    },
-    "estimated_days_remaining": {
-      "type": "number",
-      "description": "Calculated estimate of days until supply runs out"
+      "type": "array"
     }
   },
   "required": [
     "name",
     "current_level"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
