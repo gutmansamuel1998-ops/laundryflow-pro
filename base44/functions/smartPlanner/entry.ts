@@ -5,6 +5,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Phase 3C containment: legacy AI is Premium-only on the server (mirrors the client PremiumGuard).
+    if (!user.has_premium) return Response.json({ error: 'premium_required' }, { status: 403 });
 
     const body = await req.json();
     const mode = body.mode || 'dashboard'; // 'dashboard' | 'weekly'
