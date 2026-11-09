@@ -35,7 +35,7 @@ export default function ClosetSetupStep({ onNext, onBack }) {
         color: COLORS.includes(result.color) ? result.color : "color",
         notes: "",
       });
-    } catch (_err) {
+    } catch {
       // The scan is optional: fall back to a blank form so the person can still add the item by hand.
       setForm({ name: "", category: "tops", fabric_composition: "", care_instructions: "", color: "color", notes: "" });
     } finally {

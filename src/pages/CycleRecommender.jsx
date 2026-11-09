@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
 import { legacyAi } from "@/lib/legacyAi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
