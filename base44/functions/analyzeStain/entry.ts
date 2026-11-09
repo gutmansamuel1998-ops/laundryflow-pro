@@ -1,19 +1,40 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
+// Per-instance rate limit (best effort): 10 analyses per minute per signed-in user.
+const WINDOW_MS = 60_000;
+const MAX_PER_WINDOW = 10;
+const hits = new Map();
+function limited(userId) {
+  const now = Date.now();
+  const recent = (hits.get(userId) || []).filter((t) => now - t < WINDOW_MS);
+  if (recent.length >= MAX_PER_WINDOW) { hits.set(userId, recent); return true; }
+  recent.push(now);
+  hits.set(userId, recent);
+  return false;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { imageUrl, supplies } = await req.json();
+    const user = await base44.auth.me().catch(() => null);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (limited(user.id)) return Response.json({ error: 'Too many requests' }, { status: 429 });
 
-    if (!imageUrl) {
-      return Response.json({ error: 'imageUrl is required' }, { status: 400 });
+    const body = await req.json().catch(() => ({}));
+    const imageUrl = body?.imageUrl;
+    if (typeof imageUrl !== 'string' || imageUrl.length > 2048 || !/^https:\/\//i.test(imageUrl)) {
+      return Response.json({ error: 'A valid https imageUrl is required' }, { status: 400 });
     }
 
-    const supplyList = supplies && supplies.length > 0
-      ? supplies.map(s => `${s.name} (${s.current_level}% remaining)`).join(', ')
+    // Bound what the caller can inject into the prompt.
+    const supplies = Array.isArray(body?.supplies) ? body.supplies.slice(0, 30) : [];
+    const clean = (v) => String(v ?? '').replace(/[\r\n]+/g, ' ').slice(0, 60);
+    const supplyList = supplies.length > 0
+      ? supplies.map((s) => `${clean(s?.name)} (${Number(s?.current_level) || 0}% remaining)`).join(', ')
       : 'No supplies listed';
 
-    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    // Runs with the caller's own credentials (no service role).
+    const result = await base44.integrations.Core.InvokeLLM({
       prompt: `You are a laundry expert. Analyze this image of a stained garment.
 
 1. Identify the type of stain (e.g., coffee, grass, oil, wine, blood, ink, mud, etc.)
@@ -63,7 +84,7 @@ Return a JSON response with:
 
     return Response.json(result);
   } catch (error) {
-    console.error('analyzeStain error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('analyzeStain error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Analysis failed' }, { status: 500 });
   }
 });
