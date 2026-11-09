@@ -1,31 +1,30 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me().catch(() => null);
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Fetch last 30 loads + current supplies
+    // Only the caller's own loads and supplies.
     const [loads, supplies] = await Promise.all([
-      base44.asServiceRole.entities.Load.list('-created_date', 30),
-      base44.asServiceRole.entities.Supply.list(),
+      base44.entities.Load.filter({ created_by_id: user.id }, '-created_date', 30),
+      base44.entities.Supply.filter({ created_by_id: user.id }),
     ]);
 
     if (!loads.length) {
       return Response.json({ suggestions: [] });
     }
 
-    // Compute cycle frequency: loads per week over the last 30 days
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const recentLoads = loads.filter(l => new Date(l.created_date) > thirtyDaysAgo);
+    const recentLoads = loads.filter((l) => new Date(l.created_date) > thirtyDaysAgo);
     const loadsPerWeek = (recentLoads.length / 30) * 7;
 
-    // Count load types
     const typeCounts = {};
     for (const l of recentLoads) {
       typeCounts[l.load_type] = (typeCounts[l.load_type] || 0) + 1;
     }
 
-    // Map load types to supplies they consume
     const loadTypeToSupplies = {
       everyday_clothes: ['Detergent', 'Fabric Softener'],
       towels:           ['Detergent'],
@@ -34,25 +33,21 @@ Deno.serve(async (req) => {
       mixed:            ['Detergent', 'Fabric Softener', 'Dryer Sheets'],
     };
 
-    // Build a map of supply name -> current level
     const supplyLevelMap = {};
     for (const s of supplies) {
       supplyLevelMap[s.name] = s.current_level;
     }
 
-    // Score each supply: higher score = more urgently needed
     const supplyScore = {};
     for (const [type, count] of Object.entries(typeCounts)) {
       const needed = loadTypeToSupplies[type] || [];
       for (const supplyName of needed) {
         const level = supplyLevelMap[supplyName] ?? 100;
-        // Weight: frequency * remaining capacity to deplete
         const weight = (count / recentLoads.length) * (100 - level);
         supplyScore[supplyName] = (supplyScore[supplyName] || 0) + weight;
       }
     }
 
-    // Only suggest supplies not already in good shape (level > 40) and with real usage
     const suggestions = Object.entries(supplyScore)
       .filter(([name, score]) => {
         const level = supplyLevelMap[name] ?? 100;
@@ -68,8 +63,8 @@ Deno.serve(async (req) => {
 
     return Response.json({ suggestions, loads_per_week: Math.round(loadsPerWeek * 10) / 10 });
   } catch (error) {
-    console.error('suggestSupplies error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('suggestSupplies error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Could not build suggestions' }, { status: 500 });
   }
 });
 
