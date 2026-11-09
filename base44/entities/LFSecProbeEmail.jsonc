@@ -1,0 +1,22 @@
+{
+  "name": "LFSecProbeEmail",
+  "properties": {
+    "note": {
+      "type": "string"
+    }
+  },
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    }
+  },
+  "type": "object",
+  "required": []
+}
