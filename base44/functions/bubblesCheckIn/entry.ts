@@ -13,6 +13,12 @@ Deno.serve(async (req) => {
     // The caller must be signed in: either the conversation's owner, or the platform automation (an app admin).
     const caller = await base44.auth.me().catch(() => null);
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Phase 3C containment: the legacy AI check-in is Premium-only on the server. The platform
+    // automation (app admin) is skipped so it cannot trigger paid AI usage. The V1 mascot is separate.
+    if (caller.role === 'admin') {
+      return Response.json({ skipped: true, reason: 'legacy_ai_contained' }, { status: 200 });
+    }
+    if (!caller.has_premium) return Response.json({ error: 'premium_required' }, { status: 403 });
 
     // Whose laundry to look at comes from the conversation record itself, never from the request body.
     // Fetched with the caller's own credentials: the platform refuses to hand over a conversation the caller cannot access.

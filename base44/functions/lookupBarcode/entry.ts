@@ -54,6 +54,11 @@ Deno.serve(async (req) => {
     const data = await response.json();
 
     if (data.status !== 1 || !data.product) {
+      // Phase 3C containment: the paid AI fallback is Premium-only on the server. The free
+      // Open Food Facts lookup above is unchanged for everyone.
+      if (!user.has_premium) {
+        return Response.json({ found: false });
+      }
       // Try to classify the barcode using AI as a fallback
       const aiResult = await base44.integrations.Core.InvokeLLM({
         prompt: `A user scanned barcode "${barcode}" for a laundry supply product. Based on common laundry products, can you guess what this might be? If you can't determine it, say so. Return product_name as your best guess or null if unknown, and suggested_unit from: loads, ml, oz, cups, scoops.`,
