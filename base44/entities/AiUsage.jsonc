@@ -1,0 +1,29 @@
+{
+  "name": "AiUsage",
+  "type": "object",
+  "description": "Server-only counter rows for the legacyAi function's per-user daily budget. One row per paid AI request. Never read or written from the browser (all client access is blocked; the function uses the service role).",
+  "properties": {
+    "user_id": {
+      "description": "The signed-in user the request was made for",
+      "type": "string"
+    },
+    "day": {
+      "description": "UTC day, YYYY-MM-DD",
+      "type": "string"
+    },
+    "op": {
+      "description": "legacyAi operation name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "day"
+  ],
+  "rls": {
+    "create": false,
+    "read": false,
+    "update": false,
+    "delete": false
+  }
+}
