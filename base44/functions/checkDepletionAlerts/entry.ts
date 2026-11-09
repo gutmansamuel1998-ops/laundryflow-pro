@@ -1,8 +1,13 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Scheduled/system job: only the platform automation (an app admin) may run it.
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (caller.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     // Get all supplies with a depletion estimate
     const supplies = await base44.asServiceRole.entities.Supply.list();
@@ -34,7 +39,7 @@ Deno.serve(async (req) => {
       const users = await base44.asServiceRole.entities.User.filter({ email });
       const user = users[0];
       if (user?.enable_supply_alerts === false) {
-        console.log(`Supply alerts disabled for ${email}, skipping.`);
+        console.log('Supply alerts disabled for a user, skipping.');
         continue;
       }
 
@@ -62,14 +67,14 @@ Deno.serve(async (req) => {
         `
       });
 
-      console.log(`Depletion alert sent to ${email} for: ${userSupplies.map(s => s.name).join(', ')}`);
+      console.log(`Depletion alert sent for ${userSupplies.length} supply item(s)`);
       alertsSent++;
     }
 
     return Response.json({ success: true, alerts_sent: alertsSent, urgent_supplies: urgentSupplies.length });
 
   } catch (error) {
-    console.error('Depletion alert error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Depletion alert error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Job failed' }, { status: 500 });
   }
 });
