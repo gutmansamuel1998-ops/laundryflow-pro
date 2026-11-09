@@ -242,6 +242,7 @@ const SCHEMAS: Record<string, any> = {
     type: 'object',
     properties: { name: S, fabric_composition: S, care_instructions: S, color: S, category: S },
   },
+  bubbles_chat: { type: 'object', properties: { reply: S } },
 };
 
 // ---------- data the server reads for the caller (never by a client-supplied owner) ----------
@@ -265,6 +266,31 @@ function idList(v: any, max: number): string[] {
   const ids = v.filter((x) => typeof x === 'string' && x.length > 0 && x.length <= 64 && /^[A-Za-z0-9_-]+$/.test(x));
   if (ids.length === 0) throw bad('invalid_input');
   return ids;
+}
+
+// ---------- legacy Bubbles chat (server-stored, Premium-only) ----------
+// Replaces the platform "bubbles" agent for chat. Messages live in BubblesMessage, which no browser can read or write;
+// only this function (service role) does, always keyed by the signed-in user's id.
+const BUBBLES_SHOWN = 50;
+const BUBBLES_IN_PROMPT = 12;
+const BUBBLES_KEEP = 200;
+async function bubblesRows(base44: any, userId: string, limit: number): Promise<any[]> {
+  const rows = await base44.asServiceRole.entities.BubblesMessage.filter({ user_id: userId }, '-ts', limit);
+  return (Array.isArray(rows) ? rows : [])
+    .filter((r: any) => r && (r.role === 'user' || r.role === 'assistant') && typeof r.content === 'string')
+    .sort((a: any, b: any) => (a.ts || 0) - (b.ts || 0));
+}
+async function bubblesSave(base44: any, userId: string, userText: string, reply: string): Promise<void> {
+  try {
+    const store = base44.asServiceRole.entities.BubblesMessage;
+    const ts = Date.now();
+    await store.create({ user_id: userId, role: 'user', content: userText, ts });
+    await store.create({ user_id: userId, role: 'assistant', content: reply, ts: ts + 1 });
+    const all = await store.filter({ user_id: userId }, '-ts', BUBBLES_KEEP + 10);
+    for (const r of (Array.isArray(all) ? all : []).slice(BUBBLES_KEEP)) if (r && r.id) await store.delete(r.id);
+  } catch (_e) {
+    console.error('legacyAi: bubbles history not saved');
+  }
 }
 
 // ---------- operations ----------
@@ -502,6 +528,46 @@ ${DATA_NOTE}`,
       files: [p.file],
     }),
   },
+  bubbles_chat: {
+    validate: (i: any) => ({ message: reqText(i.message, 500) }),
+    needs: 'reply',
+    build: async (p: any, _u: any, base44: any, user: any) => {
+      const loads = await base44.entities.Load.filter({ created_by_id: user.id, status: 'active' }, '-created_date', 5);
+      const active = (loads || []).slice(0, 5).map((l: any) => ({ type: text(l.load_type, 40), state: text(l.current_state, 40) }));
+      const low = (await ownSupplies(base44, user)).filter((s) => typeof s.level === 'number' && s.level <= 20).slice(0, 5).map((s) => s.name);
+      const past = await bubblesRows(base44, user.id, BUBBLES_IN_PROMPT);
+      const transcript = past.map((r: any) => `${r.role === 'user' ? 'User' : 'Bubbles'}: ${text(r.content, 600)}`).join('\n');
+      return {
+        prompt: `You are Bubbles, the warm, friendly, lovably naggy laundry accountability companion inside LaundryFun Pro. You are the user's gentle laundry cheerleader, not a general chatbot.
+Style: warm, encouraging, never judgmental or guilt-tripping; simple clear words; at most 3 short sentences; one small step at a time; always an easy "not right now" option; emojis sparingly (🫧 at most once).
+Stay on laundry: if asked something technical or unrelated, say it is a bit above your pay grade and offer help with the next laundry step.
+
+The user's current laundry snapshot (their own data):
+${ud('snapshot', JSON.stringify({ active_loads: active, low_supplies: low }))}
+
+Conversation so far:
+${transcript ? ud('conversation', transcript) : 'This is the start of the conversation.'}
+
+The user's new message:
+${ud('message', p.message)}
+
+Reply as Bubbles, in the first person.
+
+${DATA_NOTE}`,
+      };
+    },
+    after: async (p: any, clean: any, base44: any, user: any) => {
+      await bubblesSave(base44, user.id, p.message, String(clean.reply).slice(0, 800));
+    },
+  },
+  bubbles_history: {
+    validate: (_i: any) => ({}),
+    read: true,
+    run: async (_p: any, base44: any, user: any) => {
+      const rows = await bubblesRows(base44, user.id, BUBBLES_SHOWN);
+      return { messages: rows.map((r: any) => ({ role: r.role, content: text(r.content, 1000) })) };
+    },
+  },
 };
 
 // ---------- limits ----------
@@ -614,6 +680,9 @@ Deno.serve(async (req: Request) => {
     const input = body.input && typeof body.input === 'object' && !Array.isArray(body.input) ? body.input : {};
     const params = op.validate(input);
 
+    // Operations that never reach the model (reading the caller's own saved chat) need no AI budget.
+    if (op.read) return json({ result: await op.run(params, base44, user) });
+
     const quota = await reserveAiUse(base44, user.id, isPremium, name);
     if (!quota.ok) return json({ error: quota.error }, quota.status);
 
@@ -637,7 +706,8 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'ai_unavailable' }, 502);
     }
     const clean = sanitize(result, schema);
-    if (!clean || typeof clean !== 'object') return json({ error: 'ai_unavailable' }, 502);
+    if (!clean || typeof clean !== 'object' || (op.needs && !clean[op.needs])) return json({ error: 'ai_unavailable' }, 502);
+    if (op.after) await op.after(params, clean, base44, user);
     return json({ result: clean });
   } catch (e: any) {
     if (e && e.bad) return json({ error: e.bad }, e.status || 400);

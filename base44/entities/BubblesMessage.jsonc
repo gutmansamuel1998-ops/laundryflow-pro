@@ -1,0 +1,36 @@
+{
+  "name": "BubblesMessage",
+  "type": "object",
+  "description": "Saved chat messages for the legacy Bubbles chat (Premium). Written and read only by the legacyAi backend function (service role), always for the signed-in user's own id; no browser can read or write this entity. Only the newest 200 messages per user are kept.",
+  "properties": {
+    "user_id": {
+      "description": "The signed-in user the conversation belongs to",
+      "type": "string"
+    },
+    "role": {
+      "description": "Who wrote the message",
+      "enum": ["user", "assistant"],
+      "type": "string"
+    },
+    "content": {
+      "description": "Message text (user messages are at most 500 characters; replies at most 800)",
+      "type": "string"
+    },
+    "ts": {
+      "description": "Message time in milliseconds since 1970 (orders the conversation)",
+      "type": "number"
+    }
+  },
+  "required": [
+    "user_id",
+    "role",
+    "content",
+    "ts"
+  ],
+  "rls": {
+    "create": false,
+    "read": false,
+    "update": false,
+    "delete": false
+  }
+}

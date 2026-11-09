@@ -20,6 +20,8 @@ export const LEGACY_AI_OPS = Object.freeze([
   "basket_plan",
   "load_planner",
   "closet_scan",
+  "bubbles_chat",
+  "bubbles_history",
 ]);
 
 export class LegacyAiError extends Error {
@@ -54,6 +56,7 @@ export function legacyAiMessage(err) {
   if (code === "premium_required") return "This feature is part of Premium.";
   if (code === "rate_limited") return "Please wait a moment and try again.";
   if (code === "daily_limit_reached") return "You've reached today's limit for this feature. Please try again tomorrow.";
+  if (code === "usage_unavailable") return "This feature is temporarily unavailable. Please try again in a little while.";
   if (code === "no_items") return "Those items could not be found. Please reselect them and try again.";
   if (code === "input_too_large" || code === "invalid_input" || code === "invalid_file") {
     return "That request couldn't be processed. Please check what you entered and try again.";
