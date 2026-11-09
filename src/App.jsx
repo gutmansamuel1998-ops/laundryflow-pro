@@ -42,6 +42,8 @@ import PremiumGuard from '@/components/premium/PremiumGuard';
 import Session from '@/pages/Session';
 import SettingsCare from '@/pages/SettingsCare';
 import HomeLegacy from '@/legacy/HomeLegacy';
+import NativeAuthReturn from '@/pages/NativeAuthReturn';
+import NativeSignIn from '@/components/auth/NativeSignIn';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -52,7 +54,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, isNative } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -68,6 +70,8 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
+      // Native app: show a Sign in button (browser sign-in starts only when tapped)
+      if (isNative) return <NativeSignIn />;
       // Redirect to login automatically
       navigateToLogin();
       return null;
@@ -269,6 +273,8 @@ const AuthenticatedApp = () => {
           <HomeLegacy />
         </LayoutWrapper>
       } />
+      {/* Used only to finish signing in to the native app from the phone's browser (see src/lib/nativeAuth.js) */}
+      <Route path="/NativeAuthReturn" element={<NativeAuthReturn />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
