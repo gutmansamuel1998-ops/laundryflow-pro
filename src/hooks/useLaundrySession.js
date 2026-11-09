@@ -52,7 +52,6 @@ export function useLaundrySession() {
   useEffect(() => {
     if (!native || !owner || !settled) return;
     writeSessionCache({ load: serverLoad, owner });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [native, owner, settled, query.dataUpdatedAt]);
 
   const update = useMutation({
