@@ -18,6 +18,8 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me().catch(() => null);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Phase 3C containment: no V1 or client caller exists; legacy AI is Premium-only on the server.
+    if (!user.has_premium) return Response.json({ error: 'premium_required' }, { status: 403 });
     if (limited(user.id)) return Response.json({ error: 'Too many requests' }, { status: 429 });
 
     const body = await req.json().catch(() => ({}));
