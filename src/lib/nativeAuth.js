@@ -181,6 +181,39 @@ export async function listenForAuthReturn({ cap = typeof window !== "undefined" 
   };
 }
 
+// Signing out inside the native app: remove this person's scheduled reminders, forget the token on
+// this phone, and restart so nothing from the old session stays in memory. The SDK's own logout is not
+// used here because it navigates to a web address, which would leave the bundled app.
+// If reminders cannot be cancelled now, the scheduler's owner check removes them at the next sign-in.
+export const TOKEN_KEYS = ["base44_access_token", "token"];
+
+export async function signOutNative({
+  cancelNotifications,
+  storage = defaultStorage(),
+  reload = () => {
+    if (typeof window !== "undefined") window.location.reload();
+  },
+} = {}) {
+  let remindersCancelled = false;
+  try {
+    if (typeof cancelNotifications === "function") {
+      await cancelNotifications();
+      remindersCancelled = true;
+    }
+  } catch {
+    // keep going: signing out must not depend on the reminder system
+  }
+  try {
+    if (storage) {
+      for (const key of [...TOKEN_KEYS, STATE_KEY]) storage.removeItem(key);
+    }
+  } catch {
+    // ignore
+  }
+  reload();
+  return { remindersCancelled };
+}
+
 export async function closeNativeBrowser(cap = typeof window !== "undefined" ? window.Capacitor : undefined) {
   try {
     const Browser = cap && cap.Plugins && cap.Plugins.Browser;
