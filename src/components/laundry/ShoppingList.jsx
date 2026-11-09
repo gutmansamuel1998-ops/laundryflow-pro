@@ -1,5 +1,7 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
+import { usePremium } from "@/hooks/usePremium";
+import { refreshShoppingList } from "@/lib/shoppingRefresh";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function ShoppingList() {
   const queryClient = useQueryClient();
+  const { isPremium } = usePremium();
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["shopping-items"],
@@ -23,7 +26,7 @@ export default function ShoppingList() {
   });
 
   const refreshMutation = useMutation({
-    mutationFn: () => base44.functions.invoke("predictSupplyDepletion", {}),
+    mutationFn: () => refreshShoppingList({ isPremium, invoke: (name, body) => base44.functions.invoke(name, body) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shopping-items"] });
     },
