@@ -26,8 +26,8 @@ export const LIMITS = { min: 1, max: 720 };
 
 export const REMINDER_LEVELS = ["off", "minimal", "standard", "persistent"];
 
-const NUDGE_INTERVAL_MINUTES = { standard: 10, persistent: 3 };
-const NUDGE_MAX = { standard: 3, persistent: 12 };
+export const NUDGE_INTERVAL_MINUTES = { standard: 10, persistent: 3 };
+export const NUDGE_MAX = { standard: 3, persistent: 12 };
 
 export function clampMinutes(value, min = LIMITS.min, max = LIMITS.max) {
   const n = Math.round(Number(value));
