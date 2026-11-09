@@ -425,13 +425,21 @@ for (const rls of [true, false]) test(`load_recommendation uses only the caller'
 });
 
 // ---- 5. usage limits ----------------------------------------------------------------------------------------------
-test("burst limit: a rapid sixth-plus request in a minute is refused before the model is called", async () => {
+test("per-minute limit: Free 6 and Premium 10; a rapid extra request is refused before the model is called", async () => {
   const w = makeWorld();
   const h = loadFn("legacyAi", w.createClientFromRequest);
-  const statuses = [];
-  for (let i = 0; i < 8; i++) statuses.push((await call(h, { op: "smart_wash", input: VALID.smart_wash })).status);
-  assert.deepEqual(statuses, [200, 200, 200, 200, 200, 200, 429, 429]);
-  assert.equal(w.llm.length, 6);
+  await withClock(async () => {
+    const free = [];
+    for (let i = 0; i < 8; i++) free.push((await call(h, { op: "load_planner", input: VALID.load_planner }, { user: "free" })).status);
+    assert.deepEqual(free, [200, 200, 200, 200, 200, 200, 429, 429]);
+    assert.equal(w.llm.length, 6);
+    const prem = [];
+    for (let i = 0; i < 12; i++) prem.push((await call(h, { op: "smart_wash", input: VALID.smart_wash })).status);
+    assert.deepEqual(prem, [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 429, 429]);
+    assert.equal(w.llm.length, 16);
+    const res = await call(h, { op: "smart_wash", input: VALID.smart_wash });
+    assert.equal((await json(res)).error, "rate_limited");
+  });
 });
 
 test("daily budget: Free 20 and Premium 120, shared across function instances, refused before the model", async () => {
