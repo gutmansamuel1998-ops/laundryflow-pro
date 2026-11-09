@@ -1,42 +1,54 @@
 {
   "name": "AirDrySession",
-  "type": "object",
   "properties": {
-    "item_names": {
-      "type": "string",
-      "description": "Names of items left to air dry (comma-separated)"
-    },
     "description": {
-      "type": "string",
-      "description": "Optional description or notes for this air dry session (up to 1000 characters)"
+      "description": "Optional description or notes for this air dry session (up to 1000 characters)",
+      "type": "string"
     },
-    "started_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "When the air drying session started"
+    "item_names": {
+      "description": "Names of items left to air dry (comma-separated)",
+      "type": "string"
+    },
+    "notified": {
+      "default": false,
+      "description": "Whether the reminder notification has been sent",
+      "type": "boolean"
     },
     "remind_after_hours": {
-      "type": "number",
       "default": 3,
-      "description": "Number of hours before sending a reminder"
+      "description": "Number of hours before sending a reminder",
+      "type": "number"
+    },
+    "started_at": {
+      "description": "When the air drying session started",
+      "format": "date-time",
+      "type": "string"
     },
     "status": {
-      "type": "string",
+      "default": "drying",
+      "description": "Whether the session is still active or completed",
       "enum": [
         "drying",
         "done"
       ],
-      "default": "drying",
-      "description": "Whether the session is still active or completed"
-    },
-    "notified": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether the reminder notification has been sent"
+      "type": "string"
     }
   },
   "required": [
     "item_names",
     "started_at"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
