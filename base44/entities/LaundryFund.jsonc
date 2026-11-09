@@ -1,48 +1,60 @@
 {
   "name": "LaundryFund",
-  "type": "object",
   "properties": {
+    "balance": {
+      "default": 0,
+      "description": "Current balance of this resource",
+      "type": "number"
+    },
+    "enabled": {
+      "default": true,
+      "description": "Whether this resource is currently tracked/shown",
+      "type": "boolean"
+    },
+    "label": {
+      "description": "Display name for this resource (e.g. Laundry Card, Quarters)",
+      "type": "string"
+    },
+    "low_threshold": {
+      "default": 5,
+      "description": "Balance below which a gentle low-resource reminder appears",
+      "type": "number"
+    },
     "resource_type": {
-      "type": "string",
+      "description": "Type of laundry payment resource being tracked",
       "enum": [
         "laundry_card",
         "credits",
         "quarters",
         "cash"
       ],
-      "description": "Type of laundry payment resource being tracked"
-    },
-    "label": {
-      "type": "string",
-      "description": "Display name for this resource (e.g. Laundry Card, Quarters)"
+      "type": "string"
     },
     "unit": {
-      "type": "string",
+      "default": "dollars",
+      "description": "How this resource's balance is measured",
       "enum": [
         "dollars",
         "credits"
       ],
-      "default": "dollars",
-      "description": "How this resource's balance is measured"
-    },
-    "balance": {
-      "type": "number",
-      "default": 0,
-      "description": "Current balance of this resource"
-    },
-    "low_threshold": {
-      "type": "number",
-      "default": 5,
-      "description": "Balance below which a gentle low-resource reminder appears"
-    },
-    "enabled": {
-      "type": "boolean",
-      "default": true,
-      "description": "Whether this resource is currently tracked/shown"
+      "type": "string"
     }
   },
   "required": [
     "resource_type",
     "label"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
