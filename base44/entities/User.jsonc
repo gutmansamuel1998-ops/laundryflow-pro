@@ -1,119 +1,134 @@
 {
   "name": "User",
-  "type": "object",
   "properties": {
-    "role": {
-      "type": "string",
-      "enum": [
-        "admin",
-        "user"
-      ],
-      "default": "user"
+    "alert_channels": {
+      "type": "object"
+    },
+    "dyslexia_font": {
+      "default": false,
+      "type": "boolean"
+    },
+    "enable_laundry_reminders": {
+      "default": true,
+      "type": "boolean"
+    },
+    "enable_supply_alerts": {
+      "default": true,
+      "type": "boolean"
+    },
+    "environmental_anchors": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "forgotten_threshold_minutes": {
+      "default": 30,
+      "type": "number"
+    },
+    "friction_detection_enabled": {
+      "default": true,
+      "type": "boolean"
     },
     "has_premium": {
-      "type": "boolean",
-      "default": false
+      "default": false,
+      "rls": {
+        "update": {
+          "user_condition": {
+            "collaborator_role": "editor"
+          }
+        }
+      },
+      "type": "boolean"
+    },
+    "high_contrast": {
+      "default": false,
+      "type": "boolean"
+    },
+    "idle_threshold_minutes": {
+      "default": 120,
+      "type": "number"
+    },
+    "laundry_environment": {
+      "description": "Legacy field \u2014 superseded by laundry_profile",
+      "type": "string"
     },
     "laundry_profile": {
-      "type": "string",
+      "default": "private",
+      "description": "Adaptive Laundry Profile: private, dorm/apartment, or family",
       "enum": [
         "private",
         "dorm",
         "family"
       ],
-      "default": "private",
-      "description": "Adaptive Laundry Profile: private, dorm/apartment, or family"
+      "type": "string"
     },
-    "two_person_household": {
-      "type": "boolean",
-      "default": false,
-      "description": "Private profile optional: managing laundry for two people"
-    },
-    "roommate_count": {
-      "type": "number",
-      "default": 0,
-      "description": "Dorm/Apartment profile: number of roommates sharing laundry facilities"
-    },
-    "laundry_environment": {
-      "type": "string",
-      "description": "Legacy field \u2014 superseded by laundry_profile"
-    },
-    "preferred_days_of_week": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      }
-    },
-    "preferred_time_windows": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+    "max_idle_time_load_created": {
+      "default": 240,
+      "type": "number"
     },
     "precise_time_preferences": {
-      "type": "array",
       "items": {
         "type": "object"
-      }
+      },
+      "type": "array"
     },
-    "enable_laundry_reminders": {
-      "type": "boolean",
-      "default": true
+    "preferred_days_of_week": {
+      "items": {
+        "type": "number"
+      },
+      "type": "array"
     },
-    "forgotten_threshold_minutes": {
-      "type": "number",
-      "default": 30
+    "preferred_time_windows": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
     },
-    "enable_supply_alerts": {
-      "type": "boolean",
-      "default": true
+    "reduced_motion": {
+      "default": false,
+      "type": "boolean"
+    },
+    "role": {
+      "default": "user",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "type": "string"
+    },
+    "roommate_count": {
+      "default": 0,
+      "description": "Dorm/Apartment profile: number of roommates sharing laundry facilities",
+      "type": "number"
     },
     "text_size": {
-      "type": "string",
+      "default": "normal",
       "enum": [
         "small",
         "normal",
         "large",
         "xlarge"
       ],
-      "default": "normal"
+      "type": "string"
     },
-    "reduced_motion": {
-      "type": "boolean",
-      "default": false
-    },
-    "high_contrast": {
-      "type": "boolean",
-      "default": false
-    },
-    "dyslexia_font": {
-      "type": "boolean",
-      "default": false
-    },
-    "environmental_anchors": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
-    },
-    "friction_detection_enabled": {
-      "type": "boolean",
-      "default": true
-    },
-    "idle_threshold_minutes": {
-      "type": "number",
-      "default": 120
-    },
-    "max_idle_time_load_created": {
-      "type": "number",
-      "default": 240
+    "two_person_household": {
+      "default": false,
+      "description": "Private profile optional: managing laundry for two people",
+      "type": "boolean"
     },
     "voice_commands_enabled": {
-      "type": "boolean",
-      "default": false
-    },
-    "alert_channels": {
-      "type": "object"
+      "default": false,
+      "type": "boolean"
     }
-  }
+  },
+  "required": [
+    "laundry_environment",
+    "preferred_days_of_week",
+    "preferred_time_windows",
+    "precise_time_preferences",
+    "environmental_anchors",
+    "alert_channels"
+  ],
+  "type": "object"
 }
