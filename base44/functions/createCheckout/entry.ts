@@ -1,7 +1,25 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+// SECURITY CONTAINMENT (Phase 3A, 2026-11-09): creation of NEW checkout sessions is temporarily disabled.
+// Reason: this function was unauthenticated and trusted client-supplied item names, quantities and prices.
+// The original implementation below is intentionally kept unchanged for later remediation (server-side catalog,
+// authenticated user binding, verified webhook). Do not set this to false until that remediation is approved.
+// Existing Premium access (User.has_premium) and the payment webhook are NOT affected by this flag.
+const CHECKOUT_TEMPORARILY_DISABLED = true;
+
 Deno.serve(async (req) => {
   try {
+    if (CHECKOUT_TEMPORARILY_DISABLED) {
+      // Return before reading the request body, the origin, or any payment credentials. Nothing is sent to Wix.
+      return Response.json(
+        {
+          error: "checkout_unavailable",
+          message: "Premium purchases are temporarily unavailable. Existing Premium access is not affected.",
+        },
+        { status: 503 }
+      );
+    }
+
     const WIX_API_KEY = Deno.env.get("WIX_PAYMENTS_API_KEY");
     const WIX_SITE_ID = Deno.env.get("WIX_PAYMENTS_SITE_ID");
 
