@@ -23,6 +23,7 @@
 // Pure functions take their dependencies as arguments so they are testable without a phone.
 
 import { PUBLISHED_ORIGIN } from "./runtimeConfig.js";
+import { SESSION_CACHE_KEY } from "./sessionCache.js";
 
 export const NATIVE_SCHEME = "com.laundryfun.pro";
 export const AUTH_HOST = "auth";
@@ -66,6 +67,33 @@ export function buildReturnUrl({ origin = PUBLISHED_ORIGIN, state }) {
 // The same login page the web app uses (so every login method the app offers is available).
 export function buildLoginUrl({ appBaseUrl, returnUrl }) {
   return `${appBaseUrl}/login?from_url=${encodeURIComponent(returnUrl)}`;
+}
+
+// The return page reads the token from the address the browser was first sent to (before the app strips it
+// from the visible address), never from storage another page on the same site could have written.
+export function tokenFromNavigationUrl(url) {
+  if (typeof url !== "string" || url.length > 8192) return null;
+  try {
+    const token = new URL(url).searchParams.get("access_token");
+    return isValidToken(token) ? token : null;
+  } catch {
+    return null;
+  }
+}
+
+// Base44's server-side logout clears the browser's HTTP-only sign-in cookie, then returns to `fromUrl`.
+// Opened in the system browser so the next "Sign in" there cannot silently reuse the previous account.
+export function buildLogoutUrl({ appBaseUrl, origin = PUBLISHED_ORIGIN }) {
+  const back = `${origin}${RETURN_PATH}?out=1`;
+  return `${appBaseUrl}/api/apps/auth/logout?from_url=${encodeURIComponent(back)}`;
+}
+
+// What is safe to write to a log for a failed request: never the request, headers, or token.
+export function safeErrorInfo(error) {
+  const status = error && Number.isFinite(error.status) ? error.status : undefined;
+  const raw = error && typeof error.message === "string" ? error.message : String(error || "");
+  const message = raw.replace(/[A-Za-z0-9._~+/=-]{40,}/g, "[redacted]").slice(0, 200);
+  return { status, message };
 }
 
 // What the return page opens to bring the person back to the app.
@@ -187,8 +215,24 @@ export async function listenForAuthReturn({ cap = typeof window !== "undefined" 
 // If reminders cannot be cancelled now, the scheduler's owner check removes them at the next sign-in.
 export const TOKEN_KEYS = ["base44_access_token", "token"];
 
+// Per-person data kept in browser storage on this phone. Device-level settings (reminder preferences, Sock Match)
+// are intentionally kept: they hold no account data.
+export const PERSON_KEYS = [SESSION_CACHE_KEY];
+export const PERSON_PREFIXES = ["lf_fired:"];
+
+function clearPersonData(storage) {
+  for (const key of PERSON_KEYS) storage.removeItem(key);
+  const stale = [];
+  for (let i = 0; i < (storage.length || 0); i += 1) {
+    const key = storage.key(i);
+    if (key && PERSON_PREFIXES.some((p) => key.startsWith(p))) stale.push(key);
+  }
+  for (const key of stale) storage.removeItem(key);
+}
+
 export async function signOutNative({
   cancelNotifications,
+  openLogout,
   storage = defaultStorage(),
   reload = () => {
     if (typeof window !== "undefined") window.location.reload();
@@ -206,7 +250,15 @@ export async function signOutNative({
   try {
     if (storage) {
       for (const key of [...TOKEN_KEYS, STATE_KEY]) storage.removeItem(key);
+      clearPersonData(storage);
     }
+  } catch {
+    // ignore
+  }
+  // End the sign-in held by the system browser too (Base44 keeps it in a cookie), so the next person who
+  // taps Sign in is asked who they are. Best effort: the app is already signed out on this phone.
+  try {
+    if (typeof openLogout === "function") await openLogout();
   } catch {
     // ignore
   }
