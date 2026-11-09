@@ -1,17 +1,29 @@
 {
   "name": "HouseholdCategory",
-  "type": "object",
   "properties": {
-    "name": {
-      "type": "string",
-      "description": "Custom recurring household laundry category name (e.g. Baby Clothes, Pet Bedding)"
-    },
     "emoji": {
-      "type": "string",
-      "description": "Optional emoji icon for this category"
+      "description": "Optional emoji icon for this category",
+      "type": "string"
+    },
+    "name": {
+      "description": "Custom recurring household laundry category name (e.g. Baby Clothes, Pet Bedding)",
+      "type": "string"
     }
   },
   "required": [
     "name"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
