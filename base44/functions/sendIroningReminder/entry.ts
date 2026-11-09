@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: owner.email,
         subject: '🧺 Ironing Reminder — Time to Iron!',
-        body: `Hi ${owner.full_name || 'there'},\n\nYou have items scheduled for ironing today (${session.scheduled_for}):\n\n${itemList}\n\n${session.notes ? 'Notes: ' + session.notes + '\n\n' : ''}Open the LaundryFlow app to mark them as done.\n\nHappy ironing! 👔`,
+        body: `Hi ${owner.full_name || 'there'},\n\nYou have items scheduled for ironing today (${session.scheduled_for}):\n\n${itemList}\n\n${session.notes ? 'Notes: ' + session.notes + '\n\n' : ''}Open the LaundryFun Pro app to mark them as done.\n\nHappy ironing! 👔`,
       });
 
       await base44.asServiceRole.entities.IroningSession.update(session.id, { notified: true });

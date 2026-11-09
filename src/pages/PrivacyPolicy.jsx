@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-lg font-semibold mb-3">Introduction</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                LifeHarbor Tech ("we", "us", or "our") operates LaundryFlow Pro. This Privacy Policy explains how we collect, use, and protect your personal information.
+                LifeHarbor Tech ("we", "us", or "our") operates LaundryFun Pro. This Privacy Policy explains how we collect, use, and protect your personal information.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Information We Collect</h2>
@@ -46,7 +46,7 @@ export default function PrivacyPolicy() {
                 We use your information to:
               </p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                <li>Provide and improve LaundryFlow Pro services</li>
+                <li>Provide and improve LaundryFun Pro services</li>
                 <li>Personalize your laundry experience</li>
                 <li>Send notifications and reminders</li>
                 <li>Provide customer support</li>

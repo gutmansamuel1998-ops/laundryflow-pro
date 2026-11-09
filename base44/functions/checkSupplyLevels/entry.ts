@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
               <p>Alert threshold: <strong>${supply.low_threshold}%</strong></p>
               <p>Consider restocking soon to avoid running out.</p>
               <br>
-              <p>— LaundryFlow Pro</p>
+              <p>— LaundryFun Pro</p>
             `
           });
 

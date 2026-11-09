@@ -27,12 +27,12 @@ export default function TermsOfService() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-lg font-semibold mb-3">Agreement to Terms</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                By accessing and using LaundryFlow Pro, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use of the app.
+                By accessing and using LaundryFun Pro, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use of the app.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Use of Service</h2>
               <p className="text-sm text-muted-foreground mb-2">
-                LaundryFlow Pro provides laundry management tools and guidance. You agree to:
+                LaundryFun Pro provides laundry management tools and guidance. You agree to:
               </p>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
                 <li>Use the service for personal, non-commercial purposes</li>
@@ -43,17 +43,17 @@ export default function TermsOfService() {
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Premium Subscription</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                LaundryFlow Pro offers optional Premium features. Premium subscriptions are billed according to the plan you select. You may cancel at any time through your account settings.
+                LaundryFun Pro offers optional Premium features. Premium subscriptions are billed according to the plan you select. You may cancel at any time through your account settings.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Intellectual Property</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                All content, features, and functionality of LaundryFlow Pro are owned by LifeHarbor Tech and protected by copyright and trademark laws.
+                All content, features, and functionality of LaundryFun Pro are owned by LifeHarbor Tech and protected by copyright and trademark laws.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Limitation of Liability</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                LaundryFlow Pro is provided "as is" without warranties. LifeHarbor Tech is not liable for any damages arising from use of the service, including laundry-related outcomes.
+                LaundryFun Pro is provided "as is" without warranties. LifeHarbor Tech is not liable for any damages arising from use of the service, including laundry-related outcomes.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Termination</h2>

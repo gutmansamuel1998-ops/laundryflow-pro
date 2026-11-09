@@ -27,7 +27,7 @@ export default function RefundPolicy() {
             <div className="prose prose-sm max-w-none">
               <h2 className="text-lg font-semibold mb-3">Premium Subscription Refunds</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                LaundryFlow Pro Premium subscriptions may be eligible for refunds under certain conditions.
+                LaundryFun Pro Premium subscriptions may be eligible for refunds under certain conditions.
               </p>
 
               <h2 className="text-lg font-semibold mb-3 mt-6">Refund Eligibility</h2>

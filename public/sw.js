@@ -1,4 +1,4 @@
-// LaundryFlow Pro service worker: exists only so laundry reminders can be shown as system
+// LaundryFun Pro service worker: exists only so laundry reminders can be shown as system
 // notifications (required on mobile browsers) and so tapping one opens the session.
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));

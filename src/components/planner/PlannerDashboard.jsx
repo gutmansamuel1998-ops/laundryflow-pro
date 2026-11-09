@@ -14,7 +14,7 @@ export default function PlannerDashboard({ result, onMarkDone, onDefer, onRefres
       {/* Low confidence notice */}
       {data_confidence === "low" && (
         <div className="bg-secondary border border-border rounded-2xl px-4 py-3 text-sm text-muted-foreground">
-          As you use LaundryFlow Pro more, planning suggestions will become more personalized.
+          As you use LaundryFun Pro more, planning suggestions will become more personalized.
         </div>
       )}
 

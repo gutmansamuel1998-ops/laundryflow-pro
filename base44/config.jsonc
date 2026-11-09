@@ -1,5 +1,5 @@
 {
-  "name": "LaundryFlow Pro",
+  "name": "LaundryFun Pro",
   "site": {
     "installCommand": "npm install",
     "buildCommand": "npm run build",

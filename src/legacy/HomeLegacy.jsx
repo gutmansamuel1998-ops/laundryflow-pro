@@ -111,7 +111,7 @@ export default function HomeLegacy() {
             {user?.full_name ? `Hi, ${user.full_name.split(" ")[0]}` : "Hi there"}
           </p>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {activeLoads.length > 0 ? "Your Laundry" : "LaundryFlow"}
+            {activeLoads.length > 0 ? "Your Laundry" : "LaundryFun Pro"}
           </h1>
         </motion.div>
 

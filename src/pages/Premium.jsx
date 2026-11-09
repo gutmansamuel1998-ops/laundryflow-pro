@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: CalendarClock,
     title: "Smart Schedule",
-    description: "LaundryFlow analyzes your patterns and recommends the optimal time to do laundry — and reminds you.",
+    description: "LaundryFun Pro analyzes your patterns and recommends the optimal time to do laundry — and reminds you.",
     color: "from-blue-500/20 to-cyan-500/10",
     iconColor: "text-blue-500",
   },
@@ -68,9 +68,9 @@ const INCLUDED = [
 ];
 
 const PLANS = [
-  { id: "month", label: "Monthly",  price: "$1",  amount: "1.00",  sub: "/month",    name: "LaundryFlow Pro – Monthly",    note: "Billed monthly",           badge: null },
-  { id: "year",  label: "Yearly",   price: "$10", amount: "10.00", sub: "/year",     name: "LaundryFlow Pro – Yearly",     note: "Save 17% vs monthly",     badge: "Best Value" },
-  { id: "life",  label: "Lifetime", price: "$15", amount: "15.00", sub: " one-time", name: "LaundryFlow Pro – Lifetime",   note: "Pay once, own it forever", badge: "🔥 Most Popular" },
+  { id: "month", label: "Monthly",  price: "$1",  amount: "1.00",  sub: "/month",    name: "LaundryFun Pro – Monthly",    note: "Billed monthly",           badge: null },
+  { id: "year",  label: "Yearly",   price: "$10", amount: "10.00", sub: "/year",     name: "LaundryFun Pro – Yearly",     note: "Save 17% vs monthly",     badge: "Best Value" },
+  { id: "life",  label: "Lifetime", price: "$15", amount: "15.00", sub: " one-time", name: "LaundryFun Pro – Lifetime",   note: "Pay once, own it forever", badge: "🔥 Most Popular" },
 ];
 
 export default function Premium() {
@@ -120,7 +120,7 @@ export default function Premium() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
             <Star className="w-3.5 h-3.5 fill-primary" />
-            LaundryFlow Pro Premium
+            LaundryFun Pro Premium
           </div>
           <h1 className="text-2xl font-bold text-foreground leading-tight mb-3">
             Do laundry smarter,<br />not harder.

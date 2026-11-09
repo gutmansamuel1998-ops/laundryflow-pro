@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-lg space-y-5 px-5 pb-32 pt-10">
       <header>
-        <p className="text-base text-muted-foreground">LaundryFlow Pro</p>
+        <p className="text-base text-muted-foreground">LaundryFun Pro</p>
         <h1 className="text-3xl font-semibold">{running ? "Laundry in progress" : "Ready to do laundry?"}</h1>
       </header>
 

@@ -43,9 +43,9 @@ export default function OnboardingFlow({ onComplete }) {
       <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-8">
         <span className="text-4xl">🧺</span>
       </div>
-      <h1 className="text-2xl font-semibold mb-3">Welcome to LaundryFlow</h1>
+      <h1 className="text-2xl font-semibold mb-3">Welcome to LaundryFun Pro</h1>
       <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed mb-8">
-        LaundryFlow helps make laundry easier to start and finish. No pressure, no judgment — just support.
+        LaundryFun Pro helps make laundry easier to start and finish. No pressure, no judgment — just support.
       </p>
       <Button onClick={() => setStep(1)} className="rounded-2xl px-8 py-5 text-base">
         Get Started <ArrowRight className="w-4 h-4 ml-2" />

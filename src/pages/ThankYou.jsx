@@ -38,7 +38,7 @@ export default function ThankYou() {
 
           <h1 className="text-2xl font-bold mb-3">Payment Successful!</h1>
           <p className="text-muted-foreground mb-6">
-            Thank you for upgrading to LaundryFlow Pro Premium. Your account has been activated.
+            Thank you for upgrading to LaundryFun Pro Premium. Your account has been activated.
           </p>
 
           <div className="bg-primary/5 rounded-xl p-4 mb-6">

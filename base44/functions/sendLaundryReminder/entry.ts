@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
 
 It's one of your preferred laundry times, and you don't have any active loads right now.
 ${dormNote}
-Open LaundryFlow Pro to get started: ${Deno.env.get('BASE44_APP_URL') || 'your app'}
+Open LaundryFun Pro to get started: ${Deno.env.get('BASE44_APP_URL') || 'your app'}
 
 ---
 To adjust your notification preferences, visit Settings in the app.`

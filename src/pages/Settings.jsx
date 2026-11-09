@@ -216,7 +216,7 @@ export default function Settings() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground mt-1.5">
-                      Helps LaundryFlow understand machine demand — no roommate accounts are created.
+                      Helps LaundryFun Pro understand machine demand — no roommate accounts are created.
                     </p>
                   </div>
                 </div>
@@ -608,7 +608,7 @@ export default function Settings() {
                variant="outline"
                className="w-full rounded-xl justify-start"
                onClick={() => navigate(createPageUrl("BusinessInfo"))}
-               aria-label="Navigate to Business Info page to learn about LaundryFlow Pro and contact support"
+               aria-label="Navigate to Business Info page to learn about LaundryFun Pro and contact support"
               >
                <Building2 className="w-4 h-4 mr-2" aria-hidden="true" />
                Business Info & Contact

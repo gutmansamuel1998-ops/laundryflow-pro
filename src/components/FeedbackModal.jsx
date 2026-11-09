@@ -12,7 +12,7 @@ export default function FeedbackModal() {
   const [open, setOpen] = useState(false);
 
   const handleSend = (type) => {
-    const subject = encodeURIComponent(`[${type.label}] LaundryFlow Pro`);
+    const subject = encodeURIComponent(`[${type.label}] LaundryFun Pro`);
     window.location.href = `mailto:gutman.samuel1998@gmail.com?subject=${subject}`;
     setOpen(false);
   };

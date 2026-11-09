@@ -171,7 +171,7 @@
   outline-offset: 4px;
   box-shadow: 0 0 0 6px hsl(var(--primary) / 0.15);
 }
-/* ── LaundryFlow Pro V1 motion preferences (Settings & Care > Animations) ── */
+/* ── LaundryFun Pro V1 motion preferences (Settings & Care > Animations) ── */
 /* "Reduced": remove decorative animation. "Off": remove all animation and transitions. */
 .motion-reduced *,
 .motion-reduced *::before,

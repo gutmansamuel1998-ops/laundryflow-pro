@@ -1,4 +1,4 @@
-// Pure, dependency-free logic for the LaundryFlow Pro V1 laundry session.
+// Pure, dependency-free logic for the LaundryFun Pro V1 laundry session.
 // No React, no network, no clock access: every function takes `now` (ms) as an argument,
 // which keeps the whole workflow deterministic and unit-testable.
 //

@@ -29,7 +29,7 @@ export default function PremiumUnlock() {
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            LaundryFlow Pro Premium
+            LaundryFun Pro Premium
           </h1>
           <p className="text-muted-foreground mt-2">
             AI help for laundry questions, stains, and clothing tags

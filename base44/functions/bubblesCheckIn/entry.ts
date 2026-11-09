@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
 
     // Generate a warm, short Bubbles check-in message
     const llmResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: `You are Bubbles, a warm, friendly, and gently encouraging laundry accountability companion inside LaundryFlow Pro. Generate a short proactive check-in message based on the user's current laundry data.
+      prompt: `You are Bubbles, a warm, friendly, and gently encouraging laundry accountability companion inside LaundryFun Pro. Generate a short proactive check-in message based on the user's current laundry data.
 
 Rules:
 - Be warm, encouraging, and never judgmental or guilt-tripping.

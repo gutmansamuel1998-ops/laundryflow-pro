@@ -92,7 +92,7 @@ export default function SettingsCare() {
 
   const sendTest = async () => {
     const ok = await showLaundryNotification(
-      "LaundryFlow Pro",
+      "LaundryFun Pro",
       "This is a test reminder. Your notifications are working.",
       "laundry-test"
     );
@@ -177,7 +177,7 @@ export default function SettingsCare() {
             </>
           )}
           <p className="text-sm text-muted-foreground">
-            Reminders arrive while LaundryFlow Pro is open in a browser tab or installed app, even in the background.
+            Reminders arrive while LaundryFun Pro is open in a browser tab or installed app, even in the background.
             If you close it completely or your device sleeps, they may be late or missed, so check your machine when
             your estimate ends. Timers themselves stay accurate either way.
           </p>

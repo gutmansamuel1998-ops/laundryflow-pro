@@ -14,7 +14,7 @@ export default function PremiumCheckout() {
       const response = await base44.functions.invoke("createCheckout", {
         items: [
           {
-            name: "LaundryFlow Pro Premium - Monthly",
+            name: "LaundryFun Pro Premium - Monthly",
             quantity: 1,
             price: "9.99"
           }
@@ -38,7 +38,7 @@ export default function PremiumCheckout() {
         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
           <Sparkles className="w-8 h-8 text-primary" />
         </div>
-        <h3 className="text-2xl font-bold mb-2">LaundryFlow Pro Premium</h3>
+        <h3 className="text-2xl font-bold mb-2">LaundryFun Pro Premium</h3>
         <div className="text-4xl font-bold text-primary mb-1">$9.99</div>
         <p className="text-sm text-muted-foreground">per month</p>
       </div>

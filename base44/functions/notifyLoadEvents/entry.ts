@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: user.email,
             subject: '✅ Wash cycle complete — time to transfer!',
-            body: `Hi ${firstName}!\n\nYour wash cycle is done. Don't let that load sit — transfer it to the dryer now to avoid wrinkles or mildew.\n\nOpen LaundryFlow Pro to log the next step.\n\n— LaundryFlow Pro`
+            body: `Hi ${firstName}!\n\nYour wash cycle is done. Don't let that load sit — transfer it to the dryer now to avoid wrinkles or mildew.\n\nOpen LaundryFun Pro to log the next step.\n\n— LaundryFun Pro`
           });
           await base44.asServiceRole.entities.Load.update(load.id, { wash_complete_notified: true });
           notificationsSent.push({ type: 'wash_complete', load_id: load.id, user: user.email });
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: user.email,
             subject: '✅ Dryer is done — fold now for best results!',
-            body: `Hi ${firstName}!\n\nYour drying cycle is finished. Fold or hang your clothes soon to prevent wrinkles.\n\nOpen LaundryFlow Pro to mark this load as complete.\n\n— LaundryFlow Pro`
+            body: `Hi ${firstName}!\n\nYour drying cycle is finished. Fold or hang your clothes soon to prevent wrinkles.\n\nOpen LaundryFun Pro to mark this load as complete.\n\n— LaundryFun Pro`
           });
           await base44.asServiceRole.entities.Load.update(load.id, { dry_complete_notified: true });
           notificationsSent.push({ type: 'dry_complete', load_id: load.id, user: user.email });
@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: user.email,
             subject: `⏰ Laundry reminder — your load needs attention`,
-            body: `Hi ${firstName}!\n\nYour laundry load has ${label} for about ${hoursIdle} hour${hoursIdle !== 1 ? 's' : ''}.\n\nDon't let it sit too long — open LaundryFlow Pro to take the next step.\n\n— LaundryFlow Pro`
+            body: `Hi ${firstName}!\n\nYour laundry load has ${label} for about ${hoursIdle} hour${hoursIdle !== 1 ? 's' : ''}.\n\nDon't let it sit too long — open LaundryFun Pro to take the next step.\n\n— LaundryFun Pro`
           });
           await base44.asServiceRole.entities.Load.update(load.id, { idle_notified: true });
           notificationsSent.push({ type: 'idle', load_id: load.id, user: user.email, state: load.current_state });

@@ -17,8 +17,8 @@ Deno.serve(async (req) => {
       const dayName = DAY_NAMES[today.getDay()];
       await base44.integrations.Core.SendEmail({
         to: user.email,
-        subject: '🧺 A good time for laundry — LaundryFlow Pro',
-        body: `Hi ${user.full_name?.split(' ')[0] || 'there'},\n\nThis looks like a good window to take care of some laundry, whenever you're ready.\n\nNo rush — just a gentle nudge for ${dayName}.\n\nOpen LaundryFlow Pro when you're ready to start.\n\n— LaundryFlow Pro`,
+        subject: '🧺 A good time for laundry — LaundryFun Pro',
+        body: `Hi ${user.full_name?.split(' ')[0] || 'there'},\n\nThis looks like a good window to take care of some laundry, whenever you're ready.\n\nNo rush — just a gentle nudge for ${dayName}.\n\nOpen LaundryFun Pro when you're ready to start.\n\n— LaundryFun Pro`,
       });
       return Response.json({ sent: true });
     }

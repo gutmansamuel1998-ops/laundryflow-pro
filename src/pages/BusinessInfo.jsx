@@ -36,7 +36,7 @@ export default function BusinessInfo() {
             <Card className="p-5 border-0 shadow-sm">
               <h3 className="text-xl font-semibold mb-2">LifeHarbor Tech</h3>
               <p className="text-sm text-muted-foreground">
-                Provider of LaundryFlow Pro — helping you manage laundry with calm, intelligent guidance
+                Provider of LaundryFun Pro — helping you manage laundry with calm, intelligent guidance
               </p>
             </Card>
           </section>
@@ -62,17 +62,17 @@ export default function BusinessInfo() {
             </Card>
           </section>
 
-          {/* About LaundryFlow Pro */}
+          {/* About LaundryFun Pro */}
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-muted-foreground" />
               <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
-                About LaundryFlow Pro
+                About LaundryFun Pro
               </h2>
             </div>
             <Card className="p-5 border-0 shadow-sm">
               <p className="text-sm text-foreground leading-relaxed">
-                LaundryFlow Pro is designed to make laundry simpler and less stressful. 
+                LaundryFun Pro is designed to make laundry simpler and less stressful. 
                 We provide calm, intelligent guidance to help you manage loads, avoid 
                 friction, and build sustainable routines.
               </p>
@@ -117,7 +117,7 @@ export default function BusinessInfo() {
                 variant="outline"
                 className="w-full rounded-xl justify-start"
                 onClick={() => navigate(createPageUrl("TermsOfService"))}
-                aria-label="Review our Terms of Service for LaundryFlow Pro"
+                aria-label="Review our Terms of Service for LaundryFun Pro"
               >
                 <FileText className="w-4 h-4 mr-2" aria-hidden="true" />
                 Review Terms of Service
