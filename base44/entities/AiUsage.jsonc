@@ -1,7 +1,7 @@
 {
   "name": "AiUsage",
   "type": "object",
-  "description": "Server-only counter rows for the legacyAi function's per-user daily budget. One row per paid AI request. Never read or written from the browser (all client access is blocked; the function uses the service role).",
+  "description": "Server-only usage rows for the per-user AI budget. One row per paid AI request, written before the request is allowed to run and removed again if the request is refused or never reaches the model. Rows older than 30 days are deleted. Never read or written from the browser (all client access is blocked; functions use the service role).",
   "properties": {
     "user_id": {
       "description": "The signed-in user the request was made for",
@@ -11,8 +11,12 @@
       "description": "UTC day, YYYY-MM-DD",
       "type": "string"
     },
+    "ts": {
+      "description": "Request time in milliseconds since 1970 (used for the per-minute limit)",
+      "type": "number"
+    },
     "op": {
-      "description": "legacyAi operation name",
+      "description": "Which AI operation or function made the request",
       "type": "string"
     }
   },
