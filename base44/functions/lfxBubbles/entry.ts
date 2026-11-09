@@ -15,7 +15,8 @@ Deno.serve(async (req) => {
     if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     // Whose laundry to look at comes from the conversation record itself, never from the request body.
-    const conversation = await base44.asServiceRole.agents.getConversation(conversationId).catch(() => null);
+    // Fetched with the caller's own credentials: the platform refuses to hand over a conversation the caller cannot access.
+    const conversation = await base44.agents.getConversation(conversationId).catch(() => null);
     const ownerId = conversation?.created_by_id;
     const allowed = !!conversation && conversation.agent_name === 'bubbles' && !!ownerId &&
       (caller.id === ownerId || caller.role === 'admin');
@@ -95,7 +96,7 @@ Write only the check-in message Bubbles would say (first person, as Bubbles):`,
       `Hey! 🫧 I peeked at your laundry — everything looks calm right now. I'm here whenever you want to tackle the next step!`;
 
     // Post the proactive check-in as Bubbles' opening message in the conversation
-    await api.agents.addMessage(conversation, { role: 'assistant', content: checkInMessage });
+    await base44.agents.addMessage(conversation, { role: 'assistant', content: checkInMessage });
 
     console.log(`Bubbles check-in posted to conversation ${conversationId}`);
 
