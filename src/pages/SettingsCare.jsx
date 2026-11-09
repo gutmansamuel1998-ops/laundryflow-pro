@@ -6,9 +6,12 @@ import { usePrefs, setPrefs } from "@/lib/sessionPrefs";
 import {
   ensureServiceWorker,
   getPermission,
+  isNativePlatform,
+  permissionHelp,
   requestNotificationPermission,
-  showLaundryNotification,
+  sendTestNotification,
 } from "@/lib/notify";
+import { useNativePermission } from "@/hooks/useNativePermission";
 import { BigButton, MinutesStepper, OptionGroup, Panel, ToggleRow } from "@/components/session/ui";
 import CarePanel from "@/components/session/CarePanel";
 import { gameAudio, TIMER_VOLUME } from "@/lib/gameAudio";
@@ -60,7 +63,10 @@ const ARCHIVED_LINKS = [
 
 export default function SettingsCare() {
   const prefs = usePrefs();
-  const [permission, setPermission] = useState(getPermission());
+  const native = isNativePlatform();
+  const nativePermission = useNativePermission(native);
+  const [webPermission, setPermission] = useState(getPermission());
+  const permission = native ? (nativePermission.permission === "unknown" ? "prompt" : nativePermission.permission) : webPermission;
   const [testResult, setTestResult] = useState("");
   const [audioMessage, setAudioMessage] = useState("");
 
@@ -82,8 +88,8 @@ export default function SettingsCare() {
       setPrefs({ notificationsEnabled: false });
       return;
     }
-    const result = await requestNotificationPermission();
-    setPermission(result);
+    const result = native ? await nativePermission.request() : await requestNotificationPermission();
+    if (!native) setPermission(result);
     if (result === "granted") {
       await ensureServiceWorker();
       setPrefs({ notificationsEnabled: true });
@@ -91,12 +97,16 @@ export default function SettingsCare() {
   };
 
   const sendTest = async () => {
-    const ok = await showLaundryNotification(
-      "LaundryFun Pro",
-      "This is a test reminder. Your notifications are working.",
-      "laundry-test"
+    const { ok, delayed } = await sendTestNotification();
+    setTestResult(
+      ok
+        ? delayed
+          ? "Test scheduled. It should arrive in about 8 seconds. Try switching to another app or locking your screen."
+          : "Test sent. Look for it in your notifications."
+        : native
+        ? "Couldn't schedule a test. Check that notifications are allowed for LaundryFun Pro in your phone's settings."
+        : "Couldn't show a notification. Check your browser's site settings."
     );
-    setTestResult(ok ? "Test sent. Look for it in your notifications." : "Couldn't show a notification. Check your browser's site settings.");
   };
 
   // Sound tests run from a button press, which is what lets the browser start audio.
@@ -154,11 +164,10 @@ export default function SettingsCare() {
             id="system-notifications"
             label="Show notifications"
             hint={
-              permission === "denied"
-                ? "Notifications are blocked. Allow them in your browser's site settings, then come back."
-                : permission === "unsupported"
-                ? "This browser doesn't support notifications."
-                : "Pop-up reminders even when you're in another app or tab."
+              permissionHelp(permission) ||
+              (native
+                ? "Reminders on your phone, even when you're in another app."
+                : "Pop-up reminders even when you're in another app or tab.")
             }
             checked={notificationsOn}
             disabled={blocked}
@@ -177,9 +186,9 @@ export default function SettingsCare() {
             </>
           )}
           <p className="text-sm text-muted-foreground">
-            Reminders arrive while LaundryFun Pro is open in a browser tab or installed app, even in the background.
-            If you close it completely or your device sleeps, they may be late or missed, so check your machine when
-            your estimate ends. Timers themselves stay accurate either way.
+            {native
+              ? "Reminders are scheduled with your phone, so they can arrive even when the app is closed. Battery saver or Do Not Disturb settings can delay or hide them, so check your machine when your estimate ends. Timers themselves stay accurate either way."
+              : "Reminders arrive while LaundryFun Pro is open in a browser tab or installed app, even in the background. If you close it completely or your device sleeps, they may be late or missed, so check your machine when your estimate ends. Timers themselves stay accurate either way."}
           </p>
         </div>
       </Panel>
