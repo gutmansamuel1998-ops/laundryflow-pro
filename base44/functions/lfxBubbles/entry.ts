@@ -96,13 +96,19 @@ Write only the check-in message Bubbles would say (first person, as Bubbles):`,
       `Hey! 🫧 I peeked at your laundry — everything looks calm right now. I'm here whenever you want to tackle the next step!`;
 
     // Post the proactive check-in as Bubbles' opening message in the conversation
-    await base44.agents.addMessage(conversation, { role: 'assistant', content: checkInMessage });
-
-    console.log(`Bubbles check-in posted to conversation ${conversationId}`);
+    // Note: the platform currently answers 422 to assistant-role posts, which is why this feature never worked; keep the attempt, report the outcome.
+    let posted = false;
+    try {
+      await base44.agents.addMessage(conversation, { role: 'assistant', content: checkInMessage });
+      posted = true;
+    } catch (postError) {
+      console.error('bubblesCheckIn: could not post message:', postError && postError.status ? postError.status : 'error');
+    }
 
     // Nothing about the user's laundry is returned to the caller.
     return Response.json({
       success: true,
+      posted,
       conversation_id: conversationId,
       loads_checked: loads.length,
       attention_points: attentionPoints.length,
