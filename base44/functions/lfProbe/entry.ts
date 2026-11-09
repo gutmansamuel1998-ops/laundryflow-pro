@@ -11,6 +11,9 @@ Deno.serve(async (req) => {
       if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
       return Response.json({ ok: true });
     }
+    if (action === 'ver') {
+      return Response.json({ version: 'v2-from-file-edit' });
+    }
     if (action === 'who') {
       const user = await base44.auth.me().catch(() => null);
       return Response.json({ authenticated: !!user, role: user ? user.role : null, id_present: !!(user && user.id) });
