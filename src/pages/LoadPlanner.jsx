@@ -37,11 +37,6 @@ export default function LoadPlanner() {
   const [showClosetPicker, setShowClosetPicker] = useState(false);
   const [pickerSelected, setPickerSelected] = useState(new Set(preselectedIds));
 
-  const { data: supplies = [] } = useQuery({
-    queryKey: ["supplies"],
-    queryFn: () => base44.entities.Supply.list(),
-  });
-
   const { data: closetItems = [] } = useQuery({
     queryKey: ["clothing-items"],
     queryFn: () => base44.entities.ClothingItem.list("-created_date"),

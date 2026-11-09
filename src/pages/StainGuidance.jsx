@@ -47,7 +47,6 @@ export default function StainGuidance() {
   const [loadingMsg, setLoadingMsg] = useState("Analyzing...");
   const [imageUrl, setImageUrl] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [supplies, setSupplies] = useState([]);
   const [activeLoads, setActiveLoads] = useState([]);
   const [savedToLoad, setSavedToLoad] = useState(null);
   const [savingLoad, setSavingLoad] = useState(false);
@@ -59,7 +58,6 @@ export default function StainGuidance() {
   const [showClosetPicker, setShowClosetPicker] = useState(false);
 
   useEffect(() => {
-    base44.entities.Supply.list().then(setSupplies).catch(() => {});
     base44.entities.Load.filter({ status: "active" }).then(setActiveLoads).catch(() => {});
     base44.entities.ClothingItem.list().then(setClosetItems).catch(() => {});
   }, []);

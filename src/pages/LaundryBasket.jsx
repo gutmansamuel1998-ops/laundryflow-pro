@@ -31,11 +31,6 @@ export default function LaundryBasket() {
     queryFn: () => base44.entities.ClothingItem.list("-created_date"),
   });
 
-  const { data: supplies = [] } = useQuery({
-    queryKey: ["supplies"],
-    queryFn: () => base44.entities.Supply.list(),
-  });
-
   const toggle = (id) => {
     setSelectionError("");
     setSelectedIds(prev =>
