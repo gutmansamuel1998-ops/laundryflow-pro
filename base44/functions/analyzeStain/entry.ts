@@ -1,5 +1,79 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
+// >>> AI-QUOTA BEGIN (Phase 3F). This block is identical in every function that calls the paid model; a test fails if the copies drift. >>>
+// Per-user AI budget, enforced with "insert, then count" so simultaneous requests cannot slip past it:
+//   1. a usage row is written first (service role; clients can never read or write AiUsage);
+//   2. the user's rows for today are then read back, which now include this request's own row;
+//   3. if the count is over the daily cap, or too many rows are from the last minute, this request deletes its own
+//      row and is refused. Otherwise it proceeds.
+// Any admitted request saw at most `cap` rows including all rows written before its own, so at most `cap` requests
+// can be admitted per day, however they interleave. When requests collide near the limit they may both be refused
+// (safe direction); they are never both admitted past it. The count never depends on a clock or on this process's
+// memory, so it holds across function instances. If the store cannot be used the request is refused (503): the
+// budget fails closed, it never turns into "unlimited".
+const AI_QUOTA = { dayFree: 20, dayPremium: 120, minuteFree: 6, minutePremium: 10, windowMs: 60000, retentionDays: 30 };
+
+async function purgeOldAiUsage(store: any, userId: string, now: number): Promise<void> {
+  try {
+    const cutoff = new Date(now - AI_QUOTA.retentionDays * 86400000).toISOString().slice(0, 10);
+    const old = await store.filter({ user_id: userId, day: { $lt: cutoff } }, undefined, 10);
+    for (const r of Array.isArray(old) ? old : []) if (r && r.id) await store.delete(r.id);
+  } catch (_e) {
+    // best effort: old rows are also removed by the optional scheduled purge
+  }
+}
+
+async function reserveAiUse(base44: any, userId: string, isPremium: boolean, source: string): Promise<any> {
+  const unavailable = { ok: false, status: 503, error: 'usage_unavailable' };
+  const now = Date.now();
+  const day = new Date(now).toISOString().slice(0, 10);
+  const dayCap = isPremium ? AI_QUOTA.dayPremium : AI_QUOTA.dayFree;
+  const minuteCap = isPremium ? AI_QUOTA.minutePremium : AI_QUOTA.minuteFree;
+  const store = base44.asServiceRole.entities.AiUsage;
+  let row: any;
+  try {
+    row = await store.create({ user_id: userId, day, ts: now, op: String(source).slice(0, 60) });
+  } catch (_e) {
+    return unavailable;
+  }
+  if (!row || !row.id) return unavailable;
+  const release = async () => {
+    try {
+      await store.delete(row.id);
+    } catch (_e) {
+      console.error('usage row could not be released');
+    }
+  };
+  let rows: any;
+  try {
+    rows = await store.filter({ user_id: userId, day }, '-ts', dayCap + 1);
+  } catch (_e) {
+    await release();
+    return unavailable;
+  }
+  if (!Array.isArray(rows)) {
+    await release();
+    return unavailable;
+  }
+  if (rows.length > dayCap) {
+    await release();
+    return { ok: false, status: 429, error: 'daily_limit_reached' };
+  }
+  // Every row is in view here, so this request's own row must be too; if not, the read was stale: refuse.
+  if (!rows.some((r: any) => r && r.id === row.id)) {
+    await release();
+    return unavailable;
+  }
+  const recent = rows.filter((r: any) => r && typeof r.ts === 'number' && r.ts > now - AI_QUOTA.windowMs).length;
+  if (recent > minuteCap) {
+    await release();
+    return { ok: false, status: 429, error: 'rate_limited' };
+  }
+  await purgeOldAiUsage(store, userId, now);
+  return { ok: true, release };
+}
+// <<< AI-QUOTA END <<<
+
 // Per-instance rate limit (best effort): 10 analyses per minute per signed-in user.
 const WINDOW_MS = 60_000;
 const MAX_PER_WINDOW = 10;
@@ -35,6 +109,8 @@ Deno.serve(async (req) => {
       ? supplies.map((s) => `${clean(s?.name)} (${Number(s?.current_level) || 0}% remaining)`).join(', ')
       : 'No supplies listed';
 
+    const quota = await reserveAiUse(base44, user.id, true, 'analyzeStain');
+    if (!quota.ok) return Response.json({ error: quota.error }, { status: quota.status });
     // Runs with the caller's own credentials (no service role).
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `You are a laundry expert. Analyze this image of a stained garment.

@@ -19,11 +19,7 @@ const FILE_URL_HOST = 'media.base44.com';
 const FILE_URL_PATH_PREFIX = `/files/public/${APP_ID}/`;
 
 const MAX_BODY_BYTES = 16 * 1024;
-const BURST_WINDOW_MS = 60000;
-const BURST_MAX = 6;
-// Per-user, per-UTC-day budgets. These numbers are proposals that need owner approval.
-const DAILY_CAP_PREMIUM = 120;
-const DAILY_CAP_FREE = 20;
+// Per-user budgets (daily and per-minute caps) live in AI_QUOTA below. They are proposals that need owner approval.
 // Operations that were available to Free users before Phase 3E (no Premium check in the old UI). Emptying this set
 // makes them Premium-only; that is a customer-facing change and needs owner approval.
 const FREE_ALLOWED_OPS = new Set(['basket_plan', 'load_planner', 'closet_scan']);
@@ -509,47 +505,79 @@ ${DATA_NOTE}`,
 };
 
 // ---------- limits ----------
-const burst = new Map<string, number[]>();
-const dailyMem = new Map<string, number>();
+// >>> AI-QUOTA BEGIN (Phase 3F). This block is identical in every function that calls the paid model; a test fails if the copies drift. >>>
+// Per-user AI budget, enforced with "insert, then count" so simultaneous requests cannot slip past it:
+//   1. a usage row is written first (service role; clients can never read or write AiUsage);
+//   2. the user's rows for today are then read back, which now include this request's own row;
+//   3. if the count is over the daily cap, or too many rows are from the last minute, this request deletes its own
+//      row and is refused. Otherwise it proceeds.
+// Any admitted request saw at most `cap` rows including all rows written before its own, so at most `cap` requests
+// can be admitted per day, however they interleave. When requests collide near the limit they may both be refused
+// (safe direction); they are never both admitted past it. The count never depends on a clock or on this process's
+// memory, so it holds across function instances. If the store cannot be used the request is refused (503): the
+// budget fails closed, it never turns into "unlimited".
+const AI_QUOTA = { dayFree: 20, dayPremium: 120, minuteFree: 6, minutePremium: 10, windowMs: 60000, retentionDays: 30 };
 
-function burstAllow(id: string): boolean {
-  const now = Date.now();
-  const recent = (burst.get(id) || []).filter((t) => now - t < BURST_WINDOW_MS);
-  if (recent.length >= BURST_MAX) {
-    burst.set(id, recent);
-    return false;
-  }
-  recent.push(now);
-  burst.set(id, recent);
-  if (burst.size > 5000) {
-    for (const [k, v] of burst) if (!v.some((t) => now - t < BURST_WINDOW_MS)) burst.delete(k);
-  }
-  return true;
-}
-function dailyMemAllow(id: string, day: string, cap: number): boolean {
-  const key = `${day}:${id}`;
-  const used = dailyMem.get(key) || 0;
-  if (used >= cap) return false;
-  dailyMem.set(key, used + 1);
-  if (dailyMem.size > 5000) {
-    for (const k of dailyMem.keys()) if (!k.startsWith(`${day}:`)) dailyMem.delete(k);
-  }
-  return true;
-}
-// Durable budget (AiUsage rows, written with the service role; clients cannot write them). If the store is
-// unavailable the per-instance counter still applies, so a storage problem never means "unlimited".
-async function reserveDaily(base44: any, user: any, op: string, cap: number): Promise<boolean> {
-  const day = new Date().toISOString().slice(0, 10);
+async function purgeOldAiUsage(store: any, userId: string, now: number): Promise<void> {
   try {
-    const used = await base44.asServiceRole.entities.AiUsage.filter({ user_id: user.id, day }, undefined, cap + 1);
-    if ((used || []).length >= cap) return false;
-    await base44.asServiceRole.entities.AiUsage.create({ user_id: user.id, day, op });
-    return true;
+    const cutoff = new Date(now - AI_QUOTA.retentionDays * 86400000).toISOString().slice(0, 10);
+    const old = await store.filter({ user_id: userId, day: { $lt: cutoff } }, undefined, 10);
+    for (const r of Array.isArray(old) ? old : []) if (r && r.id) await store.delete(r.id);
   } catch (_e) {
-    console.error('legacyAi: usage store unavailable, using per-instance counter');
-    return dailyMemAllow(user.id, day, cap);
+    // best effort: old rows are also removed by the optional scheduled purge
   }
 }
+
+async function reserveAiUse(base44: any, userId: string, isPremium: boolean, source: string): Promise<any> {
+  const unavailable = { ok: false, status: 503, error: 'usage_unavailable' };
+  const now = Date.now();
+  const day = new Date(now).toISOString().slice(0, 10);
+  const dayCap = isPremium ? AI_QUOTA.dayPremium : AI_QUOTA.dayFree;
+  const minuteCap = isPremium ? AI_QUOTA.minutePremium : AI_QUOTA.minuteFree;
+  const store = base44.asServiceRole.entities.AiUsage;
+  let row: any;
+  try {
+    row = await store.create({ user_id: userId, day, ts: now, op: String(source).slice(0, 60) });
+  } catch (_e) {
+    return unavailable;
+  }
+  if (!row || !row.id) return unavailable;
+  const release = async () => {
+    try {
+      await store.delete(row.id);
+    } catch (_e) {
+      console.error('usage row could not be released');
+    }
+  };
+  let rows: any;
+  try {
+    rows = await store.filter({ user_id: userId, day }, '-ts', dayCap + 1);
+  } catch (_e) {
+    await release();
+    return unavailable;
+  }
+  if (!Array.isArray(rows)) {
+    await release();
+    return unavailable;
+  }
+  if (rows.length > dayCap) {
+    await release();
+    return { ok: false, status: 429, error: 'daily_limit_reached' };
+  }
+  // Every row is in view here, so this request's own row must be too; if not, the read was stale: refuse.
+  if (!rows.some((r: any) => r && r.id === row.id)) {
+    await release();
+    return unavailable;
+  }
+  const recent = rows.filter((r: any) => r && typeof r.ts === 'number' && r.ts > now - AI_QUOTA.windowMs).length;
+  if (recent > minuteCap) {
+    await release();
+    return { ok: false, status: 429, error: 'rate_limited' };
+  }
+  await purgeOldAiUsage(store, userId, now);
+  return { ok: true, release };
+}
+// <<< AI-QUOTA END <<<
 
 const json = (body: any, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
@@ -586,12 +614,16 @@ Deno.serve(async (req: Request) => {
     const input = body.input && typeof body.input === 'object' && !Array.isArray(body.input) ? body.input : {};
     const params = op.validate(input);
 
-    if (!burstAllow(user.id)) return json({ error: 'rate_limited' }, 429);
-    if (!(await reserveDaily(base44, user, name, isPremium ? DAILY_CAP_PREMIUM : DAILY_CAP_FREE))) {
-      return json({ error: 'daily_limit_reached' }, 429);
-    }
+    const quota = await reserveAiUse(base44, user.id, isPremium, name);
+    if (!quota.ok) return json({ error: quota.error }, quota.status);
 
-    const built = await op.build(params, null, base44, user);
+    let built: any;
+    try {
+      built = await op.build(params, null, base44, user);
+    } catch (e) {
+      await quota.release(); // nothing was sent to the model, so this attempt does not use up the budget
+      throw e;
+    }
     const schema = SCHEMAS[name];
     let result: any;
     try {
