@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 import { currentRuntime } from '@/lib/runtimeConfig';
-import { completeNativeLogin, closeNativeBrowser, listenForAuthReturn, signOutNative } from '@/lib/nativeAuth';
+import { completeNativeLogin, closeNativeBrowser, listenForAuthReturn, signOutNative, buildLogoutUrl, safeErrorInfo } from '@/lib/nativeAuth';
 import { nativeScheduler } from '@/lib/nativeNotifications';
 
 // Web: unchanged. Native app: absolute addresses and browser-based sign-in (see src/lib/nativeAuth.js).
@@ -82,7 +82,8 @@ export const AuthProvider = ({ children }) => {
         }
         setIsLoadingPublicSettings(false);
       } catch (appError) {
-        console.error('App state check failed:', appError);
+        // Log only status and a trimmed message: the full error object can carry the request, including the token.
+        console.error('App state check failed:', safeErrorInfo(appError));
         
         // Handle app-level errors
         if (appError.status === 403 && appError.data?.extra_data?.reason) {
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoadingAuth(false);
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('Unexpected error:', safeErrorInfo(error));
       setAuthError({
         type: 'unknown',
         message: error.message || 'An unexpected error occurred'
@@ -132,7 +133,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
     } catch (error) {
-      console.error('User auth check failed:', error);
+      console.error('User auth check failed:', safeErrorInfo(error));
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       
@@ -152,7 +153,16 @@ export const AuthProvider = ({ children }) => {
 
     if (runtime.native) {
       // Cancel this person's scheduled reminders first so the next person on this phone never gets them.
-      signOutNative({ cancelNotifications: () => nativeScheduler.cancelAll() });
+      signOutNative({
+        cancelNotifications: () => nativeScheduler.cancelAll(),
+        // Also end the sign-in the phone's browser keeps, so the next "Sign in" asks who is signing in.
+        openLogout: () => {
+          const Browser = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
+          return Browser && typeof Browser.open === 'function'
+            ? Browser.open({ url: buildLogoutUrl({ appBaseUrl: appParams.appBaseUrl }) })
+            : undefined;
+        },
+      });
       return;
     }
 
