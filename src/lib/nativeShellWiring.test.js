@@ -53,7 +53,7 @@ test("the return page never prints the token and needs the one-time code", () =>
 });
 
 test("native sign-out cancels reminders before forgetting the token; native never auto-redirects to a web page", () => {
-  assert.match(auth, /signOutNative\(\{ cancelNotifications: \(\) => nativeScheduler\.cancelAll\(\) \}\)/);
+  assert.match(auth, /signOutNative\(\{\s*cancelNotifications: \(\) => nativeScheduler\.cancelAll\(\),/);
   assert.match(auth, /if \(runtime\.native\) return;/);
   assert.match(app, /if \(isNative\) return <NativeSignIn \/>;/);
 });
