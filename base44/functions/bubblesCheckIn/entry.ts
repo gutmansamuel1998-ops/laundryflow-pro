@@ -5,17 +5,32 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
     const conversationId = body?.event?.conversation_id;
-    const appUserId = body?.app_user?.id;
 
-    if (!conversationId || !appUserId) {
-      return Response.json({ error: 'Missing conversation_id or app_user_id' }, { status: 400 });
+    if (!conversationId || typeof conversationId !== 'string') {
+      return Response.json({ error: 'Missing conversation_id' }, { status: 400 });
     }
 
-    // Read the user's active loads, basket items, and supplies
+    // The caller must be signed in: either the conversation's owner, or the platform automation (an app admin).
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Whose laundry to look at comes from the conversation record itself, never from the request body.
+    // Fetched with the caller's own credentials: the platform refuses to hand over a conversation the caller cannot access.
+    const conversation = await base44.agents.getConversation(conversationId).catch(() => null);
+    const ownerId = conversation?.created_by_id;
+    const allowed = !!conversation && conversation.agent_name === 'bubbles' && !!ownerId &&
+      (caller.id === ownerId || caller.role === 'admin');
+    if (!allowed) {
+      return Response.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+
+    // The owner's own scoped access when they call; elevated access only for the automation acting for them.
+    const api = caller.id === ownerId ? base44 : base44.asServiceRole;
+
     const [loads, basketItems, supplies] = await Promise.all([
-      base44.asServiceRole.entities.Load.filter({ status: 'active', created_by_id: appUserId }),
-      base44.asServiceRole.entities.BasketItem.filter({ status: 'in_basket', created_by_id: appUserId }),
-      base44.asServiceRole.entities.Supply.filter({ created_by_id: appUserId }),
+      api.entities.Load.filter({ status: 'active', created_by_id: ownerId }),
+      api.entities.BasketItem.filter({ status: 'in_basket', created_by_id: ownerId }),
+      api.entities.Supply.filter({ created_by_id: ownerId }),
     ]);
 
     const now = Date.now();
@@ -57,7 +72,7 @@ Deno.serve(async (req) => {
     };
 
     // Generate a warm, short Bubbles check-in message
-    const llmResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
+    const llmResponse = await api.integrations.Core.InvokeLLM({
       prompt: `You are Bubbles, a warm, friendly, and gently encouraging laundry accountability companion inside LaundryFun Pro. Generate a short proactive check-in message based on the user's current laundry data.
 
 Rules:
@@ -67,7 +82,7 @@ Rules:
 - Offer ONE gentle next step (or say everything looks calm if nothing needs attention).
 - Use the bubble emoji 🫧 at most once.
 - If nothing needs attention, just say hi and that things look good.
-- Never shame or pressure. Always leave an easy "not right now" vibe.
+- Never shame or pressure. Always leave an easy 'not right now' vibe.
 
 Current laundry data:
 ${JSON.stringify(context, null, 2)}
@@ -78,23 +93,28 @@ Write only the check-in message Bubbles would say (first person, as Bubbles):`,
 
     const checkInMessage =
       (llmResponse && llmResponse.message) ||
-      "Hey! 🫧 I peeked at your laundry — everything looks calm right now. I'm here whenever you want to tackle the next step!";
+      `Hey! 🫧 I peeked at your laundry — everything looks calm right now. I'm here whenever you want to tackle the next step!`;
 
     // Post the proactive check-in as Bubbles' opening message in the conversation
-    const conversation = await base44.agents.getConversation(conversationId);
-    await base44.agents.addMessage(conversation, { role: 'assistant', content: checkInMessage });
+    // Note: the platform currently answers 422 to assistant-role posts, which is why this feature never worked; keep the attempt, report the outcome.
+    let posted = false;
+    try {
+      await base44.agents.addMessage(conversation, { role: 'assistant', content: checkInMessage });
+      posted = true;
+    } catch (postError) {
+      console.error('bubblesCheckIn: could not post message:', postError && postError.status ? postError.status : 'error');
+    }
 
-    console.log(`Bubbles check-in posted to conversation ${conversationId}: ${checkInMessage.substring(0, 80)}...`);
-
+    // Nothing about the user's laundry is returned to the caller.
     return Response.json({
       success: true,
+      posted,
       conversation_id: conversationId,
       loads_checked: loads.length,
       attention_points: attentionPoints.length,
-      check_in: checkInMessage,
     });
   } catch (error) {
-    console.error('bubblesCheckIn error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('bubblesCheckIn error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Check-in failed' }, { status: 500 });
   }
 });
