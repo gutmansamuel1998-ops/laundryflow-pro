@@ -1,8 +1,13 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Scheduled/system job: only the platform automation (an app admin) may run it.
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (caller.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     // Get all supplies
     const supplies = await base44.asServiceRole.entities.Supply.list();
@@ -33,7 +38,7 @@ Deno.serve(async (req) => {
             `
           });
 
-          console.log(`Low supply notification sent for ${supply.name} to ${userEmail}`);
+          console.log(`Low supply notification sent for supply ${supply.id}`);
 
           // Mark as notified
           await base44.asServiceRole.entities.Supply.update(supply.id, {
@@ -47,11 +52,10 @@ Deno.serve(async (req) => {
       success: true,
       checked: supplies.length,
       notifications_sent: lowSupplies.length,
-      low_supplies: lowSupplies.map(s => ({ name: s.name, level: s.current_level }))
     });
 
   } catch (error) {
-    console.error("Supply check error:", error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Supply check error:', error && error.message ? error.message : String(error));
+    return Response.json({ error: 'Job failed' }, { status: 500 });
   }
 });
