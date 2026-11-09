@@ -29,3 +29,19 @@ dist-ssr
 
 .env
 base44/.app.jsonc
+
+# Native shell (native/): build output and dependencies only; the generated android/ and ios/ projects are kept
+native/android/.gradle/
+native/android/build/
+native/android/app/build/
+native/android/local.properties
+native/android/capacitor-cordova-android-plugins/
+native/android/app/src/main/assets/public/
+native/android/app/src/main/assets/capacitor.config.json
+native/android/app/src/main/assets/capacitor.plugins.json
+native/ios/App/Pods/
+native/ios/App/build/
+native/ios/App/App/public/
+native/ios/App/App/capacitor.config.json
+native/ios/DerivedData/
+native/ios/App/xcuserdata/

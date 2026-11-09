@@ -1,0 +1,11 @@
+{
+  "appId": "com.laundryfun.pro",
+  "appName": "LaundryFun Pro",
+  "webDir": "../dist",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {}
+  }
+}
