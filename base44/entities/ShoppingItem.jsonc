@@ -1,37 +1,49 @@
 {
   "name": "ShoppingItem",
-  "type": "object",
   "properties": {
-    "supply_name": {
-      "type": "string",
-      "description": "Name of the supply item to purchase"
+    "added_reason": {
+      "description": "Why this item was added (e.g., 'Based on 3 loads/week pattern')",
+      "type": "string"
     },
     "description": {
-      "type": "string",
-      "description": "Optional description of this shopping item (up to 1000 characters)"
+      "description": "Optional description of this shopping item (up to 1000 characters)",
+      "type": "string"
     },
     "predicted_depletion_date": {
-      "type": "string",
+      "description": "When the supply is predicted to run out",
       "format": "date-time",
-      "description": "When the supply is predicted to run out"
+      "type": "string"
     },
     "status": {
-      "type": "string",
+      "default": "pending",
+      "description": "Status of the shopping item",
       "enum": [
         "pending",
         "purchased",
         "dismissed"
       ],
-      "default": "pending",
-      "description": "Status of the shopping item"
+      "type": "string"
     },
-    "added_reason": {
-      "type": "string",
-      "description": "Why this item was added (e.g., 'Based on 3 loads/week pattern')"
+    "supply_name": {
+      "description": "Name of the supply item to purchase",
+      "type": "string"
     }
   },
   "required": [
     "supply_name",
     "status"
-  ]
+  ],
+  "rls": {
+    "create": true,
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    }
+  },
+  "type": "object"
 }
