@@ -177,7 +177,7 @@ test("nothing says or implies the Laundry calendar was rebuilt, replaced or move
   const calendarText = [calendar.note, ...EARLIER_COPY.currentItems.filter((t) => /calendar/i.test(t))].join(" ");
   assert.match(calendarText, /still the full Laundry calendar/i);
   assert.match(calendarText, /doesn't replace/i);
-  assert.doesNotMatch(calendarText, /\b(replaces?|replaced|rebuilt|recreated|built into|moved into|new calendar|calendar is now|same as the calendar)\b(?! it)/i.source ? /(?<!n't )\b(replaces?|replaced|rebuilt|recreated|built into|new calendar|calendar is now)\b/i : /x/);
+  assert.doesNotMatch(calendarText, /(?<!n't )\b(replaces?|replaced|rebuilt|recreated|built into|moved into|new calendar|calendar is now|same as the calendar)\b/i);
   // the sentence about what is "built in" names only air-drying and ironing
   assert.match(EARLIER_COPY.olderIntro, /Air-drying and optional ironing now work inside your main laundry experience/);
   assert.doesNotMatch(EARLIER_COPY.olderIntro + EARLIER_COPY.olderHeading, /calendar/i);
