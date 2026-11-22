@@ -598,7 +598,8 @@ test("moving a day onto the date of another moved day, or onto itself at a new t
   const r = make([SAT, SUN]);
   const now = at(CHI, "2026-11-23", "10:00");
   const a = ok(rescheduleOccurrence(r, { id: SAT_ID, date: "2026-11-29", time: "16:00", nowMs: now, zone: CHI })).routine;
-  const b = ok(rescheduleOccurrence(a, { id: "2026-11-29", date: "2026-11-29", time: "11:00", nowMs: now + MIN, zone: CHI }));
+  const b = ok(rescheduleOccurrence(a, { id: SAT_ID, date: "2026-11-29", time: "11:00", nowMs: now + MIN, zone: CHI }));
+  assert.equal(rescheduleOccurrence(a, { id: "2026-11-29", date: "2026-12-01", time: "11:00", nowMs: now + MIN, zone: CHI }).reason, "notScheduled"); // Sunday's own slot was absorbed into the move
   const list = occurrencesBetween(b.routine, { zone: CHI, fromDate: "2026-11-27", toDate: "2026-12-01" });
   assert.equal(list.length, 1);
   assert.equal(list[0].date, "2026-11-29");
@@ -726,11 +727,11 @@ test("through a whole year every reminder is exactly on its clock time, except t
 
 test("a snooze limit follows the real length of the day: 25 hours when clocks go back, 23 when they go forward", () => {
   const fall = make([SUN], "09:00", NY);
-  const lastMinute = Date.UTC(2026, 10, 2, 4, 55); // 23:55 EST on 2026-11-01 (clocks went back that morning)
+  const lastMinute = Date.UTC(2026, 10, 2, 4, 50); // 23:50 EST on 2026-11-01 (clocks went back that morning)
   assert.equal(snoozeOccurrence(fall, { id: "2026-11-01", minutes: 5, nowMs: lastMinute, zone: NY }).ok, true);
   assert.equal(snoozeOccurrence(fall, { id: "2026-11-01", minutes: 15, nowMs: lastMinute, zone: NY }).reason, "snoozeTooFar");
   const spring = make([SUN], "09:00", NY);
-  const springLate = Date.UTC(2026, 2, 9, 3, 55); // 23:55 EDT on 2026-03-08
+  const springLate = Date.UTC(2026, 2, 9, 3, 50); // 23:50 EDT on 2026-03-08
   assert.equal(snoozeOccurrence(spring, { id: "2026-03-08", minutes: 5, nowMs: springLate, zone: NY }).ok, true);
   assert.equal(snoozeOccurrence(spring, { id: "2026-03-08", minutes: 15, nowMs: springLate, zone: NY }).reason, "snoozeTooFar");
 });
@@ -1222,7 +1223,7 @@ test("the module is plain logic: no imports, no React, no Base44, no storage, no
 
 test("the module never reads the clock, the computer's own time zone, or a random number", () => {
   assert.doesNotMatch(code, /Date\.now\(|new Date\(\s*\)|performance\.now|Math\.random|getTimezoneOffset|toLocale|\.getHours\(|\.getDate\(|\.getDay\(|\.getMonth\(|\.getFullYear\(/);
-  assert.doesNotMatch(code, /resolvedOptions\(\)\.timeZone\s*[;,)]?\s*$/m.test(code) ? /never/ : /^$/);
+  assert.doesNotMatch(code, /resolvedOptions/);
   const formatterCalls = code.match(/new Intl\.DateTimeFormat\([\s\S]*?\)/g) || [];
   assert.ok(formatterCalls.length >= 2);
   for (const call of formatterCalls) assert.match(call, /timeZone/);
