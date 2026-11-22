@@ -345,7 +345,7 @@ t("Settings: the weekdays are a labeled group of seven checkboxes, and the chose
   const checked = boxes.filter((tag) => /\schecked/.test(tag)).map((tag) => attrOf(tag, "id"));
   assert.deepEqual(checked, ["laundry-day-1", "laundry-day-4"]);
   for (const [i, name] of ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].entries()) {
-    assert.match(html, new RegExp(`<label[^>]*for="laundry-day-${i}"[^>]*>[\\s\\S]*?<span>${name}</span></label>`));
+    assert.match(html, new RegExp(`<label[^>]*for="laundry-day-${i}"[^>]*>[\\s\\S]*?<span class="[^"]*">${name}</span></label>`));
   }
   assert.match(plain(html), /Choose one day or several\./);
   assert.ok(boxes.every((tag) => /aria-describedby="laundry-days-hint"/.test(tag)));
