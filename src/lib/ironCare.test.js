@@ -214,7 +214,12 @@ test("no laundry stage shows the ironing view yet, and the session state machine
 
 test("no navigation, route or entity was added for ironing", () => {
   const app = read("../App.jsx");
-  assert.doesNotMatch(app, /IronQueue|IronItem|IroningQueue/i);
+  // Only the three pre-existing ironing pages are routed; this patch adds none and no IronItem exists.
+  const routes = [...app.matchAll(/path="\/(Iron\w*)"/g)].map((m) => m[1]).sort();
+  assert.deepEqual(routes, ["IroningDashboard", "IroningGuide", "IroningQueue"]);
+  assert.doesNotMatch(app, /IronItem|LaundryPrefs/);
+  const nav = read("../components/home/QuickLinksSection.jsx");
+  assert.equal((nav.match(/page: "Ironing\w*"/g) || []).length, 1); // the existing quick link, not a new one
   const careSrc = withoutComments(read("./careContent.js"));
   assert.doesNotMatch(careSrc, /^\s*import\s/m); // still free of session, storage and network code
   assert.doesNotMatch(careSrc, /base44|fetch\(|localStorage/);
