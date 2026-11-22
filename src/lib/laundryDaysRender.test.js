@@ -332,7 +332,7 @@ t("Settings: for a new person it is off, with a clear switch and no weekday cont
   assert.doesNotMatch(off, /<fieldset/);
   assert.match(plain(off), /Your laundry days are paused\. Your choices are kept\./);
   // a person who has never set anything up sees the same off switch and no day or time controls
-  const fresh = settings(createRoutine({ weekdays: [], nowMs: 1 }).routine.enabled ? { v: 1 } : { v: 1 });
+  const fresh = settings({ v: 1 });
   assert.doesNotMatch(fresh, /<fieldset/);
   assert.match(fresh, /id="laundry-days-on"/);
 });
