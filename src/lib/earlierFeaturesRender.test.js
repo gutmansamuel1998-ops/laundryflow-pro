@@ -78,7 +78,7 @@ t("one h2 for the section, then the two groups as h3, with no skipped heading le
   assert.ok(!levels.includes(1));
   assert.match(html, /<section aria-labelledby="earlier-heading"/);
   assert.match(html, /<h2 id="earlier-heading"[^>]*>Earlier features<\/h2>/);
-  assert.match(html, /<h3 id="older-tools-heading"[^>]*>Older tools now built into your laundry<\/h3>/);
+  assert.match(html, /<h3 id="older-tools-heading"[^>]*>Older tools<\/h3>/);
   assert.match(html, /<h3 id="other-earlier-heading"[^>]*>Other earlier features<\/h3>/);
 });
 
@@ -105,8 +105,9 @@ t("the explanation names the current air-drying and ironing, and says they work 
   assert.match(html, /Air-drying and optional ironing now work inside your main laundry experience/);
   assert.match(html, /choose “I'll air-dry instead” on the dryer step of a laundry session/);
   assert.match(html, /turn on “Offer an ironing list after drying” in the Ironing section above/);
-  assert.match(html, /choose them under “My laundry days” above/);
-  assert.match(html, /These still work and still keep what you saved in them/);
+  assert.match(html, /“My laundry days” above is a simpler plan for the days you'd like to do laundry\. It doesn't replace the Laundry calendar/);
+  assert.match(html, /These older tools still work and still keep what you saved in them\. Nothing in them is moved into the newer features automatically/);
+  assert.doesNotMatch(html, /built into your laundry/);
 });
 
 t("all twelve earlier destinations are links, each once, with the same addresses as before", () => {
