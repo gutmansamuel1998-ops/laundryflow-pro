@@ -128,7 +128,9 @@ export function OptionGroup({ legend, name, value, onChange, options, descriptio
         <label
           key={o.value}
           className={cn(
-            "flex min-h-[56px] cursor-pointer items-start gap-3 rounded-2xl border-2 p-4",
+            // flex-wrap + a rem-based basis: beside the radio button while the text has room, under it at very large text,
+            // so the words never get squeezed into a sliver. At normal sizes nothing changes.
+            "flex min-h-[56px] cursor-pointer flex-wrap items-start gap-x-3 gap-y-1 rounded-2xl border-2 p-4",
             value === o.value ? "border-primary bg-secondary" : "border-border"
           )}
         >
@@ -140,7 +142,7 @@ export function OptionGroup({ legend, name, value, onChange, options, descriptio
             onChange={() => onChange(o.value)}
             className="mt-1 h-5 w-5 shrink-0"
           />
-          <span className="min-w-0 break-words">
+          <span className="min-w-0 flex-1 basis-[6rem] break-words">
             <span className="block font-medium">{o.label}</span>
             {o.hint && <span className="block text-sm text-muted-foreground">{o.hint}</span>}
           </span>
@@ -157,18 +159,18 @@ export function ToggleRow({ id, label, hint, checked, onChange, disabled }) {
     <label
       htmlFor={id}
       className={cn(
-        "flex min-h-[56px] items-center justify-between gap-4 rounded-2xl border-2 p-4",
+        "flex min-h-[56px] flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-2xl border-2 p-4",
         // A disabled row is shown with a dashed border, a muted background and a not-allowed cursor, plus the
         // browser's own dimmed switch. Its text is never faded with opacity, so the explanation (for example how to
         // allow notifications) keeps full AA contrast.
         disabled ? "cursor-not-allowed border-dashed border-foreground bg-muted" : "cursor-pointer border-border"
       )}
     >
-      <span>
+      <span className="min-w-0 flex-1 basis-[6rem] break-words">
         <span className="block font-medium">{label}</span>
         {hint && <span className="block text-sm text-muted-foreground">{hint}</span>}
       </span>
-      <span className="flex items-center gap-2">
+      <span className="flex shrink-0 items-center gap-2">
         <span className="text-sm font-semibold" aria-hidden="true">
           {checked ? "On" : "Off"}
         </span>
