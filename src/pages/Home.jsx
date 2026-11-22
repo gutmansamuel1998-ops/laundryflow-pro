@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useLaundrySession, useCompletedCount } from "@/hooks/useLaundrySession";
 import { useNow } from "@/hooks/useNow";
-import { NEXT_ACTION, PHASE_INFO, getPhase, getTimer } from "@/lib/laundrySession";
+import { getPhase, getTimer } from "@/lib/laundrySession";
+import { phaseCopy } from "@/lib/airDry";
 import SessionTimer from "@/components/session/SessionTimer";
 import StartPanel from "@/components/session/StartPanel";
 import { BigButton, Panel } from "@/components/session/ui";
@@ -23,6 +24,9 @@ export default function Home() {
   const phase = getPhase(load, now);
   const timer = getTimer(load, now);
   const running = !!load && phase !== "ready" && phase !== "none";
+  // Same words as the Session screen: an air-dry load is described as a check-in reminder here too, never as a dryer or
+  // an estimate. For every other load this returns exactly the existing title and next action.
+  const copy = phaseCopy({ phase, load, timer });
   const goToSession = () => navigate(createPageUrl("Session"));
 
   return (
@@ -40,12 +44,12 @@ export default function Home() {
         <>
           <Panel className="space-y-3">
             <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Now</p>
-            <p className="text-2xl font-semibold">{PHASE_INFO[phase].title}</p>
+            <p className="text-2xl font-semibold">{copy.title}</p>
             <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Next action</p>
-            <p className="text-lg">{NEXT_ACTION[phase]}</p>
+            <p className="text-lg">{copy.nextAction}</p>
           </Panel>
 
-          <SessionTimer phase={phase} timer={timer} sticky={false} />
+          <SessionTimer phase={phase} timer={timer} sticky={false} airDry={copy.airDry} />
 
           <BigButton onClick={goToSession}>Resume laundry session</BigButton>
         </>
