@@ -123,7 +123,12 @@ export function fullMessage(items) {
 
 // ─── Changes (each returns a new list; the old one is never mutated) ────────────────────────────
 
-// opts.id is required in practice (the caller makes it); a fallback keeps the function total.
+/**
+ * opts.id is required in practice (the caller makes it); a fallback keeps the function total.
+ * @param {any[]} items
+ * @param {{ name?: any, heat?: any }} [input]
+ * @param {{ now?: number, id?: string }} [opts]
+ */
 export function addItem(items, input = {}, { now = 0, id } = {}) {
   const list = Array.isArray(items) ? items : [];
   if (list.length >= MAX_ITEMS) return { ok: false, reason: "full", message: fullMessage(list), items: list };
@@ -230,6 +235,7 @@ export function sanitizeItems(raw) {
 // The optional offer shows only when the person turned suggestions on (off by default), and only once the
 // drying is finished: for a machine, when its timer ends or the dryer step is confirmed; for air-drying, only
 // after "They're dry" (the clothes are never assumed dry). It never changes or gates the laundry steps.
+/** @param {{ prefs?: any, phase?: string, airDry?: boolean }} [state] */
 export function shouldOfferIroning({ prefs, phase, airDry = false } = {}) {
   if (!prefs || prefs.ironSuggestions !== true) return false;
   if (phase === "put_away") return true;
