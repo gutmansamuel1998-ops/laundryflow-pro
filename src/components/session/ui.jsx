@@ -65,23 +65,23 @@ export function MinutesStepper({ id, label, value, onChange, min = 5, max = 240,
   };
 
   return (
-    <div>
+    <div className="minutes-stepper">
       <label htmlFor={id} className="mb-2 block text-base font-semibold">
         {label}
       </label>
-      {/* flex-wrap: at very large text the minus, number and plus controls wrap onto a second row instead of
-          pushing the page sideways. At normal sizes they stay on one row. */}
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      {/* P8.8: one row while there is room; when the stepper is narrow (large text or a small screen) index.css puts the
+          number on its own row with the minus and plus buttons side by side beneath it, so nothing overlaps. */}
+      <div className="minutes-stepper__row">
         <button
           type="button"
           aria-label={`Decrease ${label} by ${step} minutes`}
           onClick={() => commit(value - step)}
           disabled={value <= min}
-          className="min-h-[56px] min-w-[56px] rounded-2xl border-2 border-foreground text-2xl font-bold disabled:opacity-40"
+          className="minutes-stepper__dec min-h-[56px] min-w-[56px] rounded-2xl border-2 border-foreground text-2xl font-bold disabled:opacity-40"
         >
           −
         </button>
-        <div className="flex min-w-0 flex-1 items-baseline justify-center gap-2">
+        <div className="minutes-stepper__value flex min-w-0 items-baseline justify-center gap-2">
           <input
             id={id}
             type="text"
@@ -103,7 +103,7 @@ export function MinutesStepper({ id, label, value, onChange, min = 5, max = 240,
           aria-label={`Increase ${label} by ${step} minutes`}
           onClick={() => commit(value + step)}
           disabled={value >= max}
-          className="min-h-[56px] min-w-[56px] rounded-2xl border-2 border-foreground text-2xl font-bold disabled:opacity-40"
+          className="minutes-stepper__inc min-h-[56px] min-w-[56px] rounded-2xl border-2 border-foreground text-2xl font-bold disabled:opacity-40"
         >
           +
         </button>
