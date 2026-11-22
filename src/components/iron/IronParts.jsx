@@ -34,8 +34,10 @@ const SMALL_BUTTON =
 // The P3 ironing guidance (symbols, plain-language meanings, temperatures), in the same collapsed care panel used
 // everywhere else, shown where the ironing list is used. (CarePanel is untyped JavaScript; the cast keeps the
 // typecheck baseline from growing.)
-export function IronGuidePanel() {
-  const panelProps = /** @type {any} */ ({ view: "iron", label: IRON_COPY.guideLabel });
+// headingLevel: 3 inside the ironing card (which has its own h2), 2 in the Session offer (which has no heading of its
+// own, so the guide sits directly under the page's h1).
+export function IronGuidePanel({ headingLevel = 3 }) {
+  const panelProps = /** @type {any} */ ({ view: "iron", label: IRON_COPY.guideLabel, headingLevel });
   return <CarePanel {...panelProps} />;
 }
 
