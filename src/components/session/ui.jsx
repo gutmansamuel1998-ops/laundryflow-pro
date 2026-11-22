@@ -69,7 +69,9 @@ export function MinutesStepper({ id, label, value, onChange, min = 5, max = 240,
       <label htmlFor={id} className="mb-2 block text-base font-semibold">
         {label}
       </label>
-      <div className="flex items-center gap-3">
+      {/* flex-wrap: at very large text the minus, number and plus controls wrap onto a second row instead of
+          pushing the page sideways. At normal sizes they stay on one row. */}
+      <div className="flex flex-wrap items-center justify-center gap-3">
         <button
           type="button"
           aria-label={`Decrease ${label} by ${step} minutes`}
@@ -79,7 +81,7 @@ export function MinutesStepper({ id, label, value, onChange, min = 5, max = 240,
         >
           −
         </button>
-        <div className="flex flex-1 items-baseline justify-center gap-2">
+        <div className="flex min-w-0 flex-1 items-baseline justify-center gap-2">
           <input
             id={id}
             type="text"
@@ -92,7 +94,7 @@ export function MinutesStepper({ id, label, value, onChange, min = 5, max = 240,
               if (e.key === "Enter") commit(text);
             }}
             aria-describedby={hint ? `${id}-hint` : undefined}
-            className="w-24 rounded-xl border-2 border-border bg-background py-2 text-center text-3xl font-semibold tabular-nums"
+            className="w-24 max-w-full rounded-xl border-2 border-border bg-background py-2 text-center text-3xl font-semibold tabular-nums"
           />
           <span className="text-lg">min</span>
         </div>
@@ -134,9 +136,9 @@ export function OptionGroup({ legend, name, value, onChange, options, descriptio
             value={o.value}
             checked={value === o.value}
             onChange={() => onChange(o.value)}
-            className="mt-1 h-5 w-5"
+            className="mt-1 h-5 w-5 shrink-0"
           />
-          <span>
+          <span className="min-w-0 [overflow-wrap:anywhere]">
             <span className="block font-medium">{o.label}</span>
             {o.hint && <span className="block text-sm text-muted-foreground">{o.hint}</span>}
           </span>
