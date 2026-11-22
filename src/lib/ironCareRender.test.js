@@ -38,8 +38,16 @@ async function load() {
     const dir = mkdtempSync(join(tmpdir(), "iron-render-"));
     const file = join(dir, "bundle.cjs");
     writeFileSync(file, out.outputFiles[0].text);
-    const mod = createRequire(import.meta.url)(file);
-    rmSync(dir, { recursive: true, force: true });
+    // src/lib/utils.js reads `window` when it is imported, so give it a stand-in just for the import.
+    const hadWindow = "window" in globalThis;
+    if (!hadWindow) globalThis.window = { self: {}, top: {} };
+    let mod;
+    try {
+      mod = createRequire(import.meta.url)(file);
+    } finally {
+      if (!hadWindow) delete globalThis.window;
+      rmSync(dir, { recursive: true, force: true });
+    }
     return { mod };
   } catch (error) {
     return { skip: `cannot render components here: ${error.message.split("\n")[0]}` };
