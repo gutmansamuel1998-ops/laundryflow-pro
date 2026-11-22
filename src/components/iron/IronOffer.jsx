@@ -2,7 +2,7 @@ import React from "react";
 import Disclosure from "@/components/session/Disclosure";
 import { IronAddForm, IronGuidePanel, IronList } from "@/components/iron/IronParts";
 import { useIronQueue } from "@/hooks/useIronQueue";
-import { IRON_COPY, MAX_ITEMS } from "@/lib/ironQueue";
+import { IRON_COPY, MAX_ITEMS, fullMessage } from "@/lib/ironQueue";
 
 // The optional "Anything to iron?" offer shown after drying (only when the person has turned ironing
 // suggestions on in Settings & Care). It is collapsed by default, takes no focus, makes no sound and sends no
@@ -23,7 +23,7 @@ export default function IronOffer() {
               idPrefix="iron-offer"
               onAdd={queue.add}
               full={full}
-              fullText={full ? "Your ironing list is full. You can clear finished items from the list on Home." : ""}
+              fullText={full ? fullMessage(queue.items) : ""}
             />
             {/* Always mounted, so after the last item is removed focus can land on its "empty" summary line. */}
             <IronList
