@@ -408,7 +408,7 @@ export default function Session() {
 
       {/* Care guidance for this stage: offered, never imposed. Collapsed by default; keyed by view so a
           new stage starts collapsed. Reads no timer state, so opening it cannot affect the countdown. */}
-      {care && <CarePanel key={care.view} view={care.view} label={care.label} />}
+      {care && <CarePanel key={care.view} view={care.view} label={care.label} headingLevel={2} />}
 
       {/* ── Optional game: never required, pauses when a timer ends ───────────── */}
       {waiting && prefs.showGame && (
