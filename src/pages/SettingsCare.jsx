@@ -226,6 +226,7 @@ export default function SettingsCare() {
           label="Offer an ironing list after drying"
           hint="Shows an optional, closed box after your clothes are dry where you can note things to iron. It's off until you turn it on, and your laundry is complete either way. Your list is saved on this device only."
           checked={prefs.ironSuggestions === true}
+          disabled={false}
           onChange={(v) => setPrefs({ ironSuggestions: v })}
         />
       </Panel>
