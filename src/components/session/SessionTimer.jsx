@@ -1,14 +1,18 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { formatClock, formatSpokenDuration } from "@/lib/laundrySession";
+import { AIR_DRY_COPY } from "@/lib/airDry";
 
 // The countdown. It is always labeled as an ESTIMATE, because a timer ending does not prove
 // the machine has stopped. Digits are hidden from screen readers (they would be announced
 // every second); a plain-language sentence is provided instead.
-export default function SessionTimer({ phase, timer, sticky = true }) {
+//
+// `airDry` (air-dry check-in only) changes the wording: the timer is a reminder to look at the clothes,
+// not a prediction, so it never talks about a machine having stopped.
+export default function SessionTimer({ phase, timer, sticky = true, airDry = false }) {
   if (!timer) return null;
   const isWash = phase.startsWith("wash");
-  const label = isWash ? "Wash timer" : "Dry timer";
+  const label = airDry ? AIR_DRY_COPY.timerLabel : isWash ? "Wash timer" : "Dry timer";
   const pct = Math.round(timer.progress * 100);
   const finish = new Date(timer.endMs).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 
@@ -22,14 +26,17 @@ export default function SessionTimer({ phase, timer, sticky = true }) {
     >
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-base font-semibold">
-          {label} <span className="font-normal text-muted-foreground">(estimate)</span>
+          {label}{" "}
+          <span className="font-normal text-muted-foreground">{airDry ? "(reminder)" : "(estimate)"}</span>
         </h2>
-        <p className="text-sm">{timer.elapsed ? "Estimated time is up" : `Est. finish ${finish}`}</p>
+        <p className="text-sm">
+          {timer.elapsed ? (airDry ? "Check-in is ready" : "Estimated time is up") : airDry ? `Check-in at ${finish}` : `Est. finish ${finish}`}
+        </p>
       </div>
 
       {timer.elapsed ? (
         <p className="mt-1 text-3xl font-semibold" aria-hidden="true">
-          Time's up
+          {airDry ? AIR_DRY_COPY.timerElapsedHeadline : "Time's up"}
         </p>
       ) : (
         <p className="mt-1 text-5xl font-semibold tabular-nums" aria-hidden="true">
@@ -38,7 +45,11 @@ export default function SessionTimer({ phase, timer, sticky = true }) {
       )}
 
       <p className="sr-only">
-        {timer.elapsed
+        {airDry
+          ? timer.elapsed
+            ? `Your check-in time came ${formatSpokenDuration(timer.overdueMs)} ago. Please look at your clothes.`
+            : `About ${formatSpokenDuration(timer.remainingMs)} until your check-in.`
+          : timer.elapsed
           ? `The estimated timer finished ${formatSpokenDuration(timer.overdueMs)} ago. Please check your machine.`
           : `About ${formatSpokenDuration(timer.remainingMs)} remaining, estimated.`}
       </p>
@@ -54,10 +65,17 @@ export default function SessionTimer({ phase, timer, sticky = true }) {
         <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
       </div>
 
-      {timer.elapsed && (
-        <p className="mt-2 text-sm">
-          This is only an estimate. Check that your machine has actually stopped before you move on.
-        </p>
+      {airDry ? (
+        <>
+          {timer.elapsed && <p className="mt-2 text-sm">{AIR_DRY_COPY.timerElapsedNote}</p>}
+          <p className="mt-2 text-sm text-muted-foreground">{AIR_DRY_COPY.reminderNote}</p>
+        </>
+      ) : (
+        timer.elapsed && (
+          <p className="mt-2 text-sm">
+            This is only an estimate. Check that your machine has actually stopped before you move on.
+          </p>
+        )
       )}
     </section>
   );
