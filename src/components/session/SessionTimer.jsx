@@ -3,12 +3,6 @@ import { cn } from "@/lib/utils";
 import { formatClock, formatSpokenDuration } from "@/lib/laundrySession";
 import { AIR_DRY_COPY } from "@/lib/airDry";
 
-// The countdown. It is always labeled as an ESTIMATE, because a timer ending does not prove
-// the machine has stopped. Digits are hidden from screen readers (they would be announced
-// every second); a plain-language sentence is provided instead.
-//
-// `airDry` (air-dry check-in only) changes the wording: the timer is a reminder to look at the clothes,
-// not a prediction, so it never talks about a machine having stopped.
 // P8.8: the card stays pinned to the top only while that leaves plenty of room. At large text (or on a short screen)
 // the card plus the bottom navigation would cover most of the screen and hide keyboard-focused controls (WCAG 2.2 SC
 // 2.4.11), so it scrolls with the page instead. While it IS pinned, its height is published as --sticky-top-h, which
@@ -48,6 +42,12 @@ function usePinned(enabled, hasCard) {
   return [ref, enabled && pinned];
 }
 
+// The countdown. It is always labeled as an ESTIMATE, because a timer ending does not prove
+// the machine has stopped. Digits are hidden from screen readers (they would be announced
+// every second); a plain-language sentence is provided instead.
+//
+// `airDry` (air-dry check-in only) changes the wording: the timer is a reminder to look at the clothes,
+// not a prediction, so it never talks about a machine having stopped.
 export default function SessionTimer({ phase, timer, sticky = true, airDry = false }) {
   const [sectionRef, pinned] = usePinned(sticky, Boolean(timer));
   if (!timer) return null;
