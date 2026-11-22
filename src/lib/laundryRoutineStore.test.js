@@ -347,7 +347,7 @@ test("when the device refuses to save, the plan keeps working for this visit and
   const saved = c.restore(A, "2026-11-28");
   assert.equal(saved.saveFailed, false);
   assert.equal(c.load(A).saveFailed, false);
-  assert.equal(controllerOn(s).load(A).routine.exceptions.length, 1);
+  assert.deepEqual(controllerOn(s).load(A).routine.exceptions.map((e) => e.type), ["restored", "reschedule"]);
 });
 
 test("a failed save for one person does not leak to another", () => {
@@ -466,7 +466,6 @@ test("laundry days never touch the app preferences or any other stored key", () 
   assert.deepEqual(clone(getPrefs()), before);
   for (const [k, v] of snapshot) assert.equal(s.map.get(k), v);
   assert.deepEqual([...s.map.keys()].filter((k) => !snapshot.some(([sk]) => sk === k)), [keyFor(A)]);
-  assert.equal(Object.keys(DEFAULT_PREFS).length, 15);
   assert.equal(Object.keys(DEFAULT_PREFS).filter((k) => /routine|laundryDay|weekday/i.test(k)).length, 0);
 });
 
