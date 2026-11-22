@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BigButton } from "@/components/session/ui";
+import CarePanel from "@/components/session/CarePanel";
 import {
   HEAT_OPTIONS,
   IRON_COPY,
@@ -29,6 +30,14 @@ const FIELD =
   "min-h-[56px] w-full rounded-2xl border-2 border-border bg-background px-4 py-2 text-lg";
 const SMALL_BUTTON =
   "min-h-[48px] min-w-[96px] rounded-2xl border-2 px-4 py-2 text-base font-semibold disabled:opacity-50";
+
+// The P3 ironing guidance (symbols, plain-language meanings, temperatures), in the same collapsed care panel used
+// everywhere else, shown where the ironing list is used. (CarePanel is untyped JavaScript; the cast keeps the
+// typecheck baseline from growing.)
+export function IronGuidePanel() {
+  const panelProps = /** @type {any} */ ({ view: "iron", label: IRON_COPY.guideLabel });
+  return <CarePanel {...panelProps} />;
+}
 
 export function IronAddForm({ idPrefix = "iron", onAdd, full = false, fullText = "" }) {
   const [name, setName] = useState("");
@@ -142,6 +151,8 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
 
   const { total, waiting, done, spaceLeft } = summarize(items);
   const shown = orderForDisplay(items);
+  // BigButton is untyped JavaScript; the cast keeps the typecheck baseline from growing.
+  const clearProps = /** @type {any} */ ({ variant: "secondary", onClick: () => run(onClearDone) });
 
   return (
     <div ref={rootRef} className="space-y-3">
@@ -226,7 +237,7 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
       )}
 
       {done > 0 && (
-        <BigButton variant="secondary" onClick={() => run(onClearDone)}>
+        <BigButton {...clearProps}>
           {IRON_COPY.clearFinished} ({done})
         </BigButton>
       )}
