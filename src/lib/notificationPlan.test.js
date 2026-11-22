@@ -66,7 +66,9 @@ test("air-dry check-in: no countdown warnings, a calm check-in message", () => {
     ["done", "nudge_1", "nudge_2", "nudge_3"]
   );
   assert.match(plan[0].title, /air-dry check-in/i);
-  assert.match(plan[0].body, /add more time/i);
+  // The check-in never assumes the clothes are dry and never mentions a dryer: it offers both outcomes.
+  assert.match(plan[0].body, /still damp/i);
+  assert.doesNotMatch(plan[0].body, /dryer|add more time/i);
   assert.equal(plan[0].at, T0 + 120 * MINUTE);
 });
 
