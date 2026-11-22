@@ -106,7 +106,7 @@ export default function LaundryDaysSettings() {
                       <label
                         key={d.value}
                         htmlFor={`laundry-day-${d.value}`}
-                        className={`flex min-h-[48px] min-w-[min(10rem,100%)] flex-1 cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-2 text-base font-medium ${
+                        className={`flex min-h-[48px] min-w-[min(10rem,100%)] flex-1 cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border-2 px-4 py-2 text-base font-medium ${
                           checked ? "border-primary bg-secondary" : "border-border"
                         }`}
                       >
@@ -118,7 +118,7 @@ export default function LaundryDaysSettings() {
                           onChange={(e) => toggleDay(d.value, e.target.checked)}
                           className="h-6 w-6 shrink-0"
                         />
-                        <span className="min-w-0 break-words">{d.name}</span>
+                        <span className="min-w-0 flex-1 basis-[5rem] break-words">{d.name}</span>
                       </label>
                     );
                   })}
