@@ -25,17 +25,16 @@ export default function IronOffer() {
               full={full}
               fullText={full ? "Your ironing list is full. You can clear finished items from the list on Home." : ""}
             />
-            {queue.items.length > 0 && (
-              <IronList
-                items={queue.items}
-                onDone={queue.done}
-                onReopen={queue.reopen}
-                onRemove={queue.remove}
-                onChooseHeat={queue.chooseHeat}
-                onClearDone={queue.clearDone}
-                saveFailed={queue.saveFailed}
-              />
-            )}
+            {/* Always mounted, so after the last item is removed focus can land on its "empty" summary line. */}
+            <IronList
+              items={queue.items}
+              onDone={queue.done}
+              onReopen={queue.reopen}
+              onRemove={queue.remove}
+              onChooseHeat={queue.chooseHeat}
+              onClearDone={queue.clearDone}
+              saveFailed={queue.saveFailed}
+            />
           </>
         ) : (
           <p role="status" className="text-base">
