@@ -1,28 +1,16 @@
 import React from "react";
-import { cn } from "@/lib/utils";
 import CareGuide from "@/components/session/CareGuide";
+import Disclosure from "@/components/session/Disclosure";
 
-// A collapsed-by-default disclosure around the shared care guide. It uses the native
-// <details>/<summary> element, which is keyboard operable (Enter/Space), announced by screen
-// readers as expandable with its expanded/collapsed state, and needs no focus trap because it
-// opens in place without leaving the current step.
+// A collapsed-by-default disclosure around the shared care guide. The open/close behavior, keyboard and
+// screen-reader support live in Disclosure (a native <details>/<summary>), shared with the optional Ironing Queue.
 //
 // It is purely presentational: it reads no session or timer state and writes nothing, so
 // opening or closing it can never pause, reset, or alter the laundry timer.
-//
-// `children` (optional) replaces the care guide, so the Ironing Queue reuses this same collapsed
-// disclosure for its own optional content instead of copying the markup.
-export default function CarePanel({ view = "all", label, className, children }) {
+export default function CarePanel({ view = "all", label, className }) {
   return (
-    <details className={cn("group rounded-3xl border-2 border-border bg-card", className)}>
-      <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-5 py-3 text-lg font-semibold [&::-webkit-details-marker]:hidden">
-        <span>{label}</span>
-        <span className="shrink-0 text-sm font-medium" aria-hidden="true">
-          <span className="group-open:hidden">Show ▾</span>
-          <span className="hidden group-open:inline">Hide ▴</span>
-        </span>
-      </summary>
-      <div className="px-5 pb-5">{children !== undefined ? children : <CareGuide view={view} />}</div>
-    </details>
+    <Disclosure label={label} className={className}>
+      <CareGuide view={view} />
+    </Disclosure>
   );
 }
