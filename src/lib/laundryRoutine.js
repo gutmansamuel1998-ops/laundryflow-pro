@@ -264,6 +264,7 @@ function offsetMs(zone, ms) {
 
 /** The date and wall-clock time showing in a zone at an instant: { date: "YYYY-MM-DD", time: "HH:MM", weekday }. */
 export function localParts(zone, ms) {
+  if (typeof ms !== "number" || !Number.isFinite(ms) || Math.abs(ms) > 8.64e15) return { date: "", time: "", weekday: -1 };
   const z = normalizeZone(zone);
   const parts = {};
   for (const p of formatterFor(z).formatToParts(ms)) parts[p.type] = Number(p.value);
