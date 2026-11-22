@@ -111,7 +111,7 @@ test("the store keys every record by owner and checks every read", () => {
   assert.match(store, /lf_laundry_routine_v1:/);
   assert.match(store, /sanitizeRoutine\(parsed\.routine\)/);
   assert.match(store, /parsed\.owner === owner/);
-  assert.doesNotMatch(store, /localStorage\.clear|storage\.clear|\.key\(|\.length/); // never walks or wipes other keys
+  assert.doesNotMatch(store, /localStorage\.clear|storage\.clear|storage\.key\(|storage\.length|Object\.keys\(storage|for \(const \w+ in storage/); // never walks or wipes other keys
   assert.doesNotMatch(store, /Date\.now|new Date/); // the time is passed in
 });
 
@@ -138,10 +138,10 @@ test("storage is used only by the store (and only through a passed-in object); t
 });
 
 test("the clock and the zone are read in exactly two small places; no date work is done in the screens or the view", () => {
-  const clockUsers = NEW_FILES.filter((f) => /Date\.now\(|new Date\(|Intl\./.test(code[f]));
+  const clockUsers = NEW_FILES.filter((f) => /Date\.now\(|new Date\(|Intl\.|DateTimeFormat/.test(code[f]));
   assert.deepEqual(clockUsers.sort(), ["../hooks/useLaundryRoutine.js", "../lib/deviceZone.js"].sort());
   for (const f of [...COMPONENTS, "../lib/laundryRoutineView.js", "../lib/laundryRoutineStore.js", "../lib/laundryRoutineController.js"]) {
-    assert.doesNotMatch(code[f], /new Date|Date\.(now|UTC|parse)|getUTC|getDay|getDate|getHours|getTimezoneOffset|toLocale|Intl\./, f);
+    assert.doesNotMatch(code[f], /new Date|Date\.(now|UTC|parse)|getUTC|getDay|getDate|getHours|getTimezoneOffset|toLocale|Intl\.|DateTimeFormat/, f);
   }
   // everything date-like in the screens is a P5 helper's answer
   assert.match(code["../lib/laundryRoutineView.js"], /from "\.\/laundryRoutine\.js"/);
