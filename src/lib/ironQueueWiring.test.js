@@ -135,12 +135,24 @@ test("Home renders the card once, and the card renders nothing until the list ha
   assert.equal((home.match(/<IronQueueCard \/>/g) || []).length, 1);
   assert.match(home, /import IronQueueCard from "@\/components\/iron\/IronQueueCard"/);
   const card = strip(read("../components/iron/IronQueueCard.jsx"));
-  assert.match(card, /if \(!queue\.ready \|\| queue\.items\.length === 0\) return null;/);
+  assert.match(card, /if \(!queue\.ready \|\| count === 0\) return null;/);
+  assert.match(card, /const count = queue\.items\.length;/);
+  // Focus is rescued only when it was actually lost (the removed button was focused), never pulled away otherwise.
+  assert.match(card, /previous\.current > 0 && count === 0 && document\.activeElement === document\.body/);
   // It does not depend on the opt-in setting, so items already on the list never disappear.
   assert.doesNotMatch(card, /ironSuggestions|usePrefs/);
 });
 
 // ─── Accessible actions ─────────────────────────────────────────────────────────────────────
+
+test("after the last item goes, focus lands somewhere sensible: the offer keeps its list summary, the card hands focus to the page heading", () => {
+  const offer = strip(read("../components/iron/IronOffer.jsx"));
+  assert.doesNotMatch(offer, /queue\.items\.length > 0 &&/); // the list stays mounted, so its summary line can take focus
+  assert.match(offer, /<IronList/);
+  const parts = strip(read("../components/iron/IronParts.jsx"));
+  assert.match(parts, /const target = next \|\| summaryRef\.current;/);
+  assert.match(parts, /if \(target\) target\.focus\(\);/);
+});
 
 test("Done, Remove and Clear finished are real buttons with the item named in their accessible name", () => {
   const parts = strip(read("../components/iron/IronParts.jsx"));
