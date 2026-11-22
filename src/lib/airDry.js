@@ -137,7 +137,7 @@ export function airDryBubblesLine(phase, timer) {
       if (left <= 5 * MINUTE) {
         return {
           headline: "Your check-in is coming up.",
-          detail: "About five minutes left. A good moment to head over and look at your clothes.",
+          detail: "About five minutes until your check-in. A good moment to head over and look at your clothes.",
         };
       }
       return {
