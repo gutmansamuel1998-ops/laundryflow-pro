@@ -56,6 +56,11 @@ export function recheckLabel(minutes) {
   return formatMinutes(minutes);
 }
 
+// Button text: "30 minutes", "1 hour", "2 hours" (spelled out, so it reads clearly and is announced well).
+export function recheckButtonLabel(minutes) {
+  return formatSpokenDuration(minutes * MINUTE);
+}
+
 // Returns the fields to save for "still damp", or `null` when this is not an air-dry load in the
 // checking stage (the caller must then do nothing).
 //
@@ -95,6 +100,12 @@ export const AIR_DRY_COPY = {
   stillDampHeading: "Still damp? Check again in",
   stillDampReassurance: "Still damp is completely normal. Thick items can take longer.",
   putAwayButton: "I put my clothes away",
+  // The countdown card.
+  timerLabel: "Check-in timer",
+  timerElapsedHeadline: "Check-in time",
+  timerElapsedNote: "Look at your clothes. If they're dry, confirm below. If they're still damp, choose how long to wait.",
+  // Optional game: why it is paused once the check-in is ready.
+  gamePausedElapsed: "Your check-in is ready. Time to look at your clothes.",
 };
 
 export function stillDampStatus(minutes) {
