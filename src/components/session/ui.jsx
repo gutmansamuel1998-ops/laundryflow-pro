@@ -155,8 +155,11 @@ export function ToggleRow({ id, label, hint, checked, onChange, disabled }) {
     <label
       htmlFor={id}
       className={cn(
-        "flex min-h-[56px] items-center justify-between gap-4 rounded-2xl border-2 border-border p-4",
-        disabled ? "opacity-60" : "cursor-pointer"
+        "flex min-h-[56px] items-center justify-between gap-4 rounded-2xl border-2 p-4",
+        // A disabled row is shown with a dashed border, a muted background and a not-allowed cursor, plus the
+        // browser's own dimmed switch. Its text is never faded with opacity, so the explanation (for example how to
+        // allow notifications) keeps full AA contrast.
+        disabled ? "cursor-not-allowed border-dashed border-foreground bg-muted" : "cursor-pointer border-border"
       )}
     >
       <span>
