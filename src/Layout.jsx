@@ -61,9 +61,11 @@ export default function Layout({ children, currentPageName }) {
 
       <FeedbackModal />
       <nav ref={navRef} aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb">
-        {/* Labels may wrap onto a second line at large text, and the bar grows with them (Layout publishes its measured
-            height). Padding is small and in rem so three whole labels, including "Settings & Care", fit side by side on
-            a 320 px screen at 200% text without shrinking the text. */}
+        {/* P8.7: labels may wrap onto a second line at large text, and the bar grows with them (Layout publishes its measured
+            height). Columns are equal when there is room, but never narrower than their longest word (min-w-min), so a
+            label is never clipped or overlapped. Padding is small and in rem so all three whole labels, including
+            "Settings & Care", fit side by side on a 320 px screen at 200% text without shrinking the text. If a screen is
+            ever too narrow for that, flex-wrap moves an item to a second row instead of overflowing. */}
         <ul className="max-w-lg mx-auto flex flex-wrap items-stretch justify-around px-0.5 py-1">
           {navItems.map((item) => {
             const Icon = item.icon;
