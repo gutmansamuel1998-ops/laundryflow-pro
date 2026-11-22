@@ -30,6 +30,7 @@ export function clearQueue(storage = defaultStorage()) {
 
 // The list for this owner, or [] for anything else: no owner, another person's list, missing, or damaged.
 // A damaged record is deleted. Another person's record is left alone, because it is theirs.
+/** @param {{ owner?: any, storage?: any }} [args] */
 export function readQueue({ owner, storage = defaultStorage() } = {}) {
   if (!storage || typeof owner !== "string" || owner.length === 0) return [];
   let raw;
@@ -52,6 +53,7 @@ export function readQueue({ owner, storage = defaultStorage() } = {}) {
 }
 
 // Returns true when the list was saved. An empty list removes the record, so nothing is left behind.
+/** @param {{ owner?: any, items?: any, storage?: any }} [args] */
 export function writeQueue({ owner, items, storage = defaultStorage() } = {}) {
   if (!storage || typeof owner !== "string" || owner.length === 0) return false;
   const clean = sanitizeItems(items).slice(0, MAX_ITEMS);
