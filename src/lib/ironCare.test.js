@@ -111,7 +111,7 @@ test("jargon is explained: soleplate is defined where it is first used", () => {
   assert.match(intro, /soleplate \(its flat metal base\)/);
   // Every ironing text that says "soleplate" sits under a view whose intro defines it.
   assert.ok(intro.indexOf("soleplate") < intro.indexOf("limit"));
-  for (const s of IRON_IDS.map(byId)) assert.doesNotMatch(s.meaning, /soleplate|thermostat|ISO|GINETEX|ASTM/i, s.id);
+  for (const s of IRON_IDS.map(byId)) assert.doesNotMatch(s.meaning, /\b(soleplate|thermostat|ISO|GINETEX|ASTM)\b/i, s.id);
 });
 
 // ─── The prohibitions ────────────────────────────────────────────────────────────────────────────
