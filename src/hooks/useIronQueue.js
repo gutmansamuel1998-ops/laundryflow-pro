@@ -6,9 +6,12 @@ import { IRON_COPY, addItem, clearFinished, markDone, removeItem, reopenItem, se
 // The Ironing Queue for the signed-in person, kept on this device only. Every change re-reads the saved list
 // first, so two open tabs never overwrite each other. It reads no laundry session and writes nothing to the
 // server, so it can never affect a timer, a step, or finishing a load.
+//
+// If the device refuses to save (storage full or blocked), the list keeps working in memory for this visit and
+// `saveFailed` lets the screen say so kindly.
 
 const listeners = new Set();
-const notifyOthers = () => listeners.forEach((l) => l());
+const notifyOthers = (except) => listeners.forEach((l) => l !== except && l());
 
 const newId = () =>
   globalThis.crypto && typeof globalThis.crypto.randomUUID === "function"
@@ -20,11 +23,19 @@ export function useIronQueue() {
   const [items, setItems] = useState([]);
   const [saveFailed, setSaveFailed] = useState(false);
   const ownerRef = useRef(owner);
+  const itemsRef = useRef(items);
+  const failedRef = useRef(false);
   ownerRef.current = owner;
+  itemsRef.current = items;
 
-  const refresh = useCallback(() => setItems(ownerRef.current ? readQueue({ owner: ownerRef.current }) : []), []);
+  const refresh = useCallback(() => {
+    if (failedRef.current) return; // keep what is in memory: the saved copy is older
+    setItems(ownerRef.current ? readQueue({ owner: ownerRef.current }) : []);
+  }, []);
 
   useEffect(() => {
+    failedRef.current = false;
+    setSaveFailed(false);
     refresh();
     const onStorage = (e) => {
       if (e.key === IRON_QUEUE_KEY || e.key === null) refresh();
@@ -37,19 +48,21 @@ export function useIronQueue() {
     };
   }, [owner, refresh]);
 
-  // fn gets the freshly saved list and returns a result from ironQueue.js ({ ok, items, message, ... }).
+  // fn gets the current list and returns a result from ironQueue.js ({ ok, items, message, ... }).
   const change = useCallback((fn) => {
     const who = ownerRef.current;
     if (!who) return { ok: false, reason: "not_ready", message: IRON_COPY.unavailable, items: [] };
-    const result = fn(readQueue({ owner: who }));
+    const base = failedRef.current ? itemsRef.current : readQueue({ owner: who });
+    const result = fn(base);
     if (result.ok) {
       const saved = writeQueue({ owner: who, items: result.items });
+      failedRef.current = !saved;
       setSaveFailed(!saved);
       setItems(result.items);
-      notifyOthers();
+      if (saved) notifyOthers(refresh);
     }
     return result;
-  }, []);
+  }, [refresh]);
 
   return {
     items,
