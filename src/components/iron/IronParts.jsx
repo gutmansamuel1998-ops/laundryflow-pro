@@ -148,8 +148,8 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
       <p ref={summaryRef} tabIndex={-1} className="text-base font-semibold">
         {summaryText(items)}
         {total >= MAX_ITEMS - 10 && total < MAX_ITEMS ? ` (room for ${spaceLeft} more)` : ""}
-        {total >= MAX_ITEMS ? ` (${fullMessage(items)})` : ""}
       </p>
+      {total >= MAX_ITEMS && <p className="text-base">{fullMessage(items)}</p>}
 
       {total > 0 && (
         <ul aria-label="Ironing list" className="space-y-3">
