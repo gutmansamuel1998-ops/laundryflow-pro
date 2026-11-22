@@ -41,10 +41,6 @@ export const OTHER_EARLIER = [
   { label: "Bubbles chat (earlier version)", page: "Bubbles" },
 ];
 
-// Every page reachable from "Earlier features" before P7 (the old ARCHIVED_LINKS), kept as one flat list so a test can
-// prove that nothing was dropped.
-export const ALL_EARLIER_PAGES = [...OTHER_EARLIER.slice(0, 5), ...OLDER_TOOLS.map((t) => t.page), ...OTHER_EARLIER.slice(5)].map((x) => x.page || x);
-
 export const EARLIER_COPY = {
   heading: "Earlier features",
   intro:
