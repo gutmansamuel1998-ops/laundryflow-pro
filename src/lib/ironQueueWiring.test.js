@@ -77,7 +77,9 @@ test("the offer is collapsed by default, optional, and has no timers, sounds, no
   const offer = strip(read("../components/iron/IronOffer.jsx"));
   const parts = strip(read("../components/iron/IronParts.jsx"));
   const card = strip(read("../components/iron/IronQueueCard.jsx"));
-  assert.match(offer, /<CarePanel label=\{IRON_COPY\.offerSummary\}>/); // CarePanel is a closed <details>
+  assert.match(offer, /<Disclosure label=\{IRON_COPY\.offerSummary\}>/); // Disclosure is a closed <details>
+  assert.match(read("../components/session/Disclosure.jsx"), /<details className=/);
+  assert.doesNotMatch(read("../components/session/Disclosure.jsx"), /\bopen\b=/);
   assert.doesNotMatch(read("../components/session/CarePanel.jsx"), /\bopen\b=/);
   for (const src of [offer, parts, card]) {
     assert.doesNotMatch(src, /autoFocus|setInterval|setTimeout|Notification|gameAudio|confetti|framer-motion|animate-|\.play\(|useNow|useLaundrySession|laundrySession/);
@@ -121,8 +123,9 @@ test("no laundry stage maps to the ironing guidance: it appears only inside the 
       assert.ok(v === null || v.view !== "iron", phase);
     }
   }
-  assert.match(read("../components/iron/IronOffer.jsx"), /<CarePanel view="iron" label=\{IRON_COPY\.guideLabel\} \/>/);
-  assert.match(read("../components/iron/IronQueueCard.jsx"), /<CarePanel view="iron" label=\{IRON_COPY\.guideLabel\} \/>/);
+  assert.match(read("../components/iron/IronParts.jsx"), /view: "iron", label: IRON_COPY\.guideLabel/);
+  assert.match(read("../components/iron/IronOffer.jsx"), /<IronGuidePanel \/>/);
+  assert.match(read("../components/iron/IronQueueCard.jsx"), /<IronGuidePanel \/>/);
 });
 
 // ─── Home card ──────────────────────────────────────────────────────────────────────────────

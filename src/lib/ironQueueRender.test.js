@@ -27,6 +27,7 @@ async function load() {
       import IronOffer from "@/components/iron/IronOffer";
       import { IronAddForm, IronList } from "@/components/iron/IronParts";
       import CarePanel from "@/components/session/CarePanel";
+      import Disclosure from "@/components/session/Disclosure";
       const noop = () => ({ ok: true, items: [], message: "" });
       export const card = () => renderToStaticMarkup(<IronQueueCard />);
       export const offer = () => renderToStaticMarkup(<IronOffer />);
@@ -34,7 +35,7 @@ async function load() {
       export const list = (items, props = {}) =>
         renderToStaticMarkup(<IronList items={items} onDone={noop} onReopen={noop} onRemove={noop} onChooseHeat={noop} onClearDone={noop} {...props} />);
       export const panel = (view, label) => renderToStaticMarkup(<CarePanel view={view} label={label} />);
-      export const panelWithChildren = (label) => renderToStaticMarkup(<CarePanel label={label}><p>Custom content</p></CarePanel>);
+      export const disclosure = (label) => renderToStaticMarkup(<Disclosure label={label}><p>Custom content</p></Disclosure>);
     `;
     // The storage hook is replaced with a stand-in that returns whatever list the test sets on globalThis.
     const stubHook = {
@@ -303,9 +304,13 @@ t("the shared care panel is unchanged for the existing views and still renders t
   }
 });
 
-t("the shared care panel with custom content shows that content instead of the guide", () => {
-  const html = mod.panelWithChildren("Add another item");
-  assert.match(plain(html), /Add another item/);
-  assert.match(plain(html), /Custom content/);
+t("the shared disclosure (used by the care panel and the ironing queue) is a closed details with a text Show/Hide cue", () => {
+  const html = mod.disclosure("Add another item");
+  assert.match(html, /^<details class="group rounded-3xl border-2 border-border bg-card"><summary[^>]*>/);
+  assert.doesNotMatch(html, /\sopen/);
+  assert.match(plain(html), /Add another item Show ▾ Hide ▴ Custom content/);
   assert.doesNotMatch(plain(html), /Simple care basics/);
+  // The care panel is that same disclosure around the care guide, so both open and close identically.
+  const care = mod.panel("wash", "Washing symbols and tips");
+  assert.equal(care.slice(0, care.indexOf("</summary>")).replace("Washing symbols and tips", "Add another item"), html.slice(0, html.indexOf("</summary>")));
 });
