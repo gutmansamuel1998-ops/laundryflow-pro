@@ -14,6 +14,7 @@ import {
 import { useNativePermission } from "@/hooks/useNativePermission";
 import { BigButton, MinutesStepper, OptionGroup, Panel, ToggleRow } from "@/components/session/ui";
 import CarePanel from "@/components/session/CarePanel";
+import LaundryDaysSettings from "@/components/laundryDays/LaundryDaysSettings";
 import { gameAudio, TIMER_VOLUME } from "@/lib/gameAudio";
 import { sensoryProfile, soundForEvent } from "@/lib/gameRewards";
 
@@ -215,6 +216,9 @@ export default function SettingsCare() {
           max={240}
         />
       </Panel>
+
+      {/* My laundry days: optional and off until turned on. Saved on this device only; sends no reminders yet. */}
+      <LaundryDaysSettings />
 
       {/* Ironing: optional and off until turned on. Turning it off never removes anything already on the list. */}
       <Panel aria-labelledby="ironing-heading" className="space-y-5">
