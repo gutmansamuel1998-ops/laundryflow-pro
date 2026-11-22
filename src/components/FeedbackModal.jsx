@@ -21,7 +21,7 @@ export default function FeedbackModal() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-20 right-4 z-40 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-all active:scale-95"
+        className="fixed bottom-[calc(var(--bottom-nav-h,5rem)+0.75rem)] right-4 z-40 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-all active:scale-95"
         aria-label="Send feedback"
       >
         <MessageSquarePlus className="w-5 h-5" />
