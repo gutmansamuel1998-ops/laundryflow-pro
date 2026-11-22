@@ -1083,15 +1083,22 @@ test("equal stamps are settled by the content, so the result never depends on me
 });
 
 test("a device with its clock set far ahead cannot win every future conflict", () => {
-  const wrongClock = { ...clone(make([MON])), settingsAt: Date.UTC(2099, 0, 1) };
+  const wrongClock = { ...clone(make([MON])), settingsAt: Date.UTC(2099, 0, 1), exceptions: [{ for: SAT_ID, type: "skip", at: Date.UTC(2099, 0, 1) }] };
   const honest = { ...clone(make([SAT])), settingsAt: Date.UTC(2026, 10, 24) };
   assert.deepEqual(mergeRoutines(honest, wrongClock).weekdays, [MON]); // with no clock given, the far-future stamp wins
-  // Three days later the honest device edits again. Knowing the time, the wrong stamp counts as only a day ahead.
-  const now = Date.UTC(2026, 10, 27);
-  const edited = { ...honest, weekdays: [WED], settingsAt: now };
-  assert.deepEqual(mergeRoutines(edited, wrongClock, { nowMs: now }).weekdays, [WED]);
-  assert.deepEqual(mergeRoutines(wrongClock, edited, { nowMs: now }).weekdays, [WED]);
-  assert.deepEqual(mergeRoutines(edited, wrongClock).weekdays, [MON]); // still stuck without the clock
+  const day = 24 * HOUR;
+  const first = Date.UTC(2026, 10, 24, 12);
+  const merged = mergeRoutines(honest, wrongClock, { nowMs: first });
+  assert.deepEqual(merged.weekdays, [MON]); // it still wins this once, but is saved as only a day ahead
+  assert.equal(merged.settingsAt, first + day);
+  assert.equal(merged.exceptions[0].at, first + day);
+  // Three days later the honest device edits again, and that newer edit now wins.
+  const later = first + 3 * day;
+  const edited = { ...merged, weekdays: [WED], settingsAt: later };
+  assert.deepEqual(mergeRoutines(edited, merged, { nowMs: later }).weekdays, [WED]);
+  assert.deepEqual(mergeRoutines(merged, edited, { nowMs: later }).weekdays, [WED]);
+  const undone = { ...merged, exceptions: [{ for: SAT_ID, type: "restored", at: later }] };
+  assert.equal(mergeRoutines(undone, merged, { nowMs: later }).exceptions[0].type, "restored");
 });
 
 test("merging with damaged copies is safe and keeps the good one", () => {
