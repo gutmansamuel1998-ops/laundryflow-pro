@@ -168,7 +168,7 @@ function checkAccessible(html) {
   assert.doesNotMatch(html, /\b(animate-|duration-|transition(?!-colors))/);
   // text and boxes grow with the person's text size: no fixed pixel font sizes or heights
   assert.doesNotMatch(html, /style="[^"]*(font-size|height)\s*:\s*\d+px/i);
-  assert.doesNotMatch(html, /\btext-\[\d+px\]|\bh-\[\d+px\]|\bmax-h-\[\d+px\]/);
+  assert.doesNotMatch(html, /(?<![\w-])(text|h|max-h|w)-\[\d+px\]/);
   // headings are in order: no h1 here (the page owns it), h2 for the section, h3 inside
   assert.doesNotMatch(html, /<h1\b/);
   assert.doesNotMatch(plain(html), BAD);
@@ -257,7 +257,7 @@ t("Home card: skipped, moved and snoozed days are listed with a clear way to put
   r = skipOccurrence(r, { id: "2026-11-28", nowMs: now, zone: CHI }).routine;
   r = rescheduleOccurrence(r, { id: "2026-11-29", date: "2026-12-01", time: "17:00", nowMs: now, zone: CHI }).routine;
   const html = card(r, { nowMs: now });
-  assert.match(html, /<h3 id="ld-changed-heading"[^>]*>Days you've changed<\/h3>/);
+  assert.match(html, /<h3 id="ld-changed-heading"[^>]*>Days you(?:'|&#x27;)ve changed<\/h3>/);
   assert.match(html, /<ul aria-labelledby="ld-changed-heading"/);
   const text = plain(html);
   assert.match(text, /Saturday, Nov 28: skipped/);
@@ -294,7 +294,7 @@ t("Home card: it says plainly that reminders aren't on yet and that it is saved 
 
 t("Home card: a save problem is explained kindly, in a polite status region", () => {
   const html = card(plan([0]), { saveFailed: true });
-  assert.match(html, /<p role="status"[^>]*>This device wouldn't save that, so it will only last until you close the app\. Your plan still works for now\.<\/p>/);
+  assert.match(html, /<p role="status"[^>]*>This device wouldn(?:'|&#x27;)t save that, so it will only last until you close the app\. Your plan still works for now\.<\/p>/);
   assert.equal([...card(plan([0])).matchAll(/role="status"/g)].length, 1); // the empty status line is always there for answers
 });
 
@@ -324,7 +324,6 @@ t("Settings: while the person is still being identified it says so and shows no 
 });
 
 t("Settings: for a new person it is off, with a clear switch and no weekday controls yet", () => {
-  const html = settings(createRoutine({ weekdays: [], nowMs: 1 }).routine.enabled ? plan([]) : plan([]), {});
   const off = settings(updateSchedule(plan([6]), { enabled: false, nowMs: 5 }).routine);
   const toggle = tags(off, "input").find((tag) => attrOf(tag, "id") === "laundry-days-on");
   assert.equal(attrOf(toggle, "role"), "switch");
@@ -332,7 +331,10 @@ t("Settings: for a new person it is off, with a clear switch and no weekday cont
   assert.match(off, /<label[^>]*for="laundry-days-on"/);
   assert.doesNotMatch(off, /<fieldset/);
   assert.match(plain(off), /Your laundry days are paused\. Your choices are kept\./);
-  assert.ok(html.length > 100);
+  // a person who has never set anything up sees the same off switch and no day or time controls
+  const fresh = settings(createRoutine({ weekdays: [], nowMs: 1 }).routine.enabled ? { v: 1 } : { v: 1 });
+  assert.doesNotMatch(fresh, /<fieldset/);
+  assert.match(fresh, /id="laundry-days-on"/);
 });
 
 t("Settings: the weekdays are a labeled group of seven checkboxes, and the chosen ones are checked", () => {
