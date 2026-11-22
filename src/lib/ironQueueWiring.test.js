@@ -147,7 +147,10 @@ test("Done, Remove and Clear finished are real buttons with the item named in th
   assert.match(parts, /\{IRON_COPY\.clearFinished\} \(\{done\}\)/);
   assert.equal((parts.match(/<button/g) || []).length, 3);
   assert.equal((parts.match(/type="button"/g) || []).length, 3);
-  assert.doesNotMatch(parts, /onKeyDown|onMouseDown|tabIndex=\{?-?[1-9]/); // native buttons only: no key handling to get wrong
+  // Native buttons only (no key handling to get wrong) and no positive tabindex that would reorder the tab sequence.
+  // tabIndex={-1} is allowed: it makes the summary line a place focus can be moved to, not a tab stop.
+  assert.doesNotMatch(parts, /onKeyDown|onMouseDown|tabIndex=\{?[1-9]/);
+  assert.equal((parts.match(/tabIndex=\{-1\}/g) || []).length, 1);
 });
 
 test("touch targets: every button is at least 48px tall", () => {
