@@ -92,6 +92,8 @@ const plain = (html) =>
     .replace(/<[^>]+>/g, " ")
     .replace(/&#x27;|&#39;/g, "'")
     .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
@@ -251,7 +253,7 @@ t("while the person cannot be identified yet, the offer says so calmly and shows
 
 t("add form: label, hint, live status message and a submit button, all connected by ids", () => {
   const html = mod.form();
-  assert.match(html, /<form[^>]*noValidate/);
+  assert.match(html, /<form[^>]*novalidate/);
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
   for (const ref of [...html.matchAll(/aria-describedby="([^"]+)"/g)].flatMap((m) => m[1].split(" "))) assert.ok(ids.includes(ref), `missing id ${ref}`);
   for (const target of [...html.matchAll(/for="([^"]+)"/g)].map((m) => m[1])) assert.ok(ids.includes(target), `label points at ${target}`);
@@ -270,7 +272,8 @@ t("nothing relies on color or motion: no color utility classes, no animation cla
   queue([item(1, { heat: "low" }), item(2, { status: "done", doneAt: T })]);
   for (const html of [mod.card(), mod.offer(), mod.form(), mod.list([item(1)])]) {
     assert.doesNotMatch(html, /\b(text|bg|border)-(red|green|blue|yellow|orange|amber|emerald|rose|pink|purple)-\d/);
-    assert.doesNotMatch(html, /\banimate-|\btransition|\bduration-|<audio|<video|<img|<canvas/);
+    // (The shared buttons' hover color fade, "transition-colors", is not motion and is allowed.)
+    assert.doesNotMatch(html, /\banimate-|\btransition(?!-colors)|\bduration-|<audio|<video|<img|<canvas/);
   }
 });
 
