@@ -1223,7 +1223,10 @@ test("the module is plain logic: no imports, no React, no Base44, no storage, no
 
 test("the module never reads the clock, the computer's own time zone, or a random number", () => {
   assert.doesNotMatch(code, /Date\.now\(|new Date\(\s*\)|performance\.now|Math\.random|getTimezoneOffset|toLocale|\.getHours\(|\.getDate\(|\.getDay\(|\.getMonth\(|\.getFullYear\(/);
-  assert.doesNotMatch(code, /resolvedOptions/);
+  // Reading a zone's own spelling back from a formatter that was given that zone is fine; the computer's zone is not.
+  const resolved = code.match(/resolvedOptions/g) || [];
+  const explicit = code.match(/DateTimeFormat\([^)]*timeZone[^)]*\)\s*\.resolvedOptions/g) || [];
+  assert.equal(resolved.length, explicit.length);
   const formatterCalls = code.match(/new Intl\.DateTimeFormat\([\s\S]*?\)/g) || [];
   assert.ok(formatterCalls.length >= 2);
   for (const call of formatterCalls) assert.match(call, /timeZone/);
