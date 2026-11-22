@@ -107,7 +107,7 @@ test("screens wire the guide in the right places (static check)", () => {
   const home = read("../pages/Home.jsx");
   assert.match(home, /<CarePanel[^>]*label="Laundry Care Guide"/);
   const session = read("../pages/Session.jsx");
-  assert.match(session, /careViewForPhase\(phase\)/);
+  assert.match(session, /careViewForPhase\(phase[,)]/); // P2 passes an optional { airDry } flag as a second argument
   assert.match(session, /<CarePanel key=\{care\.view\}/);
   const settings = read("../pages/SettingsCare.jsx");
   assert.match(settings, /<CarePanel[^>]*view="all"/);
