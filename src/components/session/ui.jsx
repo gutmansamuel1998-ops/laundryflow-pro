@@ -118,8 +118,9 @@ export function MinutesStepper({ id, label, value, onChange, min = 5, max = 240,
 }
 
 export function OptionGroup({ legend, name, value, onChange, options, description }) {
+  // min-w-0: a fieldset otherwise refuses to be narrower than its widest content, which pushed the page
+  // sideways at large text.
   return (
-    {/* min-w-0: a fieldset otherwise refuses to be narrower than its widest content, which pushed the page sideways at large text. */}
     <fieldset className="min-w-0 space-y-2">
       <legend className="mb-1 text-base font-semibold">{legend}</legend>
       {description && <p className="mb-2 text-sm text-muted-foreground">{description}</p>}
