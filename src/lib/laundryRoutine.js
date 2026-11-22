@@ -72,8 +72,9 @@
 //    a date and another moves a different day onto it, the skip wins (a skipped date stays empty); if two days
 //    are moved onto the same date, the more recent action keeps it and the other is absorbed (no duplicates).
 //  • Clocks differ between devices. `mergeRoutines` accepts `nowMs` and then treats any stamp more than one day in
-//    the future as one day ahead, so one device with a wrong clock cannot win every future conflict. The sync
-//    layer should prefer a server-assigned time when it exists.
+//    the future as one day ahead, and SAVES it that way, so one device with a wrong clock cannot win every future
+//    conflict: an honest edit made a day or more later outdoes it. The sync layer should prefer a server-assigned
+//    time when it exists.
 //  • Old exceptions are dropped by `pruneExceptions` (14 days after their date), keeping the record small.
 //
 // ─── Stored data is never trusted ────────────────────────────────────────────────────────────────────
