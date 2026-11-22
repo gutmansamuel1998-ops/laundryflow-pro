@@ -696,9 +696,9 @@ export function mergeRoutines(a, b, opts) {
     enabled: win.enabled,
     weekdays: [...win.weekdays],
     time: win.time,
-    settingsAt: win.settingsAt,
+    settingsAt: stamp(win.settingsAt), // a stamp from a wrong clock is saved as at most a day ahead, so it can be outdone later
     lastZone: win.lastZone,
-    exceptions: tidyExceptions([...chosen.values()]),
+    exceptions: tidyExceptions([...chosen.values()].map((e) => (stamp(e.at) === e.at ? e : { ...e, at: stamp(e.at) }))),
   };
 }
 
