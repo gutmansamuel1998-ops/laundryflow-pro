@@ -27,9 +27,9 @@ export const CARE_VIEWS = {
 // ─── Ironing: where the facts come from ────────────────────────────────────────────────────────────
 // Dots -> maximum SOLEPLATE temperature, the same in every system: one dot 110 °C, two dots 150 °C, three dots 200 °C.
 //  - ISO 3758:2023 (4th ed.) and GINETEX: maximum soleplate temperatures; the 4th edition adds a symbol for
-//    ironing without steam and redraws "do not iron". The standard covers "the most severe treatment that will
-//    not cause irreversible damage", so the dots are ceilings. GINETEX also flags that steam may damage fabric
-//    at the one-dot level.
+//    ironing without steam and redraws "do not iron". Its scope is the most severe treatment that will not
+//    cause irreversible damage, so the dots are ceilings. GINETEX also flags that steam may damage fabric at
+//    the one-dot level.
 //  - ASTM D5489 (US) uses the same three levels (about 230, 300 and 390 °F), has a separate "do not steam"
 //    symbol, and a plain iron with no dots for "any temperature".
 //  - Government of Canada care-symbol guide: the same ceilings (110, 150, 200 °C), plus the fabrics each level is
