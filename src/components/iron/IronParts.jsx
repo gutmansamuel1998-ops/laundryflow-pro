@@ -184,10 +184,12 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
                   // and the two buttons unless the person asks for more.
                   <details className="group mt-2">
                     <summary
-                      aria-label={`${item.heat ? "Change" : "Choose"} heat setting for ${item.name}`}
                       className="flex min-h-[48px] cursor-pointer list-none items-center justify-between gap-3 rounded-2xl text-base font-semibold [&::-webkit-details-marker]:hidden"
                     >
-                      <span>{item.heat ? "Change heat setting" : "Choose a heat setting"}</span>
+                      <span className="min-w-0 [overflow-wrap:anywhere]">
+                        {item.heat ? "Change heat setting" : "Choose a heat setting"}
+                        <span className="sr-only"> for {item.name}</span>
+                      </span>
                       <span className="shrink-0 text-sm font-medium" aria-hidden="true">
                         <span className="group-open:hidden">Show ▾</span>
                         <span className="hidden group-open:inline">Hide ▴</span>
