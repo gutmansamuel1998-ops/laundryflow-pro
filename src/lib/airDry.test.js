@@ -147,7 +147,8 @@ test("stillDampUpdate: contrast with extendUpdate, which counts elapsed time tow
 test("stillDampUpdate: keeps every interval within the safe bounds", () => {
   const load = airDryingLoad();
   assert.equal(stillDampUpdate(load, 100000, T0).dry_timer_minutes, LIMITS.max);
-  assert.equal(stillDampUpdate(load, 0.2, T0).dry_timer_minutes, AIR_DRY_RECHECK_DEFAULT_MINUTES);
+  assert.equal(stillDampUpdate(load, 0.2, T0).dry_timer_minutes, 1); // tiny positive value rounds up to the minimum
+  assert.equal(stillDampUpdate(load, 0, T0).dry_timer_minutes, AIR_DRY_RECHECK_DEFAULT_MINUTES);
   assert.equal(stillDampUpdate(load, -5, T0).dry_timer_minutes, AIR_DRY_RECHECK_DEFAULT_MINUTES);
   assert.equal(stillDampUpdate(load, NaN, T0).dry_timer_minutes, AIR_DRY_RECHECK_DEFAULT_MINUTES);
   assert.equal(stillDampUpdate(load, undefined, T0).dry_timer_minutes, AIR_DRY_RECHECK_DEFAULT_MINUTES);
