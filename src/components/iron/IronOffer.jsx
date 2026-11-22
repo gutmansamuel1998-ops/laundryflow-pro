@@ -42,7 +42,7 @@ export default function IronOffer() {
           </p>
         )}
 
-        <IronGuidePanel />
+        <IronGuidePanel headingLevel={2} />
         <p className="text-sm text-muted-foreground">
           {IRON_COPY.offerSkip} {IRON_COPY.storedHere}
         </p>
