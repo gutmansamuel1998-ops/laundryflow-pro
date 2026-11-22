@@ -119,7 +119,11 @@ const ART = {
   ),
 };
 
-export default function CareGuide({ view = "all" }) {
+// headingLevel is the level of the guide's two section headings: 2 where the guide sits directly under the
+// page's h1 (Home, Session), 3 where it sits inside a section that already has its own h2 (Settings, the
+// ironing card). That keeps the heading outline in order with no skipped level.
+export default function CareGuide({ view = "all", headingLevel = 3 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   const config = CARE_VIEWS[view] || CARE_VIEWS.all;
   const symbols = getCareSymbols(view);
   const tips = getCareTips(view);
@@ -127,7 +131,7 @@ export default function CareGuide({ view = "all" }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="mb-2 text-lg font-semibold">{config.title}</h3>
+        <Heading className="mb-2 text-lg font-semibold">{config.title}</Heading>
         {config.intro && <p className="mb-3 text-base">{config.intro}</p>}
         <p className="mb-3 text-sm text-muted-foreground">
           Symbols vary a little between regions. The tag on your garment is always the authority.
@@ -153,7 +157,7 @@ export default function CareGuide({ view = "all" }) {
       </div>
 
       <div>
-        <h3 className="mb-2 text-lg font-semibold">Simple care basics</h3>
+        <Heading className="mb-2 text-lg font-semibold">Simple care basics</Heading>
         <ul className="list-disc space-y-2 pl-6 text-base">
           {tips.map((t) => (
             <li key={t.id}>{t.text}</li>
