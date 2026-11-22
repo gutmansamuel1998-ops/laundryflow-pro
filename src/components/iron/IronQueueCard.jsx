@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Disclosure from "@/components/session/Disclosure";
 import { Panel } from "@/components/session/ui";
 import { IronAddForm, IronGuidePanel, IronList } from "@/components/iron/IronParts";
@@ -11,8 +11,24 @@ import { IRON_COPY, MAX_ITEMS, fullMessage } from "@/lib/ironQueue";
 // This is separate from the earlier ironing pages, which are untouched.
 export default function IronQueueCard() {
   const queue = useIronQueue();
-  if (!queue.ready || queue.items.length === 0) return null;
-  const full = queue.items.length >= MAX_ITEMS;
+  const count = queue.items.length;
+
+  // When the last item is removed or cleared the card disappears, and so does the button that had focus. Put
+  // focus on the page heading instead of leaving it on nothing. It only moves if focus was in fact lost.
+  const previous = useRef(count);
+  useEffect(() => {
+    if (previous.current > 0 && count === 0 && document.activeElement === document.body) {
+      const heading = document.querySelector("h1");
+      if (heading) {
+        heading.setAttribute("tabindex", "-1");
+        heading.focus();
+      }
+    }
+    previous.current = count;
+  }, [count]);
+
+  if (!queue.ready || count === 0) return null;
+  const full = count >= MAX_ITEMS;
 
   return (
     <Panel aria-labelledby="iron-queue-heading" className="space-y-4">
