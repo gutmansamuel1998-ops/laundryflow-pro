@@ -1,6 +1,6 @@
 import React from "react";
-import CarePanel from "@/components/session/CarePanel";
-import { IronAddForm, IronList } from "@/components/iron/IronParts";
+import Disclosure from "@/components/session/Disclosure";
+import { IronAddForm, IronGuidePanel, IronList } from "@/components/iron/IronParts";
 import { useIronQueue } from "@/hooks/useIronQueue";
 import { IRON_COPY, MAX_ITEMS } from "@/lib/ironQueue";
 
@@ -13,7 +13,7 @@ export default function IronOffer() {
   const full = queue.items.length >= MAX_ITEMS;
 
   return (
-    <CarePanel label={IRON_COPY.offerSummary}>
+    <Disclosure label={IRON_COPY.offerSummary}>
       <div className="space-y-4">
         <p className="text-base">{IRON_COPY.offerIntro}</p>
 
@@ -43,11 +43,11 @@ export default function IronOffer() {
           </p>
         )}
 
-        <CarePanel view="iron" label={IRON_COPY.guideLabel} />
+        <IronGuidePanel />
         <p className="text-sm text-muted-foreground">
           {IRON_COPY.offerSkip} {IRON_COPY.storedHere}
         </p>
       </div>
-    </CarePanel>
+    </Disclosure>
   );
 }
