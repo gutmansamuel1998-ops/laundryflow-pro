@@ -46,7 +46,8 @@ export default function LaundryDayCard({ sessionActive = false }) {
   };
 
   return (
-    <PanelAny ref={rootRef} aria-labelledby="laundry-day-heading" className="space-y-4">
+    <div ref={rootRef}>
+    <PanelAny aria-labelledby="laundry-day-heading" className="space-y-4">
       <div className="space-y-1">
         <h2 id="laundry-day-heading" ref={headingRef} tabIndex={-1} className="text-xl font-semibold">
           {COPY.cardHeading}
@@ -92,5 +93,6 @@ export default function LaundryDayCard({ sessionActive = false }) {
         {COPY.noReminders} {COPY.localOnly}
       </p>
     </PanelAny>
+    </div>
   );
 }
