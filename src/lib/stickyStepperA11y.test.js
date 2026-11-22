@@ -133,7 +133,8 @@ test("the sticky classes depend on the measured 'pinned' value, not on the prop 
   assert.doesNotMatch(src, /\bsticky && "sticky/);
   assert.ok(src.indexOf("usePinned(sticky, Boolean(timer))") > 0);
   assert.ok(src.indexOf("usePinned(sticky, Boolean(timer))") < src.indexOf("if (!timer) return null"), "a hook must not be skipped by the early return");
-  assert.match(src, /return \[ref, enabled && pinned\]/);
+  assert.match(src, /return \{ ref, pinned: enabled && pinned \}/);
+  assert.match(src, /const \{ ref: sectionRef, pinned \} = usePinned\(/);
 });
 
 test("Home still passes sticky={false}; Session still uses the default (pinned when there is room)", () => {
