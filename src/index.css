@@ -144,9 +144,11 @@
 }
 
 /* Focus is never left under the fixed bottom navigation (WCAG 2.2 SC 2.4.11).
-   --bottom-nav-h is measured and set by Layout.jsx; 5rem is only the fallback. */
+   --bottom-nav-h is measured and set by Layout.jsx; 5rem is only the fallback.
+   P8.8: the round "Send feedback" button floats 0.75rem above the bar and is 3rem tall, so 3.75rem more is kept clear
+   (on a short screen at large text it otherwise covered part of a focused control), plus 1rem of breathing room. */
 html {
-  scroll-padding-bottom: calc(var(--bottom-nav-h, 5rem) + 1rem);
+  scroll-padding-bottom: calc(var(--bottom-nav-h, 5rem) + 4.75rem);
   /* Same idea at the top: while the Session timer card is pinned, SessionTimer.jsx publishes its height here. */
   scroll-padding-top: var(--sticky-top-h, 0px);
 }
