@@ -81,7 +81,7 @@ test("the old pages were not edited to point at the new section, and no new navi
 
 test("the section says air-drying and optional ironing now work inside the main laundry experience", () => {
   assert.match(EARLIER_COPY.olderIntro, /air-drying and optional ironing now work inside your main laundry experience/i);
-  assert.match(EARLIER_COPY.olderHeading, /built into your laundry/i);
+  assert.equal(EARLIER_COPY.olderHeading, "Older tools"); // not "built into your laundry": that is only true of two of the three
 });
 
 test("it points to the current versions by the same names the real controls use", () => {
@@ -97,20 +97,26 @@ test("it points to the current versions by the same names the real controls use"
   assert.ok(settings.indexOf("<LaundryDaysSettings />") < settings.indexOf("<EarlierFeatures />"));
 });
 
-test("each older tool is labelled as older and says what the current version is; none is described as gone", () => {
-  for (const t of OLDER_TOOLS) {
+test("each older tool says how it relates to the newer feature; none is described as gone", () => {
+  const [airDry, ironing, calendar] = OLDER_TOOLS;
+  for (const t of [airDry, ironing]) {
     assert.match(t.note, /older/i, t.label);
-    assert.match(t.note, /current|now|inside your laundry session/i, t.label);
+    assert.match(t.note, /current version|inside your laundry session/i, t.label);
   }
+  // P8: the calendar was NOT recreated, and its note must not suggest it was
+  assert.match(calendar.note, /still the full Laundry calendar/i);
+  assert.match(calendar.note, /simpler plan/i);
+  assert.match(calendar.note, /doesn't replace it/i);
   const all = JSON.stringify([EARLIER_COPY, OLDER_TOOLS, OTHER_EARLIER]);
   assert.doesNotMatch(all, /\b(deleted|removed|retired|discontinued|deprecated|no longer (available|works?)|going away|will be (removed|deleted)|replaced and)\b/i);
   assert.match(EARLIER_COPY.keptNote, /still work/i);
   assert.match(EARLIER_COPY.keptNote, /still keep what you saved/i);
+  assert.match(EARLIER_COPY.keptNote, /not moved into the newer features automatically|nothing in them is moved into the newer features automatically/i);
   assert.match(EARLIER_COPY.intro, /everything you saved in them is still there/i);
 });
 
 test("it does not claim the two sets of data are combined, or that anything syncs or sends reminders", () => {
-  assert.match(EARLIER_COPY.keptNote, /nothing is copied between them/i);
+  assert.match(EARLIER_COPY.keptNote, /moved into the newer features automatically/i);
   assert.doesNotMatch(JSON.stringify(EARLIER_COPY), /\b(sync(ed|s|ing)?|merged?|imported?|migrat\w+|reminders? (are|will be) sent)\b/i);
 });
 
