@@ -64,7 +64,7 @@ export default function Layout({ children, currentPageName }) {
         {/* Labels may wrap onto a second line at large text, and the bar grows with them (Layout publishes its measured
             height). Padding is small and in rem so three whole labels, including "Settings & Care", fit side by side on
             a 320 px screen at 200% text without shrinking the text. */}
-        <ul className="max-w-lg mx-auto flex flex-wrap items-stretch justify-around px-1 py-1">
+        <ul className="max-w-lg mx-auto flex flex-wrap items-stretch justify-around px-0.5 py-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.page;
