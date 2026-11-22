@@ -8,7 +8,15 @@
 // This module never changes laundry state. A notification only ever points the user back to the
 // session; advancing a stage always needs the user's own explicit tap in the app.
 
-import { MINUTE, NUDGE_INTERVAL_MINUTES, NUDGE_MAX, getTimer, nudgeLine } from "./laundrySession.js";
+import {
+  MINUTE,
+  NUDGE_INTERVAL_MINUTES,
+  NUDGE_MAX,
+  airDryReminderCopy,
+  getTimer,
+  isAirDryStage,
+  nudgeLine,
+} from "./laundrySession.js";
 
 export const SESSION_ROUTE = "/Session";
 export const NOTIFICATION_KIND = "laundry-session";
@@ -37,19 +45,14 @@ export function reminderKey(load, event) {
 }
 
 export function isAirDry(load) {
-  return !!load && load.current_state === "drying" && load.dry_guidance === "hang_dry";
+  return isAirDryStage(load);
 }
 
 // Supportive, never guilt-based. Matches the required events for washer and dryer.
 export function reminderCopy(stage, event, { airDry = false } = {}) {
-  if (airDry) {
-    if (event === "done") {
-      return {
-        title: "Air-dry check-in",
-        body: "Time to check your clothes. If they're dry, put them away. If not, add more time.",
-      };
-    }
-  } else if (stage === "wash") {
+  // Air-dry wording lives in laundrySession.js so the web reminders use exactly the same words.
+  if (airDry) return airDryReminderCopy(event);
+  if (stage === "wash") {
     if (event === "five_min") return { title: "Washer almost done", body: "About 5 minutes left. A gentle heads-up." };
     if (event === "one_min") return { title: "1 minute left", body: "Get ready to move your clothes to the dryer." };
     if (event === "done") {
