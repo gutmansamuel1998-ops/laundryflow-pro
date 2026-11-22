@@ -30,6 +30,8 @@ import AdSlot from "@/components/session/AdSlot";
 import CarePanel from "@/components/session/CarePanel";
 import ReminderPrompt from "@/components/session/ReminderPrompt";
 import { careViewForPhase } from "@/lib/careContent";
+import IronOffer from "@/components/iron/IronOffer";
+import { shouldOfferIroning } from "@/lib/ironQueue";
 import { BigButton, Chip, MinutesStepper, Panel, ToggleRow } from "@/components/session/ui";
 
 const GAME_PAUSE_REASON = {
@@ -235,6 +237,8 @@ export default function Session() {
 
   const waiting = phase !== "none" && phase !== "ready" && phase !== "done";
   const gamePaused = !isTimedPhase(phase);
+  // Optional and off by default (Settings & Care). Shown after drying only; it is not a step and gates nothing.
+  const offerIroning = shouldOfferIroning({ prefs, phase, airDry: copy.airDry });
 
   return (
     <div className="mx-auto max-w-lg space-y-5 px-5 pb-32 pt-8">
@@ -393,6 +397,10 @@ export default function Session() {
           </>
         )}
       </section>
+
+      {/* Optional ironing offer, after drying. Collapsed, separate from the steps above: finishing the laundry
+          never needs it, and it reads no timer or session state. */}
+      {offerIroning && <IronOffer />}
 
       {/* Care guidance for this stage: offered, never imposed. Collapsed by default; keyed by view so a
           new stage starts collapsed. Reads no timer state, so opening it cannot affect the countdown. */}
