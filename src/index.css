@@ -149,6 +149,34 @@ html {
   scroll-padding-bottom: calc(var(--bottom-nav-h, 5rem) + 1rem);
 }
 
+/* Session step tracker: five columns while there is room, a vertical list when there is not (large text or a
+   narrow screen). The query is in rem on purpose: rem tracks the app's text-size setting, so the switch happens
+   at the same point at every text size. Nothing is hidden, clipped or shrunk. */
+.step-tracker {
+  container-type: inline-size;
+}
+
+@container (max-width: 14rem) {
+  .step-tracker .step-tracker__list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .step-tracker .step-tracker__item {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    text-align: left;
+  }
+  .step-tracker .step-tracker__label {
+    margin-top: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* WCAG focus-visible — applies to all interactive elements */
 :focus-visible {
   outline: 3px solid hsl(var(--primary));
