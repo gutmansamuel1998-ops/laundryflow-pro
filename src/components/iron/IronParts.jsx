@@ -178,7 +178,22 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
                 )}
 
                 {!finished && onChooseHeat && (
-                  <div className="mt-3">
+                  // The heat setting is usually chosen when the item is added, so changing it later is tucked into a
+                  // closed native <details> (Enter/Space, announced as expandable). The current heat stays visible above,
+                  // and the select is the same labelled control as before. This keeps each row to its name, status
+                  // and the two buttons unless the person asks for more.
+                  <details className="group mt-2">
+                    <summary
+                      aria-label={`${item.heat ? "Change" : "Choose"} heat setting for ${item.name}`}
+                      className="flex min-h-[48px] cursor-pointer list-none items-center justify-between gap-3 rounded-2xl text-base font-semibold [&::-webkit-details-marker]:hidden"
+                    >
+                      <span>{item.heat ? "Change heat setting" : "Choose a heat setting"}</span>
+                      <span className="shrink-0 text-sm font-medium" aria-hidden="true">
+                        <span className="group-open:hidden">Show ▾</span>
+                        <span className="hidden group-open:inline">Hide ▴</span>
+                      </span>
+                    </summary>
+                    <div className="pb-1">
                     <label htmlFor={`heat-${item.id}`} className="mb-1 block text-sm font-semibold">
                       Heat setting for {item.name}
                     </label>
@@ -197,7 +212,8 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
                         </option>
                       ))}
                     </select>
-                  </div>
+                    </div>
+                  </details>
                 )}
 
                 <div className="mt-3 flex flex-wrap gap-2">
