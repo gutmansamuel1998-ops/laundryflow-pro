@@ -176,8 +176,18 @@ export default function LaundryDaysSettings() {
             </div>
           )}
 
+          {/* The summary above is already on screen. When the saved message would only repeat it, show "Saved."
+              and keep the rest for screen readers, so the status is still announced in full without being
+              written twice. */}
           <p role="status" className="min-h-[1.5rem] text-base">
-            {note}
+            {note && note === `${COPY.saved} ${model.summary}` ? (
+              <>
+                {COPY.saved}
+                <span className="sr-only"> {model.summary}</span>
+              </>
+            ) : (
+              note
+            )}
           </p>
           {days.saveFailed && (
             <p role="status" className="text-base">
