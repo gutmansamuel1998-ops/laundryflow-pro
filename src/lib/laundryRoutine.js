@@ -220,14 +220,23 @@ function formatterFor(zone) {
   return f;
 }
 
+// Looking a zone name up is slow, and the same few names are asked about over and over, so answers are remembered
+// (the memory is emptied if it ever grows large, so odd names cannot pile up).
+const canonicalCache = new Map();
+
 /** The standard spelling of a valid time zone name (for example "America/New_York"), or null if it is not one. */
 export function canonicalZone(zone) {
   if (typeof zone !== "string" || zone.length === 0 || zone.length > 64) return null;
+  if (canonicalCache.has(zone)) return canonicalCache.get(zone);
+  let answer = null;
   try {
-    return new Intl.DateTimeFormat("en-US", { timeZone: zone }).resolvedOptions().timeZone;
+    answer = new Intl.DateTimeFormat("en-US", { timeZone: zone }).resolvedOptions().timeZone;
   } catch {
-    return null;
+    answer = null;
   }
+  if (canonicalCache.size > 200) canonicalCache.clear();
+  canonicalCache.set(zone, answer);
+  return answer;
 }
 
 export const isValidTimeZone = (zone) => canonicalZone(zone) !== null;
@@ -487,7 +496,7 @@ function findActive(r, zone, nowMs, id) {
 function withException(r, zone, nowMs, exception) {
   const today = localParts(zone, nowMs).date;
   const cutoff = addDays(today, -KEEP_PAST_DAYS);
-  const kept = r.exceptions.filter((e) => e.for !== exception.for && (e.to || e.for) >= cutoff && e.for >= cutoff);
+  const kept = r.exceptions.filter((e) => e.for !== exception.for && (e.for >= cutoff || (e.to || e.for) >= cutoff));
   return { ...r, exceptions: tidyExceptions([...kept, exception]) };
 }
 
@@ -597,7 +606,8 @@ export function pruneExceptions(routine, opts) {
 // ─── Editing the recurring schedule ──────────────────────────────────────────────────────────────────
 
 /**
- * A new routine. `weekdays` is an array of 0 (Sunday) to 6 (Saturday); `time` is "HH:MM" (default 09:00).
+ * Makes a new routine (turned on) and returns { ok, routine, ... } like the other edits. `weekdays` is an array of
+ * 0 (Sunday) to 6 (Saturday); `time` is "HH:MM" (default 09:00).
  * @param {any} [opts] { weekdays, time, enabled, nowMs, zone }
  */
 export function createRoutine(opts) {
