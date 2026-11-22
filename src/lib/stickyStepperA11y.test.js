@@ -149,6 +149,15 @@ test("the bottom-navigation focus fix is untouched (bottom padding still follows
   assert.match(css, /scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*4\.75rem\)/);
 });
 
+test("the bottom scroll padding also clears the floating 'Send feedback' button (3rem tall + 0.75rem above the bar + 1rem room)", () => {
+  const css = strip(read("../index.css"));
+  const feedback = strip(read("../components/FeedbackModal.jsx"));
+  assert.match(feedback, /bottom-\[calc\(var\(--bottom-nav-h,5rem\)\+0\.75rem\)\][^"]*\bw-12 h-12\b/);
+  const m = /scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*(\d+(?:\.\d+)?)rem\)/.exec(css);
+  assert.ok(m, "padding is nav height + a rem amount");
+  assert.ok(Number(m[1]) >= 3 + 0.75 + 1, "at least launcher height + its gap + 1rem");
+});
+
 // ─── Fix 2: the minutes stepper ──────────────────────────────────────────────────────────────
 
 t("the stepper keeps its label, both buttons, the input, the unit and the hint, and their accessible names", () => {
