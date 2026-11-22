@@ -1,7 +1,7 @@
 import React from "react";
-import CarePanel from "@/components/session/CarePanel";
+import Disclosure from "@/components/session/Disclosure";
 import { Panel } from "@/components/session/ui";
-import { IronAddForm, IronList } from "@/components/iron/IronParts";
+import { IronAddForm, IronGuidePanel, IronList } from "@/components/iron/IronParts";
 import { useIronQueue } from "@/hooks/useIronQueue";
 import { IRON_COPY, MAX_ITEMS, fullMessage } from "@/lib/ironQueue";
 
@@ -33,11 +33,11 @@ export default function IronQueueCard() {
         saveFailed={queue.saveFailed}
       />
 
-      <CarePanel label={IRON_COPY.addAnother}>
+      <Disclosure label={IRON_COPY.addAnother}>
         <IronAddForm idPrefix="iron-card" onAdd={queue.add} full={full} fullText={full ? fullMessage(queue.items) : ""} />
-      </CarePanel>
+      </Disclosure>
 
-      <CarePanel view="iron" label={IRON_COPY.guideLabel} />
+      <IronGuidePanel />
       <p className="text-sm text-muted-foreground">{IRON_COPY.storedHere}</p>
     </Panel>
   );
