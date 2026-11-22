@@ -9,6 +9,7 @@ import StartPanel from "@/components/session/StartPanel";
 import { BigButton, Panel } from "@/components/session/ui";
 import CarePanel from "@/components/session/CarePanel";
 import IronQueueCard from "@/components/iron/IronQueueCard";
+import LaundryDayCard from "@/components/laundryDays/LaundryDayCard";
 
 // V1 Home: start laundry, or resume the current session with its next action and timer.
 // The previous (feature-heavy) Home is preserved at /LegacyHome.
@@ -54,6 +55,10 @@ export default function Home() {
           <StartPanel onStarted={goToSession} />
         </Panel>
       )}
+
+      {/* Optional laundry days: renders nothing without a plan, and nothing while a laundry session is active
+          (or while it is still loading, so it never flashes in and out). */}
+      <LaundryDayCard sessionActive={isLoading || running} />
 
       {/* Optional Ironing Queue: renders nothing until the person has added something to iron. */}
       <IronQueueCard />
