@@ -44,7 +44,7 @@ test("Home shows the card between the session area and the ironing card, and hid
 
 test("Home still does everything it did: start, resume, timer, ironing card, care guide, loads finished", () => {
   const home = strip(read("../pages/Home.jsx"));
-  for (const piece of ["<StartPanel onStarted={goToSession} />", "<SessionTimer phase={phase} timer={timer} sticky={false} airDry={copy.airDry} />", "Resume laundry session", "<IronQueueCard />", '<CarePanel view="all" label="Laundry Care Guide" />', "Loads finished so far:"]) {
+  for (const piece of ["<StartPanel onStarted={goToSession} />", "<SessionTimer phase={phase} timer={timer} sticky={false} airDry={copy.airDry} />", "Resume laundry session", "<IronQueueCard />", '<CarePanel view="all" label="Laundry Care Guide" headingLevel={2} />', "Loads finished so far:"]) {
     assert.ok(home.includes(piece), piece);
   }
 });
