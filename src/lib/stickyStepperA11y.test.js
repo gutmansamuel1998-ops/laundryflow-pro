@@ -146,7 +146,7 @@ test("Home still passes sticky={false}; Session still uses the default (pinned w
 
 test("the bottom-navigation focus fix is untouched (bottom padding still follows the measured nav height)", () => {
   const css = strip(read("../index.css"));
-  assert.match(css, /scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*1rem\)/);
+  assert.match(css, /scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*4\.75rem\)/);
 });
 
 // ─── Fix 2: the minutes stepper ──────────────────────────────────────────────────────────────

@@ -95,7 +95,7 @@ test("P8.7 nav: P8.6 keyboard-focus fix still works with the new height (measure
   assert.match(layout, /ResizeObserver/);
   assert.match(layout, /--bottom-nav-h/);
   assert.match(layout, /removeProperty\(["']--bottom-nav-h["']\)/);
-  assert.match(css, /scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*1rem\)/);
+  assert.match(css, /scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*4\.75rem\)/);
 });
 
 test("P8.7 launcher: 'Send feedback' sits above the measured nav height instead of a fixed offset", () => {

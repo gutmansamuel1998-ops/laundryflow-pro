@@ -197,7 +197,7 @@ test("the layout measures the bottom navigation and publishes its height; the st
   assert.match(layout, /removeProperty\("--bottom-nav-h"\)/);
   assert.match(layout, /typeof ResizeObserver === "undefined"/, "older browsers still get the measured height once");
   const css = strip(read("../index.css"));
-  assert.match(css, /html\s*\{\s*scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*1rem\);\s*scroll-padding-top:\s*var\(--sticky-top-h,\s*0px\);\s*\}/);
+  assert.match(css, /html\s*\{\s*scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*4\.75rem\);\s*scroll-padding-top:\s*var\(--sticky-top-h,\s*0px\);\s*\}/);
 });
 
 test("the navigation itself is unchanged: three destinations, skip link first, no new tabs", () => {
