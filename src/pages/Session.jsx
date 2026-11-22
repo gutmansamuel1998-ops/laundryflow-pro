@@ -44,15 +44,18 @@ const GAME_PAUSE_REASON = {
 function StepList({ phase }) {
   const current = PHASE_INFO[phase]?.step ?? 0;
   return (
-    <ol aria-label="Laundry steps" className="flex items-start justify-between gap-1">
+    // step-tracker* classes (index.css): five columns when there is room, a vertical list when large text or a
+    // narrow screen leaves too little width, so nothing scrolls sideways or gets clipped.
+    <div className="step-tracker">
+    <ol aria-label="Laundry steps" className="step-tracker__list flex items-start justify-between gap-1">
       {STEPS.map((s, i) => {
         const done = i < current;
         const isNow = i === current && phase !== "done";
         return (
-          <li key={s.id} aria-current={isNow ? "step" : undefined} className="flex flex-1 flex-col items-center text-center">
+          <li key={s.id} aria-current={isNow ? "step" : undefined} className="step-tracker__item flex flex-1 flex-col items-center text-center">
             <span
               className={
-                "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold " +
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold " +
                 (done
                   ? "border-primary bg-primary text-primary-foreground"
                   : isNow
@@ -62,7 +65,7 @@ function StepList({ phase }) {
             >
               {done ? "✓" : i + 1}
             </span>
-            <span className={"mt-1 text-xs " + (isNow ? "font-bold" : "")}>
+            <span className={"step-tracker__label mt-1 text-xs " + (isNow ? "font-bold" : "")}>
               {s.label}
               <span className="sr-only">{done ? " (done)" : isNow ? " (current step)" : ""}</span>
             </span>
@@ -70,6 +73,7 @@ function StepList({ phase }) {
         );
       })}
     </ol>
+    </div>
   );
 }
 
