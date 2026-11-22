@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { formatClock, formatSpokenDuration } from "@/lib/laundrySession";
 import { AIR_DRY_COPY } from "@/lib/airDry";
@@ -9,7 +9,47 @@ import { AIR_DRY_COPY } from "@/lib/airDry";
 //
 // `airDry` (air-dry check-in only) changes the wording: the timer is a reminder to look at the clothes,
 // not a prediction, so it never talks about a machine having stopped.
+// P8.8: the card stays pinned to the top only while that leaves plenty of room. At large text (or on a short screen)
+// the card plus the bottom navigation would cover most of the screen and hide keyboard-focused controls (WCAG 2.2 SC
+// 2.4.11), so it scrolls with the page instead. While it IS pinned, its height is published as --sticky-top-h, which
+// index.css uses as scroll-padding-top so focus never scrolls in underneath it.
+const MAX_PINNED_SHARE = 0.5; // card + bottom nav may take at most half the screen height
+
+function usePinned(enabled, hasCard) {
+  const ref = useRef(null);
+  const [pinned, setPinned] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !hasCard || !el) return undefined;
+    const root = document.documentElement;
+    const nav = document.querySelector("nav[aria-label='Main navigation']");
+    const update = () => {
+      const cardH = el.getBoundingClientRect().height;
+      const navH = nav ? nav.getBoundingClientRect().height : 0;
+      const fits = cardH + navH <= window.innerHeight * MAX_PINNED_SHARE;
+      setPinned(fits);
+      if (fits) root.style.setProperty("--sticky-top-h", `${Math.ceil(cardH) + 8}px`);
+      else root.style.removeProperty("--sticky-top-h");
+    };
+    update();
+    window.addEventListener("resize", update);
+    let observer;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(update);
+      observer.observe(el);
+      if (nav) observer.observe(nav);
+    }
+    return () => {
+      window.removeEventListener("resize", update);
+      observer?.disconnect();
+      root.style.removeProperty("--sticky-top-h");
+    };
+  }, [enabled, hasCard]);
+  return [ref, enabled && pinned];
+}
+
 export default function SessionTimer({ phase, timer, sticky = true, airDry = false }) {
+  const [sectionRef, pinned] = usePinned(sticky, Boolean(timer));
   if (!timer) return null;
   const isWash = phase.startsWith("wash");
   const label = airDry ? AIR_DRY_COPY.timerLabel : isWash ? "Wash timer" : "Dry timer";
@@ -18,10 +58,11 @@ export default function SessionTimer({ phase, timer, sticky = true, airDry = fal
 
   return (
     <section
+      ref={sectionRef}
       aria-label={airDry ? `${label}, a reminder to look at your clothes` : `${label}, estimated`}
       className={cn(
         "border-b-2 border-border bg-background py-3",
-        sticky && "sticky top-0 z-30 -mx-5 bg-background/95 px-5 backdrop-blur"
+        pinned && "sticky top-0 z-30 -mx-5 bg-background/95 px-5 backdrop-blur"
       )}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
