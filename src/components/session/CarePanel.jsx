@@ -9,7 +9,10 @@ import CareGuide from "@/components/session/CareGuide";
 //
 // It is purely presentational: it reads no session or timer state and writes nothing, so
 // opening or closing it can never pause, reset, or alter the laundry timer.
-export default function CarePanel({ view = "all", label, className }) {
+//
+// `children` (optional) replaces the care guide, so the Ironing Queue reuses this same collapsed
+// disclosure for its own optional content instead of copying the markup.
+export default function CarePanel({ view = "all", label, className, children }) {
   return (
     <details className={cn("group rounded-3xl border-2 border-border bg-card", className)}>
       <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-5 py-3 text-lg font-semibold [&::-webkit-details-marker]:hidden">
@@ -19,9 +22,7 @@ export default function CarePanel({ view = "all", label, className }) {
           <span className="hidden group-open:inline">Hide ▴</span>
         </span>
       </summary>
-      <div className="px-5 pb-5">
-        <CareGuide view={view} />
-      </div>
+      <div className="px-5 pb-5">{children !== undefined ? children : <CareGuide view={view} />}</div>
     </details>
   );
 }
