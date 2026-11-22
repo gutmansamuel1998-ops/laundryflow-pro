@@ -656,7 +656,8 @@ export function noteZone(routine, zone) {
 
 // ─── Merging copies from several devices ─────────────────────────────────────────────────────────────
 
-const settingsText = (r) => JSON.stringify([r.enabled, r.weekdays, r.time]);
+// Everything that travels with the settings, so two different copies can never tie.
+const settingsText = (r) => JSON.stringify([r.enabled, r.weekdays, r.time, r.lastZone || ""]);
 
 /**
  * Merges two copies of a routine. The result is the same whichever is first, unchanged by repeating, and the
@@ -671,7 +672,7 @@ export function mergeRoutines(a, b, opts) {
   const B = sanitizeRoutine(b);
   const stamp = (n) => (Number.isFinite(o.nowMs) ? Math.min(n, o.nowMs + DAY_MS) : n);
   const aWins = stamp(A.settingsAt) !== stamp(B.settingsAt) ? stamp(A.settingsAt) > stamp(B.settingsAt) : settingsText(A) >= settingsText(B);
-  const [win, lose] = aWins ? [A, B] : [B, A];
+  const win = aWins ? A : B;
 
   const chosen = new Map();
   for (const e of [...A.exceptions, ...B.exceptions]) {
@@ -685,7 +686,7 @@ export function mergeRoutines(a, b, opts) {
     weekdays: [...win.weekdays],
     time: win.time,
     settingsAt: win.settingsAt,
-    lastZone: win.lastZone || lose.lastZone,
+    lastZone: win.lastZone,
     exceptions: tidyExceptions([...chosen.values()]),
   };
 }
