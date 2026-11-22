@@ -70,7 +70,10 @@ const plain = (html) =>
 // Each symbol is one <li> of the first list; its picture and its words live in the same item.
 const symbolItems = (html) => {
   const firstList = html.slice(html.indexOf("<ul"), html.indexOf("</ul>"));
-  return firstList.split("<li ").slice(1);
+  return firstList
+    .split("<li ")
+    .slice(1)
+    .map((item) => `<li ${item}`);
 };
 
 const NAMES = [
