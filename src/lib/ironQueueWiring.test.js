@@ -123,8 +123,8 @@ test("no laundry stage maps to the ironing guidance: it appears only inside the 
       assert.ok(v === null || v.view !== "iron", phase);
     }
   }
-  assert.match(read("../components/iron/IronParts.jsx"), /view: "iron", label: IRON_COPY\.guideLabel/);
-  assert.match(read("../components/iron/IronOffer.jsx"), /<IronGuidePanel \/>/);
+  assert.match(read("../components/iron/IronParts.jsx"), /view: "iron", label: IRON_COPY\.guideLabel, headingLevel/);
+  assert.match(read("../components/iron/IronOffer.jsx"), /<IronGuidePanel headingLevel=\{2\} \/>/);
   assert.match(read("../components/iron/IronQueueCard.jsx"), /<IronGuidePanel \/>/);
 });
 
