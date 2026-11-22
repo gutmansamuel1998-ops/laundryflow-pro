@@ -12,7 +12,7 @@ export default function Disclosure({ label, className = "", children = null }) {
   return (
     <details className={cn("group rounded-3xl border-2 border-border bg-card", className)}>
       <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-5 py-3 text-lg font-semibold [&::-webkit-details-marker]:hidden">
-        <span>{label}</span>
+        <span className="min-w-0 [overflow-wrap:anywhere]">{label}</span>
         <span className="shrink-0 text-sm font-medium" aria-hidden="true">
           <span className="group-open:hidden">Show ▾</span>
           <span className="hidden group-open:inline">Hide ▴</span>
