@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import * as S from "@/lib/laundrySession";
+import { stillDampUpdate } from "@/lib/airDry";
 import { rearmAfterExtension } from "@/lib/reminderStore";
 import { isNativePlatform } from "@/lib/nativeNotifications";
 import { readSessionCache, writeSessionCache } from "@/lib/sessionCache";
@@ -84,6 +85,13 @@ export function useLaundrySession() {
     confirmTransfer: async () => load && apply(S.confirmTransferUpdate(load, Date.now())),
     startDry: async (minutes, airDry) => load && apply(S.startDryUpdate(load, minutes, airDry, Date.now())),
     confirmDryDone: async () => load && apply(S.confirmDryDoneUpdate(load, Date.now())),
+    // Air-dry only: "still damp, check again in N minutes". Starts a fresh check-in from this tap, changes
+    // no stage and no history. Reminders re-arm by themselves because they are keyed by stage_start_time.
+    stillDamp: async (minutes) => {
+      if (!load) return null;
+      const data = stillDampUpdate(load, minutes, Date.now());
+      return data ? apply(data) : null;
+    },
     complete: async () => {
       if (!load) return null;
       const result = await apply(S.completeUpdate(load, Date.now()));
