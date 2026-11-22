@@ -87,7 +87,7 @@ export const AIR_DRY_COPY = {
   setupToggleLabel: "I'll air-dry instead",
   setupToggleHint: "Hang or lay clothes flat. We'll set a check-in reminder.",
   checkInLabel: "Check back in",
-  checkInHint: "A rough guess is fine. You can check again later.",
+  checkInHint: "A rough guess is fine. You can always check again.",
   // Shown wherever the check-in time is chosen or shown.
   reminderNote: "This is a reminder to check, not a prediction of when your clothes will be dry.",
   startButton: "Start my air-dry check-in",
