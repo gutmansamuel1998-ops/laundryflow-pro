@@ -81,17 +81,20 @@ function StillDampOptions({ pending, onChoose, note }) {
       </h2>
       <p className="text-sm text-muted-foreground">{AIR_DRY_COPY.stillDampReassurance}</p>
       <div role="group" aria-labelledby="still-damp-heading" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {AIR_DRY_RECHECK_OPTIONS.map((m) => (
-          <BigButton
-            key={m}
-            variant="secondary"
-            disabled={pending}
-            aria-label={`Still damp, check again in ${recheckButtonLabel(m)}`}
-            onClick={() => onChoose(m)}
-          >
-            {recheckButtonLabel(m)}
-          </BigButton>
-        ))}
+        {AIR_DRY_RECHECK_OPTIONS.map((m) => {
+          // BigButton is untyped JavaScript; the cast keeps the typecheck baseline from growing.
+          const buttonProps = /** @type {any} */ ({
+            variant: "secondary",
+            disabled: pending,
+            "aria-label": `Still damp, check again in ${recheckButtonLabel(m)}`,
+            onClick: () => onChoose(m),
+          });
+          return (
+            <BigButton key={m} {...buttonProps}>
+              {recheckButtonLabel(m)}
+            </BigButton>
+          );
+        })}
       </div>
       <p role="status" className="min-h-[1.5rem] text-base">
         {note}
@@ -197,6 +200,13 @@ export default function Session() {
       await actions.stillDamp(minutes);
       setRecheckNote(stillDampStatus(minutes));
     });
+
+  // "They're dry": an explicit tap, primary once the check-in is ready. (Cast: see StillDampOptions.)
+  const confirmDryProps = /** @type {any} */ ({
+    variant: phase === "dry_elapsed" ? "primary" : "secondary",
+    disabled: pending,
+    onClick: () => act(actions.confirmDryDone),
+  });
 
   if (isLoading) {
     return (
@@ -353,13 +363,7 @@ export default function Session() {
         {copy.airDry && (phase === "dry_running" || phase === "dry_elapsed") && (
           <>
             <p className="text-base">{copy.nextAction}</p>
-            <BigButton
-              variant={phase === "dry_elapsed" ? "primary" : "secondary"}
-              disabled={pending}
-              onClick={() => act(actions.confirmDryDone)}
-            >
-              {AIR_DRY_COPY.confirmDryButton}
-            </BigButton>
+            <BigButton {...confirmDryProps}>{AIR_DRY_COPY.confirmDryButton}</BigButton>
             <StillDampOptions pending={pending} onChoose={chooseStillDamp} note={recheckNote} />
           </>
         )}
