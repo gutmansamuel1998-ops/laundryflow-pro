@@ -19,6 +19,7 @@ export const DEFAULT_PREFS = {
   gameVolume: 0.5, // 0 to 1, applies to game sounds
   timerSound: true, // short tones for the 5-minute, 1-minute and timer-finished alerts
   reducedSensory: false, // "Calmer game": quieter, fewer sounds, no confetti or card pop
+  ironSuggestions: false, // optional "anything to iron?" offer after drying; off until the person turns it on
 };
 
 const TEXT_SIZES = { small: "87.5%", normal: "100%", large: "125%", xlarge: "200%" };
