@@ -68,7 +68,7 @@ export default function Home() {
       <IronQueueCard />
 
       {/* Available before (and without) starting a load. Collapsed so it never competes with Start. */}
-      <CarePanel view="all" label="Laundry Care Guide" />
+      <CarePanel view="all" label="Laundry Care Guide" headingLevel={2} />
 
       {count > 0 && !running && (
         <p className="text-center text-base text-muted-foreground">
