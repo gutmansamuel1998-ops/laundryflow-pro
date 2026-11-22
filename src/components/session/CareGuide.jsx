@@ -142,9 +142,9 @@ export default function CareGuide({ view = "all", headingLevel = 3 }) {
             const limit = ironLimitText(s);
             const fibres = ironFibresText(s);
             return (
-              <li key={s.id} className="flex items-start gap-4 rounded-2xl border-2 border-border p-4">
+              <li key={s.id} className="flex flex-wrap items-start gap-x-4 gap-y-2 rounded-2xl border-2 border-border p-4">
                 <div className="shrink-0">{ART[s.id]}</div>
-                <div>
+                <div className="min-w-0 flex-1 basis-[10rem]">
                   <p className="font-semibold">{s.name}</p>
                   <p className="text-sm">{s.meaning}</p>
                   {limit && <p className="mt-1 text-sm font-semibold">{limit}</p>}

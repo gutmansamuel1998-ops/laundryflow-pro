@@ -177,6 +177,12 @@ html {
   }
 }
 
+/* At very large text a single long word (a heading such as "laundry?") can be wider than a small screen.
+   Let it break rather than push the page sideways (WCAG 1.4.4 / 1.4.10). Has no effect while words fit. */
+body {
+  overflow-wrap: break-word;
+}
+
 /* WCAG focus-visible — applies to all interactive elements */
 :focus-visible {
   outline: 3px solid hsl(var(--primary));
