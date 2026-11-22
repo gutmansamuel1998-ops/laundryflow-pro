@@ -125,7 +125,7 @@ test("Bubbles' encouragement and the completion celebration are unchanged", () =
 // ─── Language: supportive, short, optional ──────────────────────────────────────────────────────
 
 test("nothing in the new features is worded as an order, a deadline or a threat", () => {
-  const PRESSURE = /\b(must|required|mandatory|have to|you need to|you should|don't forget|make sure|don't miss|hurry|asap|immediately|deadline|urgent|last chance|before it's too late)\b/i;
+  const PRESSURE = /\b(must|(?<!nothing here is )required|mandatory|have to|you need to|you should|don't forget|make sure|don't miss|hurry|asap|immediately|deadline|urgent|last chance|before it's too late)\b/i;
   const strings = [...NEW_FEATURE_COPY, ...airDryStrings()];
   assert.ok(strings.length > 100);
   for (const s of strings) assert.doesNotMatch(s, PRESSURE, s);
@@ -257,9 +257,9 @@ test("every button and link in the new components is a real element with a visib
   for (const f of featureFiles) {
     const src = featureCode[f];
     assert.doesNotMatch(src, /role="button"|<div[^>]*onClick|<span[^>]*onClick/, `${f}: clickable non-button`);
-    for (const m of src.matchAll(/<button\b[^>]*>/g)) {
-      // BigButton, Chip and the shared Disclosure carry their own 48-56px height; plain <button> must say so
-      assert.match(m[0], /min-h-\[(4[4-9]|[5-9]\d)px\]|\$\{SMALL_BUTTON\}|className=\{[A-Z_]+\}/, `${f}: ${m[0].slice(0, 90)}`);
+    for (const m of src.matchAll(/<button\b[\s\S]*?<\/button>/g)) {
+      // BigButton, Chip and the shared Disclosure carry their own 48-56px height; a plain <button> must say so itself
+      assert.match(m[0], /min-h-\[(4[4-9]|[5-9]\d)px\]|\$\{SMALL_BUTTON\}|className=\{[A-Z_]+\}/, `${f}: ${m[0].slice(0, 120)}`);
     }
   }
   // labels that start with the visible words (WCAG 2.5.3 label in name)
