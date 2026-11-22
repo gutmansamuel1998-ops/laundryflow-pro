@@ -8,8 +8,9 @@
 // Pure data and strings: no imports, no storage, no dates, no network. The component that shows it is
 // src/components/settings/EarlierFeatures.jsx; earlierFeatures.test.js and earlierFeaturesRender.test.js check both.
 
-// The older tools that the main laundry experience now covers. `note` says what each one is in relation to the current
-// feature; it never says the older tool is gone, because it is not.
+// The older stand-alone tools. `note` says how each one relates to the newer feature; it never says the older tool is gone,
+// because it is not. Air-dry tracker and Ironing queue have a newer version inside the main laundry experience. The Laundry
+// calendar does NOT: "My laundry days" is a simpler plan, not a recreation of the calendar, and its note says so.
 export const OLDER_TOOLS = [
   {
     label: "Air-dry tracker",
@@ -24,7 +25,7 @@ export const OLDER_TOOLS = [
   {
     label: "Laundry calendar",
     page: "LaundryCalendar",
-    note: "The older calendar for planning loads. “My laundry days” above is the current way to choose your regular days.",
+    note: "Still the full Laundry calendar. “My laundry days” above is a simpler plan for your regular days and doesn't replace it.",
   },
 ];
 
@@ -47,17 +48,17 @@ export const EARLIER_COPY = {
     "These are from the previous version. They're kept out of the main menu to keep things simple, and everything you saved in them is still there.",
   disclosure: "Open the earlier tools",
 
-  olderHeading: "Older tools now built into your laundry",
-  olderIntro: "Air-drying and optional ironing now work inside your main laundry experience, so everyday laundry doesn't need these separate tools.",
-  currentHeading: "Where to find the current versions",
+  olderHeading: "Older tools",
+  olderIntro: "Air-drying and optional ironing now work inside your main laundry experience, so everyday laundry doesn't need the separate air-dry tracker or ironing queue.",
+  currentHeading: "Newer options",
   currentItems: [
     "Air-drying: choose “I'll air-dry instead” on the dryer step of a laundry session.",
     "Ironing: turn on “Offer an ironing list after drying” in the Ironing section above. It's optional and off until you turn it on.",
-    "Regular days: choose them under “My laundry days” above.",
+    "Regular days: “My laundry days” above is a simpler plan for the days you'd like to do laundry. It doesn't replace the Laundry calendar.",
   ],
   olderListLabel: "Older tools, still available",
   olderTag: "Older tool",
-  keptNote: "These still work and still keep what you saved in them. That is separate from the current air-dry, ironing and laundry-day features, so nothing is copied between them.",
+  keptNote: "These older tools still work and still keep what you saved in them. Nothing in them is moved into the newer features automatically.",
 
   otherHeading: "Other earlier features",
   otherIntro: "These are unchanged and still available.",
