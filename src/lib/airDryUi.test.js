@@ -151,6 +151,8 @@ test("still damp is wired through the hook, once, and is accessible", () => {
   const code = withoutComments(session);
   assert.equal((code.match(/actions\.stillDamp\(/g) || []).length, 1);
   assert.match(code, /setRecheckNote\(stillDampStatus\(minutes\)\)/);
+  // Focus only follows the tap when the heading actually changes (from the check-in screen).
+  assert.match(code, /phase === "dry_elapsed" \? act\(run\) : run\(\)\.catch\(\(\) => \{\}\)/);
   const options = code.slice(code.indexOf("function StillDampOptions"), code.indexOf("function Celebration"));
   assert.match(options, /role="group" aria-labelledby="still-damp-heading"/);
   assert.match(options, /<h2 id="still-damp-heading"/);
