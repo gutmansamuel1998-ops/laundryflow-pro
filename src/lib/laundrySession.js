@@ -186,7 +186,33 @@ export function firedKey(load) {
   return `${load.id}|${load.current_state}|${load.stage_start_time}`;
 }
 
+// Air-drying is the Dry step done without a machine: a `drying` load whose guidance is `hang_dry`.
+// Its timer is a check-in reminder, so reminders never talk about a dryer, never warn about a countdown,
+// and never assume the clothes are dry: the user confirms that themselves in the app.
+export function isAirDryStage(load) {
+  return !!load && load.current_state === "drying" && load.dry_guidance === "hang_dry";
+}
+
+const AIR_DRY_NUDGES = [
+  "Your clothes are ready for a quick check whenever you are.",
+  "Gentle nudge: take a look at your clothes. Dry or still damp, either is fine.",
+  "No rush. When you're ready, let's check your clothes together.",
+];
+
+// One source of air-dry reminder wording, shared by the native plan and the web reminders.
+export function airDryReminderCopy(event) {
+  if (event === "done") {
+    return {
+      title: "Air-dry check-in",
+      body: "Time to check your clothes. If they're dry, confirm in the app. If they're still damp, choose how long to wait.",
+    };
+  }
+  const k = Number(String(event).replace("nudge_", "")) || 1;
+  return { title: "Gentle reminder", body: AIR_DRY_NUDGES[(Math.max(1, k) - 1) % AIR_DRY_NUDGES.length] };
+}
+
 function eventCopy(id, load) {
+  if (isAirDryStage(load)) return airDryReminderCopy(id);
   const stage = load.current_state === "drying" ? "dry" : "wash";
   if (id === "five_min") return { title: "Almost ready", body: "Your laundry is almost ready!" };
   if (id === "one_min") return { title: "One minute left", body: "Let's finish this round!" };
@@ -209,7 +235,8 @@ export function getDueEvents({ load, now, level, fired = [] }) {
   if (!timer) return result;
 
   const handled = new Set(fired);
-  const warnings = level === "standard" || level === "persistent";
+  // Air-dry check-ins are long, so (like the native plan) they get no countdown warnings.
+  const warnings = (level === "standard" || level === "persistent") && !isAirDryStage(load);
 
   const early = [];
   if (warnings && timer.durationMs > 5 * MINUTE && timer.remainingMs <= 5 * MINUTE) early.push("five_min");
