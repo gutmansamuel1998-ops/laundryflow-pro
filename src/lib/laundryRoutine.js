@@ -168,14 +168,24 @@ const keyFromUtc = (t) => {
   const d = new Date(t);
   return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 };
-const utcOf = (key) => Date.UTC(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, Number(key.slice(8, 10)));
+const SHAPE = /^\d{4}-\d{2}-\d{2}$/;
+const utcOf = (key) =>
+  typeof key === "string" && SHAPE.test(key)
+    ? Date.UTC(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, Number(key.slice(8, 10)))
+    : NaN;
 
 /** The calendar date n days after (or before, if negative) a date. Calendar arithmetic only: no zone, no DST. */
-export const addDays = (key, n) => keyFromUtc(utcOf(key) + n * DAY_MS);
-/** Whole days from date a to date b. */
+export const addDays = (key, n) => {
+  const t = utcOf(key) + Number(n) * DAY_MS;
+  return Number.isFinite(t) && Math.abs(t) < 8.64e15 ? keyFromUtc(t) : "";
+};
+/** Whole days from date a to date b (NaN when either is not a date). */
 export const daysBetween = (a, b) => Math.round((utcOf(b) - utcOf(a)) / DAY_MS);
-/** 0 = Sunday … 6 = Saturday. */
-export const weekdayOf = (key) => new Date(utcOf(key)).getUTCDay();
+/** 0 = Sunday … 6 = Saturday (-1 when the input is not a date). */
+export const weekdayOf = (key) => {
+  const t = utcOf(key);
+  return Number.isFinite(t) ? new Date(t).getUTCDay() : -1;
+};
 
 // ─── Times of day ("HH:MM") ──────────────────────────────────────────────────────────────────────────
 
