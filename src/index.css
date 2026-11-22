@@ -143,6 +143,12 @@
   border-width: 0;
 }
 
+/* Focus is never left under the fixed bottom navigation (WCAG 2.2 SC 2.4.11).
+   --bottom-nav-h is measured and set by Layout.jsx; 5rem is only the fallback. */
+html {
+  scroll-padding-bottom: calc(var(--bottom-nav-h, 5rem) + 1rem);
+}
+
 /* WCAG focus-visible — applies to all interactive elements */
 :focus-visible {
   outline: 3px solid hsl(var(--primary));
