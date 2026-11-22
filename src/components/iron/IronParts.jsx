@@ -184,9 +184,9 @@ export function IronList({ items, onDone, onReopen, onRemove, onChooseHeat, onCl
                   // and the two buttons unless the person asks for more.
                   <details className="group mt-2">
                     <summary
-                      className="flex min-h-[48px] cursor-pointer list-none items-center justify-between gap-3 rounded-2xl text-base font-semibold [&::-webkit-details-marker]:hidden"
+                      className="flex min-h-[48px] cursor-pointer list-none flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-2xl text-base font-semibold [&::-webkit-details-marker]:hidden"
                     >
-                      <span className="min-w-0 [overflow-wrap:anywhere]">
+                      <span className="min-w-0 break-words">
                         {item.heat ? "Change heat setting" : "Choose a heat setting"}
                         <span className="sr-only"> for {item.name}</span>
                       </span>

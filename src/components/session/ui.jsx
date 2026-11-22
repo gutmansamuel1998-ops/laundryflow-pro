@@ -138,7 +138,7 @@ export function OptionGroup({ legend, name, value, onChange, options, descriptio
             onChange={() => onChange(o.value)}
             className="mt-1 h-5 w-5 shrink-0"
           />
-          <span className="min-w-0 [overflow-wrap:anywhere]">
+          <span className="min-w-0 break-words">
             <span className="block font-medium">{o.label}</span>
             {o.hint && <span className="block text-sm text-muted-foreground">{o.hint}</span>}
           </span>

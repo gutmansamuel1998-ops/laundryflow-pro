@@ -118,7 +118,7 @@ export default function LaundryDaysSettings() {
                           onChange={(e) => toggleDay(d.value, e.target.checked)}
                           className="h-6 w-6 shrink-0"
                         />
-                        <span className="min-w-0 [overflow-wrap:anywhere]">{d.name}</span>
+                        <span className="min-w-0 break-words">{d.name}</span>
                       </label>
                     );
                   })}
