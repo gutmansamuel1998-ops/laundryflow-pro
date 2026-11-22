@@ -1083,13 +1083,15 @@ test("equal stamps are settled by the content, so the result never depends on me
 });
 
 test("a device with its clock set far ahead cannot win every future conflict", () => {
-  const honest = { ...clone(make([SAT])), settingsAt: 2_000 };
   const wrongClock = { ...clone(make([MON])), settingsAt: Date.UTC(2099, 0, 1) };
-  const now = 5_000;
-  assert.deepEqual(mergeRoutines(honest, wrongClock).weekdays, [MON]); // without the guard the far-future stamp wins
-  const guarded = mergeRoutines({ ...honest, settingsAt: now + 3 * DAY }, { ...wrongClock }, { nowMs: now });
-  assert.deepEqual(clone(mergeRoutines(honest, wrongClock, { nowMs: now })), clone(mergeRoutines(wrongClock, honest, { nowMs: now })));
-  assert.ok(guarded);
+  const honest = { ...clone(make([SAT])), settingsAt: Date.UTC(2026, 10, 24) };
+  assert.deepEqual(mergeRoutines(honest, wrongClock).weekdays, [MON]); // with no clock given, the far-future stamp wins
+  // Three days later the honest device edits again. Knowing the time, the wrong stamp counts as only a day ahead.
+  const now = Date.UTC(2026, 10, 27);
+  const edited = { ...honest, weekdays: [WED], settingsAt: now };
+  assert.deepEqual(mergeRoutines(edited, wrongClock, { nowMs: now }).weekdays, [WED]);
+  assert.deepEqual(mergeRoutines(wrongClock, edited, { nowMs: now }).weekdays, [WED]);
+  assert.deepEqual(mergeRoutines(edited, wrongClock).weekdays, [MON]); // still stuck without the clock
 });
 
 test("merging with damaged copies is safe and keeps the good one", () => {
