@@ -18,7 +18,7 @@ export default function SessionTimer({ phase, timer, sticky = true, airDry = fal
 
   return (
     <section
-      aria-label={`${label}, estimated`}
+      aria-label={airDry ? `${label}, a reminder to look at your clothes` : `${label}, estimated`}
       className={cn(
         "border-b-2 border-border bg-background py-3",
         sticky && "sticky top-0 z-30 -mx-5 bg-background/95 px-5 backdrop-blur"
