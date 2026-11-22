@@ -129,9 +129,12 @@ t("option groups: the fieldset can shrink, and each option wraps instead of sque
   assert.match(html, /basis-\[6rem\]/);
 });
 
-t("the minute stepper's minus, number and plus wrap onto another row instead of overflowing", () => {
+t("the minute stepper's minus, number and plus can move to another row instead of overflowing (rules live in index.css since P8.8)", () => {
   const html = mod.stepper();
-  assert.match(html, /flex flex-wrap items-center justify-center/);
+  assert.match(html, /<div class="minutes-stepper">/);
+  assert.match(html, /class="minutes-stepper__row"/);
+  const css = strip(read("../index.css"));
+  assert.match(css, /\.minutes-stepper \.minutes-stepper__row\s*\{[^}]*flex-wrap:\s*wrap/);
   assert.match(html, /aria-label="Decrease Wash cycle length by 5 minutes"/);
   assert.match(html, /aria-label="Increase Wash cycle length by 5 minutes"/);
 });
@@ -194,7 +197,7 @@ test("the layout measures the bottom navigation and publishes its height; the st
   assert.match(layout, /removeProperty\("--bottom-nav-h"\)/);
   assert.match(layout, /typeof ResizeObserver === "undefined"/, "older browsers still get the measured height once");
   const css = strip(read("../index.css"));
-  assert.match(css, /html\s*\{\s*scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*1rem\);\s*\}/);
+  assert.match(css, /html\s*\{\s*scroll-padding-bottom:\s*calc\(var\(--bottom-nav-h,\s*5rem\)\s*\+\s*1rem\);\s*scroll-padding-top:\s*var\(--sticky-top-h,\s*0px\);\s*\}/);
 });
 
 test("the navigation itself is unchanged: three destinations, skip link first, no new tabs", () => {
