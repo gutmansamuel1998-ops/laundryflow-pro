@@ -103,8 +103,8 @@ test("'They're dry' is an explicit button; nothing in the screen confirms or com
   assert.equal(AIR_DRY_COPY.confirmDryButton, "They're dry");
   const code = withoutComments(session);
   const block = code.slice(code.indexOf("{copy.airDry && (phase ==="), code.indexOf('{((phase === "dry_elapsed" && !copy.airDry)'));
-  assert.match(block, /onClick=\{\(\) => act\(actions\.confirmDryDone\)\}/);
-  assert.match(block, /AIR_DRY_COPY\.confirmDryButton/);
+  assert.match(code, /onClick: \(\) => act\(actions\.confirmDryDone\)/); // only a tap confirms
+  assert.match(block, /<BigButton \{\.\.\.confirmDryProps\}>\{AIR_DRY_COPY\.confirmDryButton\}<\/BigButton>/);
   assert.match(block, /<StillDampOptions /);
   // The air-dry check-in block cannot complete the session: "put away" is its own, later step.
   assert.doesNotMatch(block, /actions\.complete/);
@@ -155,7 +155,7 @@ test("still damp is wired through the hook, once, and is accessible", () => {
   assert.match(options, /role="group" aria-labelledby="still-damp-heading"/);
   assert.match(options, /<h2 id="still-damp-heading"/);
   assert.match(options, /role="status"/); // the confirmation is announced
-  assert.match(options, /aria-label=\{`Still damp, check again in \$\{recheckButtonLabel\(m\)\}`\}/);
+  assert.match(options, /"aria-label": `Still damp, check again in \$\{recheckButtonLabel\(m\)\}`/);
   assert.match(options, /<BigButton/); // large targets (56px) from the shared control
 
   const h = withoutComments(hook);
