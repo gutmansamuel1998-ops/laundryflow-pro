@@ -61,21 +61,24 @@ export default function Layout({ children, currentPageName }) {
 
       <FeedbackModal />
       <nav ref={navRef} aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb">
-        <ul className="max-w-lg mx-auto flex items-stretch justify-around px-2 py-1">
+        {/* Labels may wrap onto a second line at large text, and the bar grows with them (Layout publishes its measured
+            height). Padding is small and in rem so three whole labels, including "Settings & Care", fit side by side on
+            a 320 px screen at 200% text without shrinking the text. */}
+        <ul className="max-w-lg mx-auto flex items-stretch justify-around px-1 py-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.page;
             return (
-              <li key={item.page} className="flex-1">
+              <li key={item.page} className="min-w-0 flex-1">
                 <Link
                   to={createPageUrl(item.page)}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex flex-col items-center justify-center gap-1 min-h-[60px] rounded-xl px-2 py-2 text-center ${
+                  className={`flex flex-col items-center justify-center gap-1 min-h-[60px] rounded-xl px-0.5 py-2 text-center ${
                     isActive ? "bg-secondary font-bold text-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Icon className="w-6 h-6" aria-hidden="true" strokeWidth={isActive ? 2.5 : 1.75} />
-                  <span className="text-xs leading-tight">{item.label}</span>
+                  <span className="min-w-0 break-words text-xs leading-tight">{item.label}</span>
                 </Link>
               </li>
             );
