@@ -216,6 +216,20 @@ export default function SettingsCare() {
         />
       </Panel>
 
+      {/* Ironing: optional and off until turned on. Turning it off never removes anything already on the list. */}
+      <Panel aria-labelledby="ironing-heading" className="space-y-5">
+        <h2 id="ironing-heading" className="text-xl font-semibold">
+          Ironing
+        </h2>
+        <ToggleRow
+          id="iron-suggestions"
+          label="Offer an ironing list after drying"
+          hint="Shows an optional, closed box after your clothes are dry where you can note things to iron. It's off until you turn it on, and your laundry is complete either way. Your list is saved on this device only."
+          checked={prefs.ironSuggestions === true}
+          onChange={(v) => setPrefs({ ironSuggestions: v })}
+        />
+      </Panel>
+
       {/* Accessibility */}
       <Panel aria-labelledby="a11y-heading" className="space-y-5">
         <h2 id="a11y-heading" className="text-xl font-semibold">
