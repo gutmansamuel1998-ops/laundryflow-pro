@@ -7,10 +7,10 @@ import Disclosure from "@/components/session/Disclosure";
 //
 // It is purely presentational: it reads no session or timer state and writes nothing, so
 // opening or closing it can never pause, reset, or alter the laundry timer.
-export default function CarePanel({ view = "all", label, className }) {
+export default function CarePanel({ view = "all", label, className, headingLevel = 3 }) {
   return (
     <Disclosure label={label} className={className}>
-      <CareGuide view={view} />
+      <CareGuide view={view} headingLevel={headingLevel} />
     </Disclosure>
   );
 }
