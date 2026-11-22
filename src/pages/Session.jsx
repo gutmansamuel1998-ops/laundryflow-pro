@@ -9,11 +9,19 @@ import {
   NEXT_ACTION,
   PHASE_INFO,
   STEPS,
-  bubblesLine,
   getPhase,
   getTimer,
   isTimedPhase,
 } from "@/lib/laundrySession";
+import {
+  AIR_DRY_CHECKIN,
+  AIR_DRY_COPY,
+  AIR_DRY_DEFAULT_MINUTES,
+  AIR_DRY_RECHECK_OPTIONS,
+  phaseCopy,
+  recheckButtonLabel,
+  stillDampStatus,
+} from "@/lib/airDry";
 import SessionTimer from "@/components/session/SessionTimer";
 import BubblesCard from "@/components/session/BubblesCard";
 import SockMatch from "@/components/session/SockMatch";
@@ -60,6 +68,35 @@ function StepList({ phase }) {
         );
       })}
     </ol>
+  );
+}
+
+// Air-dry only: "still damp, check again in ...". Each choice starts a fresh check-in from the tap. It never
+// advances the session, and it can be used as many times as needed.
+function StillDampOptions({ pending, onChoose, note }) {
+  return (
+    <Panel aria-labelledby="still-damp-heading" className="space-y-3">
+      <h2 id="still-damp-heading" className="text-lg font-semibold">
+        {AIR_DRY_COPY.stillDampHeading}
+      </h2>
+      <p className="text-sm text-muted-foreground">{AIR_DRY_COPY.stillDampReassurance}</p>
+      <div role="group" aria-labelledby="still-damp-heading" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {AIR_DRY_RECHECK_OPTIONS.map((m) => (
+          <BigButton
+            key={m}
+            variant="secondary"
+            disabled={pending}
+            aria-label={`Still damp, check again in ${recheckButtonLabel(m)}`}
+            onClick={() => onChoose(m)}
+          >
+            {recheckButtonLabel(m)}
+          </BigButton>
+        ))}
+      </div>
+      <p role="status" className="min-h-[1.5rem] text-base">
+        {note}
+      </p>
+    </Panel>
   );
 }
 
@@ -110,17 +147,25 @@ export default function Session() {
   const endMs = timedStage ? getTimer(load, 0)?.endMs : undefined;
   const now = useNow(timedStage, 1000, endMs); // also wakes exactly when the timer ends, so the game pauses at once
 
-  const phase = getPhase(load, now);
-  const timer = getTimer(load, now);
-  const info = PHASE_INFO[phase] || PHASE_INFO.none;
-  const line = bubblesLine(phase, timer);
-  const care = careViewForPhase(phase); // optional, collapsed guidance for this stage (none at Put Away)
-
   const [justCompleted, setJustCompleted] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [dryMinutes, setDryMinutes] = useState(prefs.defaultDryMinutes);
-  const [airDry, setAirDry] = useState(false);
+  const [airDry, setAirDry] = useState(false); // the "I'll air-dry instead" choice on the dryer setup panel
+  const [recheckNote, setRecheckNote] = useState("");
+
+  const phase = getPhase(load, now);
+  const timer = getTimer(load, now);
+  const info = PHASE_INFO[phase] || PHASE_INFO.none;
+  // Title, next step and Bubbles line: air-dry wording in the air-dry dry phases, the existing wording everywhere else.
+  const copy = phaseCopy({ phase, load, timer });
+  // Optional, collapsed guidance for this stage (none at Put Away). Air-drying gets the air-drying symbols.
+  const care = careViewForPhase(phase, { airDry: copy.airDry || (phase === "dryer_setup" && airDry) });
+
+  // Clear the "we'll check again" message once the session is no longer air-drying.
+  useEffect(() => {
+    if (!copy.airDry) setRecheckNote("");
+  }, [copy.airDry]);
 
   // Move keyboard / screen-reader focus to the new step heading, but only after the user's own tap
   // (never when a timer merely runs out, which could interrupt what they are doing).
@@ -144,8 +189,14 @@ export default function Session() {
 
   const chooseAirDry = (on) => {
     setAirDry(on);
-    setDryMinutes(on ? DEFAULTS.airDryMinutes : prefs.defaultDryMinutes);
+    setDryMinutes(on ? AIR_DRY_DEFAULT_MINUTES : prefs.defaultDryMinutes);
   };
+
+  const chooseStillDamp = (minutes) =>
+    act(async () => {
+      await actions.stillDamp(minutes);
+      setRecheckNote(stillDampStatus(minutes));
+    });
 
   if (isLoading) {
     return (
@@ -179,7 +230,7 @@ export default function Session() {
             {phase === "none" || phase === "ready" ? "Laundry session" : `Step ${Math.min(info.step + 1, 5)} of 5`}
           </p>
           <h1 ref={headingRef} tabIndex={-1} className="text-3xl font-semibold outline-none">
-            {info.title}
+            {copy.title}
           </h1>
         </div>
         <StepList phase={phase} />
@@ -194,9 +245,13 @@ export default function Session() {
         </div>
       )}
 
-      <SessionTimer phase={phase} timer={timer} />
+      <SessionTimer phase={phase} timer={timer} airDry={copy.airDry} />
 
-      <BubblesCard headline={line.headline} detail={line.detail} urgent={phase === "wash_elapsed" || phase === "dry_elapsed"} />
+      <BubblesCard
+        headline={copy.bubbles.headline}
+        detail={copy.bubbles.detail}
+        urgent={phase === "wash_elapsed" || phase === "dry_elapsed"}
+      />
 
       {/* Native app only: an optional offer to turn on reminders while a timer is running. */}
       {(phase === "wash_running" || phase === "dry_running") && <ReminderPrompt />}
@@ -245,28 +300,29 @@ export default function Session() {
           <Panel className="space-y-5">
             <ToggleRow
               id="air-dry"
-              label="I'll air-dry instead"
-              hint="Hang or lay clothes flat. We'll set a check-in timer."
+              label={AIR_DRY_COPY.setupToggleLabel}
+              hint={AIR_DRY_COPY.setupToggleHint}
               checked={airDry}
               onChange={chooseAirDry}
             />
             <MinutesStepper
               id="dry-minutes"
-              label={airDry ? "Check back in" : "Dryer length"}
+              label={airDry ? AIR_DRY_COPY.checkInLabel : "Dryer length"}
               value={dryMinutes}
               onChange={setDryMinutes}
-              min={5}
-              max={airDry ? 720 : 240}
-              step={airDry ? 15 : 5}
-              hint="An estimate is fine. You can add more time later."
+              min={airDry ? AIR_DRY_CHECKIN.min : 5}
+              max={airDry ? AIR_DRY_CHECKIN.max : 240}
+              step={airDry ? AIR_DRY_CHECKIN.step : 5}
+              hint={airDry ? AIR_DRY_COPY.checkInHint : "An estimate is fine. You can add more time later."}
             />
             <div className="flex flex-wrap gap-2" role="group" aria-label="Common lengths">
-              {(airDry ? [60, 120, 240, 480] : [30, 45, 60]).map((m) => (
+              {(airDry ? AIR_DRY_CHECKIN.chips : [30, 45, 60]).map((m) => (
                 <Chip key={m} pressed={dryMinutes === m} onClick={() => setDryMinutes(m)}>
                   {m >= 60 ? `${m / 60} hr` : `${m} min`}
                 </Chip>
               ))}
             </div>
+            {airDry && <p className="text-sm text-muted-foreground">{AIR_DRY_COPY.reminderNote}</p>}
             <BigButton
               disabled={pending}
               onClick={() =>
@@ -276,12 +332,12 @@ export default function Session() {
                 })
               }
             >
-              {airDry ? "Start air-dry timer" : "I started my dryer"}
+              {airDry ? AIR_DRY_COPY.startButton : "I started my dryer"}
             </BigButton>
           </Panel>
         )}
 
-        {phase === "dry_running" && (
+        {phase === "dry_running" && !copy.airDry && (
           <>
             <p className="text-base">{NEXT_ACTION.dry_running}</p>
             <BigButton variant="secondary" disabled={pending} onClick={() => act(actions.confirmDryDone)}>
@@ -293,7 +349,22 @@ export default function Session() {
           </>
         )}
 
-        {(phase === "dry_elapsed" || phase === "put_away") && (
+        {/* Air-dry check-in: the clothes are only ever treated as dry after the person says so. */}
+        {copy.airDry && (phase === "dry_running" || phase === "dry_elapsed") && (
+          <>
+            <p className="text-base">{copy.nextAction}</p>
+            <BigButton
+              variant={phase === "dry_elapsed" ? "primary" : "secondary"}
+              disabled={pending}
+              onClick={() => act(actions.confirmDryDone)}
+            >
+              {AIR_DRY_COPY.confirmDryButton}
+            </BigButton>
+            <StillDampOptions pending={pending} onChoose={chooseStillDamp} note={recheckNote} />
+          </>
+        )}
+
+        {((phase === "dry_elapsed" && !copy.airDry) || phase === "put_away") && (
           <>
             <BigButton
               disabled={pending}
@@ -335,7 +406,12 @@ export default function Session() {
             {gameOpen ? "Hide the game" : "Play Sock Match"}
           </BigButton>
           <div id="game-area" className="mt-4">
-            {gameOpen && <SockMatch paused={gamePaused} pausedReason={GAME_PAUSE_REASON[phase] || ""} />}
+            {gameOpen && <SockMatch
+                paused={gamePaused}
+                pausedReason={
+                  copy.airDry && phase === "dry_elapsed" ? AIR_DRY_COPY.gamePausedElapsed : GAME_PAUSE_REASON[phase] || ""
+                }
+              />}
           </div>
         </Panel>
       )}
