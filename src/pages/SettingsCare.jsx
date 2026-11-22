@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { createPageUrl } from "@/utils";
 import { usePrefs, setPrefs } from "@/lib/sessionPrefs";
 import {
   ensureServiceWorker,
@@ -15,6 +13,7 @@ import { useNativePermission } from "@/hooks/useNativePermission";
 import { BigButton, MinutesStepper, OptionGroup, Panel, ToggleRow } from "@/components/session/ui";
 import CarePanel from "@/components/session/CarePanel";
 import LaundryDaysSettings from "@/components/laundryDays/LaundryDaysSettings";
+import EarlierFeatures from "@/components/settings/EarlierFeatures";
 import { gameAudio, TIMER_VOLUME } from "@/lib/gameAudio";
 import { sensoryProfile, soundForEvent } from "@/lib/gameRewards";
 
@@ -45,21 +44,6 @@ const ANIMATION_OPTIONS = [
   { value: "full", label: "Normal", hint: "Gentle, short animations such as the finish celebration." },
   { value: "reduced", label: "Reduced", hint: "No decorative animation." },
   { value: "off", label: "Off", hint: "No animation or motion at all." },
-];
-
-const ARCHIVED_LINKS = [
-  ["Previous home screen", "LegacyHome"],
-  ["Previous settings", "Settings"],
-  ["Load history", "Loads"],
-  ["Digital closet", "DigitalCloset"],
-  ["Supplies", "Supplies"],
-  ["Shopping list", "ShoppingList"],
-  ["Laundry calendar", "LaundryCalendar"],
-  ["Ironing queue", "IroningQueue"],
-  ["Air-dry tracker", "AirDryTracker"],
-  ["Household", "HouseholdManagement"],
-  ["Laundry funds", "LaundryFunds"],
-  ["Bubbles chat (earlier version)", "Bubbles"],
 ];
 
 export default function SettingsCare() {
@@ -344,23 +328,9 @@ export default function SettingsCare() {
         <CarePanel view="all" label="Laundry Care Guide" />
       </section>
 
-      {/* Earlier features: hidden from the menu, nothing deleted */}
-      <details className="rounded-3xl border-2 border-border p-5">
-        <summary className="min-h-[44px] cursor-pointer text-lg font-semibold">Earlier features</summary>
-        <p className="my-3 text-sm text-muted-foreground">
-          These are from the previous version. They're hidden from the main menu to keep things simple, and all of your
-          data is still saved.
-        </p>
-        <ul className="space-y-1">
-          {ARCHIVED_LINKS.map(([label, page]) => (
-            <li key={page}>
-              <Link to={createPageUrl(page)} className="block min-h-[48px] py-3 text-base underline underline-offset-4">
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </details>
+      {/* Earlier features: kept out of the menu, nothing deleted. The three older tools that the main laundry
+          experience now covers are grouped and explained; every other earlier feature is listed as before. */}
+      <EarlierFeatures />
     </div>
   );
 }
