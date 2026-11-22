@@ -18,7 +18,13 @@ function SymbolArt({ children }) {
 // Filled dots inside the iron: drawn in the text color (never a hue), and always repeated in words by the symbol's name.
 function IronDots({ count }) {
   const xs = count === 1 ? [12] : count === 2 ? [9.5, 14.5] : [8, 12, 16];
-  return xs.map((cx) => <circle key={cx} cx={cx} cy={14.5} r={1.3} fill="currentColor" stroke="none" />);
+  return (
+    <>
+      {xs.map((cx) => (
+        <circle key={cx} cx={cx} cy={14.5} r={1.3} fill="currentColor" stroke="none" />
+      ))}
+    </>
+  );
 }
 
 const ART = {
