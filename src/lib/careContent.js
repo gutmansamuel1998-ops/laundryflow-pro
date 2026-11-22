@@ -7,10 +7,12 @@
 //   all  : everything (Home, Settings & Care)
 //   wash : washing + bleaching (+ the "crossed out" rule): Start and Wash stages
 //   dry  : tumble + air drying (+ the "crossed out" rule): Move and Dry stages
+//   airdry : only the air-drying symbols and tips, shown while the person is air-drying
 export const CARE_VIEWS = {
   all: { title: "Laundry symbol reference", groups: null },
   wash: { title: "Washing and bleaching symbols", groups: ["washing", "bleaching", "crossed"] },
   dry: { title: "Drying symbols", groups: ["tumble", "airdry", "crossed"] },
+  airdry: { title: "Air-drying symbols", groups: ["airdry"] },
 };
 
 export const CARE_SYMBOLS = [
@@ -82,7 +84,7 @@ export const CARE_SYMBOLS = [
 
 // `views` lists where a tip is relevant. The "all" view shows every tip.
 export const CARE_TIPS = [
-  { id: "tag", text: "Check the care tag first. It beats any general rule.", views: ["wash", "dry"] },
+  { id: "tag", text: "Check the care tag first. It beats any general rule.", views: ["wash", "dry", "airdry"] },
   { id: "pockets", text: "Empty pockets and close zips before washing.", views: ["wash"] },
   {
     id: "overfill",
@@ -108,7 +110,12 @@ export const CARE_TIPS = [
   {
     id: "air_dry",
     text: "Air-drying: give clothes space and airflow, and lay knits flat so they keep their shape.",
-    views: ["dry"],
+    views: ["dry", "airdry"],
+  },
+  {
+    id: "air_dry_time",
+    text: "Thick items like towels and jeans can take longer. Still damp is normal, so just check again.",
+    views: ["airdry"],
   },
 ];
 
@@ -124,7 +131,13 @@ export function getCareTips(view = "all") {
 // Which guidance (if any) belongs with each laundry phase. Guidance is only ever OFFERED,
 // collapsed by default; it never changes the session. Put Away and Done deliberately get none,
 // so completion stays the priority.
-export function careViewForPhase(phase) {
+//
+// `airDry` (optional) is true while the person is air-drying (or has chosen to at the dryer step). It only
+// swaps the drying slice for the air-drying slice; it is a plain flag, so this file stays free of session code.
+export function careViewForPhase(phase, { airDry = false } = {}) {
+  if (airDry && (phase === "dryer_setup" || phase === "dry_running")) {
+    return { view: "airdry", label: "Air-drying symbols and tips" };
+  }
   switch (phase) {
     case "none":
     case "ready":
