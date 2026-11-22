@@ -1203,20 +1203,30 @@ test("the routine reads no existing preference: reminder level and timer default
   assert.equal(R.upcomingOccurrences.length <= 2, true);
 });
 
-test("nothing in the app uses the routine yet: no screen, notification, reminder or session code imports it", () => {
+test("only the laundry-days code uses the routine: no notification, reminder, session, payment or other screen code imports it", () => {
+  // P5 shipped it unused. P6 connects it to the "My laundry days" screens through these files only.
+  const allowed = [
+    "lib/deviceZone.js",
+    "lib/laundryRoutineController.js",
+    "lib/laundryRoutineStore.js",
+    "lib/laundryRoutineView.js",
+    "hooks/useLaundryRoutine.js",
+    "components/laundryDays/LaundryDayCard.jsx",
+    "components/laundryDays/LaundryDaysSettings.jsx",
+  ];
   const root = fileURLToPath(new URL("..", import.meta.url));
   const offenders = [];
   const walk = (dir) => {
     for (const name of readdirSync(dir)) {
       const full = join(dir, name);
       if (statSync(full).isDirectory()) walk(full);
-      else if (/\.(js|jsx|ts|tsx)$/.test(name) && !/laundryRoutine/.test(name)) {
-        if (/laundryRoutine/.test(readFileSync(full, "utf8"))) offenders.push(full.replace(root, ""));
+      else if (/\.(js|jsx|ts|tsx)$/.test(name) && !/\.test\.js$/.test(name) && !/laundryRoutine\.js$/.test(name)) {
+        if (/laundryRoutine(\.js)?["']/.test(readFileSync(full, "utf8"))) offenders.push(full.replace(root, "").replace(/^\//, ""));
       }
     }
   };
   walk(root);
-  assert.deepEqual(offenders, []);
+  assert.deepEqual(offenders.filter((f) => !allowed.includes(f)), []);
 });
 
 // ─── Independence and tone ──────────────────────────────────────────────────────────────────────
