@@ -39,7 +39,7 @@ function usePinned(enabled, hasCard) {
       root.style.removeProperty("--sticky-top-h");
     };
   }, [enabled, hasCard]);
-  return [ref, enabled && pinned];
+  return { ref, pinned: enabled && pinned };
 }
 
 // The countdown. It is always labeled as an ESTIMATE, because a timer ending does not prove
@@ -49,7 +49,7 @@ function usePinned(enabled, hasCard) {
 // `airDry` (air-dry check-in only) changes the wording: the timer is a reminder to look at the clothes,
 // not a prediction, so it never talks about a machine having stopped.
 export default function SessionTimer({ phase, timer, sticky = true, airDry = false }) {
-  const [sectionRef, pinned] = usePinned(sticky, Boolean(timer));
+  const { ref: sectionRef, pinned } = usePinned(sticky, Boolean(timer));
   if (!timer) return null;
   const isWash = phase.startsWith("wash");
   const label = airDry ? AIR_DRY_COPY.timerLabel : isWash ? "Wash timer" : "Dry timer";
