@@ -8,12 +8,35 @@
 //   wash : washing + bleaching (+ the "crossed out" rule): Start and Wash stages
 //   dry  : tumble + air drying (+ the "crossed out" rule): Move and Dry stages
 //   airdry : only the air-drying symbols and tips, shown while the person is air-drying
+//   iron : only the ironing symbols and tips (prepared for the optional ironing queue; not shown by a stage yet)
+// A view may carry an `intro`: a short plain-language note shown under its title.
 export const CARE_VIEWS = {
   all: { title: "Laundry symbol reference", groups: null },
   wash: { title: "Washing and bleaching symbols", groups: ["washing", "bleaching", "crossed"] },
   dry: { title: "Drying symbols", groups: ["tumble", "airdry", "crossed"] },
   airdry: { title: "Air-drying symbols", groups: ["airdry"] },
+  iron: {
+    title: "Ironing symbols",
+    groups: ["ironing"],
+    intro:
+      "The dots show the highest temperature of the iron's soleplate (its flat metal base) that the fabric can take. " +
+      "That is a limit, not a target, so you can always iron cooler.",
+  },
 };
+
+// ─── Ironing: where the facts come from ────────────────────────────────────────────────────────────
+// Dots -> maximum SOLEPLATE temperature, the same in every system: one dot 110 °C, two dots 150 °C, three dots 200 °C.
+//  - ISO 3758:2023 (4th ed.) and GINETEX: maximum soleplate temperatures; the 4th edition adds a symbol for
+//    ironing without steam and redraws "do not iron". The standard covers "the most severe treatment that will
+//    not cause irreversible damage", so the dots are ceilings. GINETEX also flags that steam may damage fabric
+//    at the one-dot level.
+//  - ASTM D5489 (US) uses the same three levels (about 230, 300 and 390 °F), has a separate "do not steam"
+//    symbol, and a plain iron with no dots for "any temperature".
+//  - Government of Canada care-symbol guide: the same ceilings (110, 150, 200 °C), plus the fabrics each level is
+//    recommended for. Those fabrics are a GUIDE, kept apart from the limit below (`fibres` vs `maxC`).
+// Fahrenheit values are the rounded figures printed on US charts; tests check they stay within 3 °F of the exact
+// conversion. Everything else in the ironing entries (tips, plain-language wording) is general guidance.
+// Note: the paid ISO text itself was not read; the figures above were confirmed against the sources named here.
 
 export const CARE_SYMBOLS = [
   {
@@ -65,7 +88,57 @@ export const CARE_SYMBOLS = [
     id: "ironing",
     group: "ironing",
     name: "Ironing (iron)",
-    meaning: "You can iron. Dots show the heat: one dot is cool, three dots is hot.",
+    meaning:
+      "You can iron. Dots show the heat limit: one dot is low, two is medium, three is high. " +
+      "On US labels, a plain iron with no dots means any heat is fine.",
+  },
+  {
+    id: "iron_low",
+    group: "ironing",
+    name: "Iron, one dot (low heat)",
+    meaning:
+      "Iron on a low setting. Many European labels warn that steam can damage the fabric at this level, " +
+      "so when unsure, iron it dry.",
+    dots: 1,
+    maxC: 110,
+    maxF: 230,
+    fibres: "acetate, acrylic, modacrylic, nylon, polypropylene and spandex",
+  },
+  {
+    id: "iron_medium",
+    group: "ironing",
+    name: "Iron, two dots (medium heat)",
+    meaning: "Iron on a medium setting.",
+    dots: 2,
+    maxC: 150,
+    maxF: 300,
+    fibres: "polyester, rayon, silk, triacetate and wool",
+  },
+  {
+    id: "iron_high",
+    group: "ironing",
+    name: "Iron, three dots (high heat)",
+    meaning: "Iron on a high setting.",
+    dots: 3,
+    maxC: 200,
+    maxF: 390,
+    fibres: "cotton and linen",
+  },
+  {
+    id: "iron_none",
+    group: "ironing",
+    name: "Do not iron (crossed-out iron)",
+    meaning:
+      "Do not iron or press this item. The heat can damage the fabric for good. " +
+      "Hanging it up and smoothing it by hand can help.",
+  },
+  {
+    id: "no_steam",
+    group: "ironing",
+    name: "Do not steam (iron with crossed-out steam)",
+    meaning:
+      "Do not use steam. You can still iron at the heat the dots show, but keep the steam button off, " +
+      "because steam can harm this fabric. It usually appears next to the iron dots.",
   },
   {
     id: "dry_cleaning",
@@ -84,7 +157,7 @@ export const CARE_SYMBOLS = [
 
 // `views` lists where a tip is relevant. The "all" view shows every tip.
 export const CARE_TIPS = [
-  { id: "tag", text: "Check the care tag first. It beats any general rule.", views: ["wash", "dry", "airdry"] },
+  { id: "tag", text: "Check the care tag first. It beats any general rule.", views: ["wash", "dry", "airdry", "iron"] },
   { id: "pockets", text: "Empty pockets and close zips before washing.", views: ["wash"] },
   {
     id: "overfill",
@@ -117,7 +190,38 @@ export const CARE_TIPS = [
     text: "Thick items like towels and jeans can take longer. Still damp is normal, so just check again.",
     views: ["airdry"],
   },
+  {
+    id: "iron_start_low",
+    text: "No symbol, or not sure? Start on low heat and test a hidden spot first, like inside a hem.",
+    views: ["iron"],
+  },
+  {
+    id: "iron_mixed",
+    text: "Mixed fabrics: follow the most delicate fabric on the tag.",
+    views: ["iron"],
+  },
+  {
+    id: "iron_inside_out",
+    text: "For dark, shiny or printed items, iron inside out or put a thin cloth between the iron and the fabric.",
+    views: ["iron"],
+  },
+  {
+    id: "iron_safety",
+    text: "Keep the iron moving, and unplug it when you finish so it can cool safely.",
+    views: ["iron"],
+  },
 ];
+
+// Ironing facts shown under a symbol. Returns null for symbols that have none, so other symbols render as before.
+// The LIMIT (`maxC`) is what the label allows; `fibres` is only a guide to what usually suits that setting.
+export function ironLimitText(symbol) {
+  if (!symbol || !Number.isFinite(symbol.maxC) || !Number.isFinite(symbol.maxF)) return null;
+  return `Highest soleplate temperature (the limit): ${symbol.maxC} °C (about ${symbol.maxF} °F)`;
+}
+
+export function ironFibresText(symbol) {
+  return symbol && symbol.fibres ? `Often recommended for: ${symbol.fibres}` : null;
+}
 
 export function getCareSymbols(view = "all") {
   const groups = (CARE_VIEWS[view] || CARE_VIEWS.all).groups;
