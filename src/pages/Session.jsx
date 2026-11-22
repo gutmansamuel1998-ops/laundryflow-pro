@@ -406,12 +406,14 @@ export default function Session() {
             {gameOpen ? "Hide the game" : "Play Sock Match"}
           </BigButton>
           <div id="game-area" className="mt-4">
-            {gameOpen && <SockMatch
+            {gameOpen && (
+              <SockMatch
                 paused={gamePaused}
                 pausedReason={
                   copy.airDry && phase === "dry_elapsed" ? AIR_DRY_COPY.gamePausedElapsed : GAME_PAUSE_REASON[phase] || ""
                 }
-              />}
+              />
+            )}
           </div>
         </Panel>
       )}
