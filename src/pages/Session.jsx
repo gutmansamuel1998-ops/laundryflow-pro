@@ -195,11 +195,15 @@ export default function Session() {
     setDryMinutes(on ? AIR_DRY_DEFAULT_MINUTES : prefs.defaultDryMinutes);
   };
 
-  const chooseStillDamp = (minutes) =>
-    act(async () => {
+  const chooseStillDamp = (minutes) => {
+    const run = async () => {
       await actions.stillDamp(minutes);
       setRecheckNote(stillDampStatus(minutes));
-    });
+    };
+    // From the check-in screen the heading changes, so focus follows the tap. While the person is already
+    // waiting, nothing moves, so focus is not left armed to jump later when a timer happens to end.
+    return phase === "dry_elapsed" ? act(run) : run().catch(() => {});
+  };
 
   // "They're dry": an explicit tap, primary once the check-in is ready. (Cast: see StillDampOptions.)
   const confirmDryProps = /** @type {any} */ ({
