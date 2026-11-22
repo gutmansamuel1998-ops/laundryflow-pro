@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
@@ -17,6 +17,26 @@ const navItems = [
 ];
 
 export default function Layout({ children, currentPageName }) {
+  const navRef = useRef(null);
+
+  // Keep keyboard focus out from behind the fixed bottom navigation (WCAG 2.2 SC 2.4.11).
+  // The nav's real height changes with text size, so measure it and publish it as a CSS
+  // variable; index.css uses it as the document's scroll-padding-bottom.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return undefined;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--bottom-nav-h", `${Math.ceil(nav.getBoundingClientRect().height)}px`);
+    publish();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(publish);
+    observer.observe(nav);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--bottom-nav-h");
+    };
+  }, []);
+
   useEffect(() => {
     // Accessibility preferences apply instantly from this device. On a brand-new device,
     // adopt the values already saved on the account (text size, contrast, font, motion).
@@ -40,7 +60,7 @@ export default function Layout({ children, currentPageName }) {
       <main id="main-content">{children}</main>
 
       <FeedbackModal />
-      <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb">
+      <nav ref={navRef} aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb">
         <ul className="max-w-lg mx-auto flex items-stretch justify-around px-2 py-1">
           {navItems.map((item) => {
             const Icon = item.icon;
