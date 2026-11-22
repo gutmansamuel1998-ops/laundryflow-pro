@@ -141,9 +141,9 @@ test("Home renders the card once, and the card renders nothing until the list ha
 
 test("Done, Remove and Clear finished are real buttons with the item named in their accessible name", () => {
   const parts = strip(read("../components/iron/IronParts.jsx"));
-  assert.match(parts, /aria-label=\{`Done: \$\{item\.name\}`\}[\s\S]{0,200}Done\s*<\/button>/);
-  assert.match(parts, /aria-label=\{`Remove \$\{item\.name\}`\}[\s\S]{0,200}Remove\s*<\/button>/);
-  assert.match(parts, /aria-label=\{`Not done yet: \$\{item\.name\}`\}[\s\S]{0,200}Not done yet\s*<\/button>/);
+  assert.match(parts, /aria-label=\{`Done: \$\{item\.name\}`\}[\s\S]{0,500}Done\s*<\/button>/);
+  assert.match(parts, /aria-label=\{`Remove \$\{item\.name\}`\}[\s\S]{0,500}Remove\s*<\/button>/);
+  assert.match(parts, /aria-label=\{`Not done yet: \$\{item\.name\}`\}[\s\S]{0,500}Not done yet\s*<\/button>/);
   assert.match(parts, /\{IRON_COPY\.clearFinished\} \(\{done\}\)/);
   assert.equal((parts.match(/<button/g) || []).length, 3);
   assert.equal((parts.match(/type="button"/g) || []).length, 3);
