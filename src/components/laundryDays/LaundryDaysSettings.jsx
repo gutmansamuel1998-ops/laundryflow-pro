@@ -94,7 +94,7 @@ export default function LaundryDaysSettings() {
 
           {model.enabled && (
             <>
-              <fieldset className="space-y-2">
+              <fieldset className="min-w-0 space-y-2">
                 <legend className="mb-1 text-base font-semibold">{COPY.daysLegend}</legend>
                 <p id="laundry-days-hint" className="mb-2 text-sm text-muted-foreground">
                   {COPY.daysHint}

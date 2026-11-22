@@ -24,7 +24,7 @@ export default function SessionTimer({ phase, timer, sticky = true, airDry = fal
         sticky && "sticky top-0 z-30 -mx-5 bg-background/95 px-5 backdrop-blur"
       )}
     >
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <h2 className="text-base font-semibold">
           {label}{" "}
           <span className="font-normal text-muted-foreground">{airDry ? "(reminder)" : "(estimate)"}</span>

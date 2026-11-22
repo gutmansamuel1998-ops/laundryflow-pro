@@ -6,12 +6,12 @@ export default function BubblesCard({ headline, detail, urgent = false }) {
   return (
     <section
       aria-label="Message from Bubbles"
-      className="flex items-start gap-4 rounded-3xl border-2 border-border bg-card p-5"
+      className="flex flex-wrap items-start gap-x-4 gap-y-2 rounded-3xl border-2 border-border bg-card p-5"
     >
       <div aria-hidden="true" className="text-5xl leading-none">
         🫧
       </div>
-      <div role={urgent ? "alert" : "status"} aria-atomic="true">
+      <div role={urgent ? "alert" : "status"} aria-atomic="true" className="min-w-0 flex-1 basis-[9rem]">
         <p className="text-xl font-semibold">
           <span className="sr-only">Bubbles says: </span>
           {headline}
