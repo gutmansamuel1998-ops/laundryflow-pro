@@ -153,6 +153,15 @@ html {
   scroll-padding-top: var(--sticky-top-h, 0px);
 }
 
+/* Feedback sheet (P8.9): never taller than the screen; when large text makes it taller, the sheet itself scrolls
+   (its header is sticky). 100vh first as the fallback, 100dvh where the browser knows the real visible height. */
+.feedback-sheet {
+  max-height: calc(100vh - 1rem);
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* Minutes stepper ("−  [ 35 ] min  +"): one row while there is room, otherwise the number gets its own row and the
    two buttons sit side by side beneath it, so the controls can never overlap. The query is in rem (it tracks the
    text-size setting) and measures the stepper's own width, not the screen's. Nothing is shrunk or hidden. */
