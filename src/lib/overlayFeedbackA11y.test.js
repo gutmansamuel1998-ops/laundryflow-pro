@@ -25,12 +25,12 @@ const classAfter = (src, marker) => {
 // ─── 1. Empty toast layer ────────────────────────────────────────────────────────────────────
 
 test("toast: the fixed provider and viewport layers do not capture pointer events when empty", () => {
-  const provider = /const ToastProvider[\s\S]*?className="([^"]*)"|ToastProvider = ToastPrimitives\.Provider/.exec(toast);
-  assert.ok(provider, "ToastProvider is defined");
-  const viewport = classAfter(toast, "<ToastPrimitives.Viewport");
-  assert.ok(viewport.includes("pointer-events-none"), "viewport must not intercept taps");
-  assert.ok(viewport.includes("fixed"), "viewport is still the fixed top/bottom layer");
-  assert.ok(viewport.includes("z-[100]"), "toasts still stack above everything");
+  for (const [name, marker] of [["provider", "const ToastProvider"], ["viewport", "const ToastViewport"]]) {
+    const layer = classAfter(toast, marker);
+    assert.ok(layer.includes("pointer-events-none"), `${name} must not intercept taps`);
+    assert.ok(layer.includes("fixed"), `${name} is still the fixed top/bottom layer`);
+    assert.ok(layer.includes("z-[100]"), `${name}: toasts still stack above everything`);
+  }
 });
 
 test("toast: each toast turns pointer events back on, so it stays tappable and its close button works", () => {
