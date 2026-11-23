@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link } from "react-router-dom";
 import FeedbackModal from "@/components/FeedbackModal";
@@ -18,6 +18,10 @@ const navItems = [
 
 export default function Layout({ children, currentPageName }) {
   const navRef = useRef(null);
+  // P8.9: on an extremely short screen at very large text (e.g. 320x500 at 200%) a pinned bar plus the feedback button
+  // would cover most of the screen. Then the bar stops being pinned and sits at the end of the page instead. All three
+  // destinations keep their full labels and nothing is hidden; it is just reached by scrolling to the bottom.
+  const [compact, setCompact] = useState(false);
 
   // Keep keyboard focus out from behind the fixed bottom navigation (WCAG 2.2 SC 2.4.11).
   // The nav's real height changes with text size, so measure it and publish it as a CSS
@@ -26,13 +30,28 @@ export default function Layout({ children, currentPageName }) {
     const nav = navRef.current;
     if (!nav) return undefined;
     const root = document.documentElement;
-    const publish = () => root.style.setProperty("--bottom-nav-h", `${Math.ceil(nav.getBoundingClientRect().height)}px`);
+    const publish = () => {
+      const height = Math.ceil(nav.getBoundingClientRect().height);
+      const rem = parseFloat(window.getComputedStyle(root).fontSize) || 16;
+      // 4.75rem = the feedback button and its gap, which float above the bar. If bar + button would take more than
+      // half of the visible height, the bar is not pinned.
+      const tooTall = height + 4.75 * rem > 0.5 * window.innerHeight;
+      setCompact(tooTall);
+      root.style.setProperty("--bottom-nav-h", tooTall ? "0px" : `${height}px`);
+    };
     publish();
-    if (typeof ResizeObserver === "undefined") return undefined;
+    window.addEventListener("resize", publish);
+    if (typeof ResizeObserver === "undefined") {
+      return () => {
+        window.removeEventListener("resize", publish);
+        root.style.removeProperty("--bottom-nav-h");
+      };
+    }
     const observer = new ResizeObserver(publish);
     observer.observe(nav);
     return () => {
       observer.disconnect();
+      window.removeEventListener("resize", publish);
       root.style.removeProperty("--bottom-nav-h");
     };
   }, []);
@@ -47,7 +66,7 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background${compact ? " pb-[4.75rem]" : ""}`}>
       {/* Skip navigation link — WCAG 2.4.1 */}
       <a
         href="#main-content"
@@ -60,7 +79,13 @@ export default function Layout({ children, currentPageName }) {
       <main id="main-content">{children}</main>
 
       <FeedbackModal />
-      <nav ref={navRef} aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb">
+      <nav
+        ref={navRef}
+        aria-label="Main navigation"
+        className={compact
+          ? "relative bg-background border-t-2 border-border safe-area-pb"
+          : "fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb"}
+      >
         {/* P8.7: labels may wrap onto a second line at large text, and the bar grows with them (Layout publishes its measured
             height). Columns are equal when there is room, but never narrower than their longest word (min-w-min), so a
             label is never clipped or overlapped. Padding is small and in rem so all three whole labels, including
