@@ -79,13 +79,7 @@ export default function Layout({ children, currentPageName }) {
       <main id="main-content">{children}</main>
 
       <FeedbackModal />
-      <nav
-        ref={navRef}
-        aria-label="Main navigation"
-        className={compact
-          ? "relative bg-background border-t-2 border-border safe-area-pb"
-          : "fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border z-50 safe-area-pb"}
-      >
+      <nav ref={navRef} aria-label="Main navigation" className={`${compact ? "relative" : "fixed bottom-0 left-0 right-0 z-50"} bg-background border-t-2 border-border safe-area-pb`}>
         {/* P8.7: labels may wrap onto a second line at large text, and the bar grows with them (Layout publishes its measured
             height). Columns are equal when there is room, but never narrower than their longest word (min-w-min), so a
             label is never clipped or overlapped. Padding is small and in rem so all three whole labels, including
