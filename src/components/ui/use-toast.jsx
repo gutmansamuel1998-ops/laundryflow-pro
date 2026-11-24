@@ -2,7 +2,10 @@
 import { useState, useEffect } from "react";
 
 const TOAST_LIMIT = 20;
-const TOAST_REMOVE_DELAY = 1000000;
+// P8.11: a dismissed toast is taken out of memory one second later (it used to stay for about 17 minutes).
+const TOAST_REMOVE_DELAY = 1000;
+// P8.11: how long a toast stays when the caller gives no `duration` (milliseconds).
+export const DEFAULT_TOAST_DURATION = 5000;
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
@@ -110,6 +113,11 @@ function dispatch(action) {
   });
 }
 
+// Stable (module-level) so a toast's own timer and Close button can call it without re-subscribing.
+export function dismissToast(toastId) {
+  dispatch({ type: actionTypes.DISMISS_TOAST, toastId });
+}
+
 function toast({ ...props }) {
   const id = genId();
 
@@ -157,7 +165,7 @@ function useToast() {
   return {
     ...state,
     toast,
-    dismiss: (toastId) => dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
+    dismiss: dismissToast,
   };
 }
 
