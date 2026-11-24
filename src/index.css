@@ -281,3 +281,32 @@ body {
   transition: none !important;
   scroll-behavior: auto !important;
 }
+
+/* ─── P8.11 ───────────────────────────────────────────────────────────────────────────────────────────────────── */
+
+/* A fieldset's default minimum width is its widest unbreakable content, which pushed the Sock Match "Game sound" panel
+   2px past the screen edge at 320 px wide and 200% text (a sideways scrollbar). Letting it shrink to its container
+   fixes that without changing anything else. */
+fieldset {
+  min-width: 0;
+}
+
+/* The page heading that receives focus after navigation (see RouteA11y) is not interactive, so it needs no ring. */
+main h1[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Tight screens. Layout.jsx sets data-tight on <html> when the screen is fewer than 14 text-widths wide (320 px at
+   150% or 200% text, 360 px and 390 px at 200%). Sideways padding is written in rem, so at 200% a "px-6" button
+   spent 96 px of a 320 px screen on padding alone and its label wrapped to a few letters per line (buttons 552 to 720 px
+   tall). Here only the SIDEWAYS padding of containers, cards and buttons is capped at a few pixels. Text size, line height,
+   vertical padding, minimum heights and touch-target sizes are untouched, and nothing is hidden. */
+html[data-tight] main .px-4 { padding-inline: min(1rem, 12px); }
+html[data-tight] main .px-5 { padding-inline: min(1.25rem, 14px); }
+html[data-tight] main .px-6 { padding-inline: min(1.5rem, 14px); }
+html[data-tight] main .p-3 { padding-inline: min(0.75rem, 10px); }
+html[data-tight] main .p-4 { padding-inline: min(1rem, 12px); }
+html[data-tight] main .p-5 { padding-inline: min(1.25rem, 14px); }
+html[data-tight] main .p-6 { padding-inline: min(1.5rem, 14px); }
+/* A toast keeps 52 px on the right for its 44 px Close button. */
+html[data-tight] [role="status"][aria-label="Notifications"] > .group { padding: 14px 52px 14px 14px; }
