@@ -33,26 +33,35 @@ export default function Layout({ children, currentPageName }) {
     const publish = () => {
       const height = Math.ceil(nav.getBoundingClientRect().height);
       const rem = parseFloat(window.getComputedStyle(root).fontSize) || 16;
+      // P8.11: "tight" = the screen is fewer than 14 text-widths wide (e.g. 320 px at 150%/200% text, 390 px at 200%).
+      // index.css then caps the sideways padding of containers, cards and buttons at a few pixels, so the text column keeps
+      // its width instead of being squeezed to a few letters per line. Text size is never reduced.
+      root.toggleAttribute("data-tight", window.innerWidth / rem < 14);
       // 4.75rem = the feedback button and its gap, which float above the bar. If bar + button would take more than
       // half of the visible height, the bar is not pinned.
       const tooTall = height + 4.75 * rem > 0.5 * window.innerHeight;
       setCompact(tooTall);
-      root.style.setProperty("--bottom-nav-h", tooTall ? "0px" : `${height}px`);
+      const navH = tooTall ? "0px" : `${height}px`;
+      if (root.style.getPropertyValue("--bottom-nav-h") !== navH) root.style.setProperty("--bottom-nav-h", navH);
     };
     publish();
     window.addEventListener("resize", publish);
-    if (typeof ResizeObserver === "undefined") {
-      return () => {
-        window.removeEventListener("resize", publish);
-        root.style.removeProperty("--bottom-nav-h");
-      };
-    }
+    // The text-size setting changes the root font size directly; re-measure when it does (publish only writes when a value
+    // actually changed, so this cannot loop).
+    const rootObserver = typeof MutationObserver === "undefined" ? null : new MutationObserver(publish);
+    if (rootObserver) rootObserver.observe(root, { attributes: true, attributeFilter: ["style"] });
+    const cleanup = () => {
+      if (rootObserver) rootObserver.disconnect();
+      window.removeEventListener("resize", publish);
+      root.style.removeProperty("--bottom-nav-h");
+      root.removeAttribute("data-tight");
+    };
+    if (typeof ResizeObserver === "undefined") return cleanup;
     const observer = new ResizeObserver(publish);
     observer.observe(nav);
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", publish);
-      root.style.removeProperty("--bottom-nav-h");
+      cleanup();
     };
   }, []);
 
@@ -66,7 +75,13 @@ export default function Layout({ children, currentPageName }) {
   }, []);
 
   return (
-    <div className={`min-h-screen bg-background${compact ? " pb-[4.75rem]" : ""}`}>
+    <div
+      className={`min-h-screen bg-background${compact ? " pb-[4.75rem]" : ""}`}
+      // P8.11: the last control on a page must end above BOTH the pinned bar and the round feedback button that floats over
+      // it. Pages reserve 8rem (pb-32); this adds only what the bar's real height needs beyond that, so the feedback button
+      // can never sit on the last button (e.g. "Back to Home") at large text.
+      style={compact ? undefined : { paddingBottom: "max(0px, calc(var(--bottom-nav-h, 5rem) + 4.75rem - 8rem))" }}
+    >
       {/* Skip navigation link — WCAG 2.4.1 */}
       <a
         href="#main-content"
