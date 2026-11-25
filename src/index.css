@@ -308,5 +308,7 @@ html[data-tight] main .p-3 { padding-inline: min(0.75rem, 10px); }
 html[data-tight] main .p-4 { padding-inline: min(1rem, 12px); }
 html[data-tight] main .p-5 { padding-inline: min(1.25rem, 14px); }
 html[data-tight] main .p-6 { padding-inline: min(1.5rem, 14px); }
+/* The pinned Session timer bleeds out of the page's side padding with -mx-5; it must bleed by exactly the capped amount. */
+html[data-tight] main .-mx-5 { margin-inline: calc(-1 * min(1.25rem, 14px)); }
 /* A toast keeps 52 px on the right for its 44 px Close button. */
 html[data-tight] [role="status"][aria-label="Notifications"] > .group { padding: 14px 52px 14px 14px; }
