@@ -152,9 +152,11 @@ test("tight screens: the CSS caps ONLY sideways padding, in pixels; text size, h
   for (const r of rules) {
     assert.doesNotMatch(r, /font-size|line-height|min-height|height:|display:|visibility|overflow|opacity|width:/, r);
   }
-  for (const r of rules.filter((l) => !l.includes("Notifications"))) {
+  for (const r of rules.filter((l) => !l.includes("Notifications") && !l.includes(".-mx-5"))) {
     assert.match(r, /padding-inline: min\([\d.]+rem, \d+px\);/, r);
   }
+  // The pinned Session timer's negative side margin shrinks by exactly the same capped amount as the padding it bleeds through.
+  assert.ok(rules.some((l) => /\.-mx-5 \{ margin-inline: calc\(-1 \* min\(1\.25rem, 14px\)\); \}/.test(l)));
 });
 
 test("tight screens: the nav bar, the feedback button and the dialog are outside <main>, so they are not affected", () => {
