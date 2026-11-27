@@ -62,7 +62,6 @@ export function useHomeAttention() {
         completedToday,
         completedPending,
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [nowMs, zone, session.isLoading, session.known, session.showingSaved, session.load, ownerMismatch, days.ready, days.routine, completedToday, completedPending]
   );
 
