@@ -114,6 +114,9 @@ export function useLaundrySession() {
     readOnly,
     showingSaved,
     isLoading: query.isLoading,
+    // True when the session could not be read (offline, or the request failed): screens must show
+    // an unavailable status rather than an all-clear.
+    fetchFailed: query.isError,
     // True once the server has answered at least once. While false (loading, or offline at startup)
     // "no session" really means "unknown", so nothing may be cancelled on that basis.
     known: query.isSuccess,
