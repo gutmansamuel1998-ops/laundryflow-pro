@@ -40,9 +40,8 @@ export function createCapacitorAdapter(getCapacitor) {
         importance: 4,
         visibility: 1,
       });
-    } catch (error) {
-      // Not Android, or already created. Behavior unchanged; just no longer silent.
-      console.warn("[reminders] could not prepare the notification channel:", String((error && error.message) || error));
+    } catch {
+      // not Android, or already created
     }
     channelReady = true;
   }
@@ -69,8 +68,7 @@ export function createCapacitorAdapter(getCapacitor) {
       if (!p) return "unsupported";
       try {
         return mapPermission((await p.checkPermissions()).display);
-      } catch (error) {
-        console.warn("[reminders] could not read the notification permission:", String((error && error.message) || error));
+      } catch {
         return "unsupported";
       }
     },
@@ -79,8 +77,7 @@ export function createCapacitorAdapter(getCapacitor) {
       if (!p) return "unsupported";
       try {
         return mapPermission((await p.requestPermissions()).display);
-      } catch (error) {
-        console.warn("[reminders] could not ask for the notification permission:", String((error && error.message) || error));
+      } catch {
         return "unsupported";
       }
     },
@@ -123,8 +120,8 @@ export function createCapacitorAdapter(getCapacitor) {
       return () => {
         try {
           handle && handle.remove && handle.remove();
-        } catch (error) {
-          console.warn("[reminders] could not stop listening for notification taps:", String((error && error.message) || error));
+        } catch {
+          // ignore
         }
       };
     },

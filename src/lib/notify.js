@@ -15,16 +15,15 @@ export function notificationsSupported() {
   return isNativePlatform() || typeof Notification !== "undefined";
 }
 
-// Synchronous, and only meaningful in a browser. In the native app use getPermissionAsync(), which
-// asks the phone instead of guessing.
-export function getBrowserPermission() {
+// Synchronous, browser only. In the native app use getPermissionAsync().
+export function getPermission() {
   if (isNativePlatform()) return "prompt";
   return typeof Notification !== "undefined" ? Notification.permission : "unsupported";
 }
 
 export async function getPermissionAsync() {
   if (isNativePlatform()) return nativeAdapter.getPermission();
-  return getBrowserPermission();
+  return getPermission();
 }
 
 export async function ensureServiceWorker() {

@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Check, Building2, Clock, Bell, Eye, Zap, TrendingDown, Sparkles, Info, Package, ShoppingCart, Mic, Smartphone } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import EnvironmentalAnchorEditor from "@/components/laundry/EnvironmentalAnchorEditor";
 import PreciseTimePreferences from "@/components/laundry/PreciseTimePreferences";
@@ -14,6 +14,9 @@ import { motion } from "framer-motion";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const TIMES = ["Morning", "Afternoon", "Evening"];
+const ALERT_CHANNELS = [
+  { id: "push", Icon: Smartphone, label: "Push" },
+];
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -27,6 +30,7 @@ export default function Settings() {
     preferred_days_of_week: [],
     preferred_time_windows: [],
     precise_time_preferences: [],
+    enable_laundry_reminders: true,
     forgotten_threshold_minutes: 30,
     enable_supply_alerts: true,
     text_size: "normal",
@@ -40,6 +44,10 @@ export default function Settings() {
     voice_commands_enabled: false,
     dorm_utilities_enabled: false,
     uses_laundromat: false,
+    alert_channels: {
+      wash_finished: { push: true },
+      dryer_finished: { push: true },
+    },
   });
 
   useEffect(() => {
@@ -54,6 +62,7 @@ export default function Settings() {
         preferred_days_of_week: u?.preferred_days_of_week || [],
         preferred_time_windows: u?.preferred_time_windows || [],
         precise_time_preferences: u?.precise_time_preferences || [],
+        enable_laundry_reminders: u?.enable_laundry_reminders !== false,
         forgotten_threshold_minutes: u?.forgotten_threshold_minutes ?? 30,
         enable_supply_alerts: u?.enable_supply_alerts !== false,
         text_size: u?.text_size || "normal",
@@ -67,6 +76,10 @@ export default function Settings() {
         voice_commands_enabled: u?.voice_commands_enabled || false,
         dorm_utilities_enabled: u?.dorm_utilities_enabled || false,
         uses_laundromat: u?.uses_laundromat || false,
+        alert_channels: u?.alert_channels || {
+          wash_finished: { push: true },
+          dryer_finished: { push: true },
+        },
       }));
     }).catch(() => {});
   }, []);
@@ -305,19 +318,18 @@ export default function Settings() {
               <h2 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Notifications</h2>
             </div>
             <Card className="p-4 border-0 shadow-sm space-y-4">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Reminders are in Settings &amp; Care</p>
+                  <Label htmlFor="reminders">Enable laundry reminders</Label>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Reminder level, notifications and quiet hours live there now.
+                    Get alerts during your preferred times when no loads are active
                   </p>
                 </div>
-                <Link
-                  to={createPageUrl("SettingsCare")}
-                  className="min-h-[44px] shrink-0 rounded-xl px-3 py-2 text-sm font-medium underline underline-offset-4"
-                >
-                  Open
-                </Link>
+                <Switch
+                  id="reminders"
+                  checked={settings.enable_laundry_reminders}
+                  onCheckedChange={(v) => setSettings(prev => ({ ...prev, enable_laundry_reminders: v }))}
+                />
               </div>
               <div>
                 <Label id="forgotten-threshold-label" className="text-sm mb-2 block">Forgotten load alert after</Label>
@@ -350,6 +362,52 @@ export default function Settings() {
                   checked={settings.enable_supply_alerts}
                   onCheckedChange={(v) => setSettings(prev => ({ ...prev, enable_supply_alerts: v }))}
                 />
+              </div>
+
+              {/* Cycle alert channels */}
+              <div className="pt-2 border-t border-border/50">
+                <h3 className="text-sm font-medium mb-3">Cycle status alerts</h3>
+                <p className="text-xs text-muted-foreground mb-4">Choose how you want to be notified when each cycle finishes.</p>
+                {[
+                  { key: "wash_finished", label: "Wash Finished" },
+                  { key: "dryer_finished", label: "Dryer Finished" },
+                ].map(({ key, label }) => (
+                  <div key={key} className="mb-4">
+                    <h4 className="text-sm font-medium mb-2">{label}</h4>
+                    <div className="flex gap-3">
+                      {ALERT_CHANNELS.map(({ id, Icon, label: chanLabel }) => {
+                        const active = settings.alert_channels[key]?.[id] ?? false;
+                        return (
+                          <button
+                            key={id}
+                            onClick={() =>
+                              setSettings(prev => ({
+                                ...prev,
+                                alert_channels: {
+                                  ...prev.alert_channels,
+                                  [key]: {
+                                    ...prev.alert_channels[key],
+                                    [id]: !active,
+                                  },
+                                },
+                              }))
+                            }
+                            aria-label={`${active ? "Disable" : "Enable"} ${chanLabel} notifications for ${label}`}
+                            aria-pressed={active}
+                            className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
+                              active
+                                ? "bg-primary/10 border-primary/40 text-primary"
+                                : "bg-secondary border-transparent text-muted-foreground"
+                            }`}
+                          >
+                            <Icon className="w-4 h-4" aria-hidden="true" />
+                            {chanLabel}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </Card>
           </section>

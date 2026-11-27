@@ -19,9 +19,6 @@ export const DEFAULT_PREFS = {
   gameVolume: 0.5, // 0 to 1, applies to game sounds
   timerSound: true, // short tones for the 5-minute, 1-minute and timer-finished alerts
   reducedSensory: false, // "Calmer game": quieter, fewer sounds, no confetti or card pop
-  quietHoursEnabled: false, // hold gentle follow-up nudges overnight (timer alerts still arrive)
-  quietStart: "22:00", // quiet hours begin (inclusive), local time
-  quietEnd: "07:00", // quiet hours end (exclusive), local time
 };
 
 const TEXT_SIZES = { small: "87.5%", normal: "100%", large: "125%", xlarge: "200%" };

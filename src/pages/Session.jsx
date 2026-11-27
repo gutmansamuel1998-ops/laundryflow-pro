@@ -22,7 +22,6 @@ import AdSlot from "@/components/session/AdSlot";
 import CarePanel from "@/components/session/CarePanel";
 import ReminderPrompt from "@/components/session/ReminderPrompt";
 import { careViewForPhase } from "@/lib/careContent";
-import { isNativePlatform } from "@/lib/notify";
 import { BigButton, Chip, MinutesStepper, Panel, ToggleRow } from "@/components/session/ui";
 
 const GAME_PAUSE_REASON = {
@@ -106,7 +105,6 @@ function Celebration({ count, onAgain }) {
 export default function Session() {
   const { load, isLoading, pending, error, clearError, actions, readOnly, showingSaved } = useLaundrySession();
   const prefs = usePrefs();
-  const native = isNativePlatform();
   const count = useCompletedCount();
   const timedStage = !!load && (load.current_state === "washing" || load.current_state === "drying");
   const endMs = timedStage ? getTimer(load, 0)?.endMs : undefined;
@@ -197,11 +195,6 @@ export default function Session() {
       )}
 
       <SessionTimer phase={phase} timer={timer} />
-
-      {/* On the web a reminder needs the app open somewhere, so say it once, calmly. */}
-      {!native && timedStage && prefs.notificationsEnabled && (
-        <p className="text-sm text-muted-foreground">Keep this tab open so we can remind you.</p>
-      )}
 
       <BubblesCard headline={line.headline} detail={line.detail} urgent={phase === "wash_elapsed" || phase === "dry_elapsed"} />
 

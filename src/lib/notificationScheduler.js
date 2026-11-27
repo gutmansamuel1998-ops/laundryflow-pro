@@ -11,14 +11,7 @@
 // The platform is hidden behind an adapter (see nativeNotifications.js), so everything here is
 // testable without a phone.
 
-import {
-  NOTIFICATION_KIND,
-  planAirDryNotifications,
-  planNotifications,
-  routeForTap,
-  signature,
-  withUniqueIds,
-} from "./notificationPlan.js";
+import { NOTIFICATION_KIND, planNotifications, routeForTap, signature } from "./notificationPlan.js";
 
 const STORAGE_KEY = "lf_native_sched_v1";
 // Who the scheduled notifications on this device belong to (see `owner` in sync()).
@@ -47,9 +40,8 @@ export function createNotificationScheduler({ adapter, storage = defaultStorage(
   const writeTracked = (map) => {
     try {
       if (storage) storage.setItem(STORAGE_KEY, JSON.stringify(map));
-    } catch (error) {
-      // Same behavior (the device's pending list is still checked on the next sync), but no longer silent.
-      console.warn("[reminders] could not save the local schedule record:", String((error && error.message) || error));
+    } catch {
+      // ignore: the device's pending list is still checked on the next sync
     }
   };
 
@@ -75,8 +67,7 @@ export function createNotificationScheduler({ adapter, storage = defaultStorage(
     try {
       const list = await adapter.getPending();
       return (list || []).filter((p) => p && p.extra && p.extra.kind === NOTIFICATION_KIND).map((p) => p.id);
-    } catch (error) {
-      console.warn("[reminders] could not read the device's pending reminders:", String((error && error.message) || error));
+    } catch {
       return null;
     }
   }
@@ -84,21 +75,12 @@ export function createNotificationScheduler({ adapter, storage = defaultStorage(
   // `owner` is a stable id for the signed-in person. Reminders on the device belong to one person: when the
   // person changes (or the previous owner cannot be proven), every reminder we scheduled is cancelled before the
   // new person's are scheduled, so one person's laundry never alerts on another person's sign-in.
-  async function reconcile({ load, prefs, nowMs, owner, airDrySessions }) {
+  async function reconcile({ load, prefs, nowMs, owner }) {
     if (!adapter || !adapter.isNative()) return { skipped: "not_native", scheduled: 0, cancelled: 0 };
 
     const permission = await adapter.getPermission();
     const wanted = !!prefs && prefs.notificationsEnabled === true && prefs.reminderLevel !== "off" && permission === "granted";
-    const quietHours = prefs
-      ? { enabled: prefs.quietHoursEnabled === true, start: prefs.quietStart, end: prefs.quietEnd }
-      : undefined;
-    // One plan for everything this device should have: the laundry session, plus any air-dry check-ins.
-    const plan = wanted
-      ? withUniqueIds([
-          ...planNotifications({ load, level: prefs.reminderLevel, now: nowMs, quietHours }),
-          ...planAirDryNotifications({ sessions: airDrySessions, level: prefs.reminderLevel, now: nowMs }),
-        ])
-      : [];
+    const plan = wanted ? planNotifications({ load, level: prefs.reminderLevel, now: nowMs }) : [];
     const desired = new Map(plan.map((p) => [p.id, p]));
 
     let tracked = readTracked();
@@ -139,26 +121,11 @@ export function createNotificationScheduler({ adapter, storage = defaultStorage(
     return { skipped: null, scheduled: toSchedule.length, cancelled: toCancel.size, permission, ownerChanged };
   }
 
-  // The most recent scheduling failure, so Settings & Care can say something helpful. Cleared by the
-  // next sync that succeeds.
-  let lastError = null;
-
   // Calls run one at a time, in order, so two quick state changes can never interleave.
   function sync(args) {
     const run = queue.then(() => reconcile(args));
     queue = run.catch(() => {});
-    return run.then(
-      (result) => {
-        lastError = null;
-        return result;
-      },
-      (error) => {
-        const message = String((error && error.message) || error);
-        console.warn("[reminders] scheduling failed:", message);
-        lastError = message;
-        return { skipped: "error", error: message, scheduled: 0, cancelled: 0 };
-      }
-    );
+    return run.catch((error) => ({ skipped: "error", error: String((error && error.message) || error), scheduled: 0, cancelled: 0 }));
   }
 
   // Remove every laundry notification (sign out, or the feature is switched off).
@@ -168,5 +135,5 @@ export function createNotificationScheduler({ adapter, storage = defaultStorage(
     return result;
   }
 
-  return { sync, cancelAll, routeForTap, getLastError: () => lastError };
+  return { sync, cancelAll, routeForTap };
 }
