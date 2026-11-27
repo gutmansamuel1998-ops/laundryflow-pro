@@ -238,7 +238,7 @@ test("5. a plan that is Sunday AND Monday shows the reminder on both days", () =
 
 test("5. a skipped laundry day gives no reminder and points to the next one", () => {
   const now = at(CHI, "2026-11-22", "10:00");
-  const skipped = skipOccurrence(SUNDAY_PLAN, { date: "2026-11-22", nowMs: now, zone: CHI });
+  const skipped = skipOccurrence(SUNDAY_PLAN, { id: "2026-11-22", nowMs: now, zone: CHI });
   assert.equal(skipped.ok, true, JSON.stringify(skipped));
   const dayCard = card(skipped.routine, now);
   assert.equal(dayCard.kind, "skipped_today");
