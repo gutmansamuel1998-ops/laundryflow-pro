@@ -86,10 +86,34 @@ test("1. loading or not yet known: shows loading, even with a laundry day and a 
   assert.equal(r.action, null, "no Start button while we don't know");
 });
 
-test("1. not loading, not known, no error (for example the query has not run) is still 'loading', never all clear", () => {
-  const r = build({ session: { isLoading: false, known: false, error: null, load: null } });
+test("2. not loading and not known (the read failed or is paused offline) is 'unknown', never all clear", () => {
+  const r = build({ session: { isLoading: false, known: false, load: null } });
+  assert.equal(r.kind, "unknown");
+  assert.equal(r.allClear, false);
+});
+
+test("2. the session hook's own `error` (a failed save) does not change how a good read is shown", () => {
+  const now = at(CHI, "2026-11-22", "10:00");
+  const r = build({ session: known(washing(now - 10 * MIN, 30), { error: new Error("save failed") }) });
+  assert.equal(r.kind, "timer_running");
+});
+
+test("2. the last good load stays visible, with a note, when a refresh fails", () => {
+  const now = at(CHI, "2026-11-22", "10:00");
+  const r = build({ session: { isLoading: false, known: false, load: washing(now - 10 * MIN, 30) } });
+  assert.equal(r.kind, "timer_running");
+  assert.equal(r.note, HOME_COPY.savedCopyNote);
+});
+
+test("5. while the laundry-days plan is still being read, Home waits instead of flashing all clear", () => {
+  const r = build({ planPending: true });
   assert.equal(r.kind, "loading");
   assert.equal(r.allClear, false);
+});
+
+test("5. an active session does not wait for the plan", () => {
+  const now = at(CHI, "2026-11-22", "10:00");
+  assert.equal(build({ planPending: true, session: known(washing(now - 10 * MIN, 30)) }).kind, "timer_running");
 });
 
 test("2. retrieval failure: says so gently, offers retry and the Session page, never all clear", () => {
@@ -310,10 +334,9 @@ test("all clear never appears unless the session is known (exhaustive sweep of t
   const now = at(CHI, "2026-11-22", "10:00");
   const sessions = [
     { isLoading: true, known: false, error: null, load: null },
-    { isLoading: false, known: false, error: null, load: null },
+    { isLoading: false, known: false, load: null },
     { isLoading: false, known: false, error: new Error("x"), load: null },
     { isLoading: true, known: false, error: new Error("x"), load: null },
-    { isLoading: false, known: false, error: null, load: washing(now - MIN) },
   ];
   for (const session of sessions) {
     for (const dayCard of [null, card(SUNDAY_PLAN, now), card(plan([3]), now)]) {
