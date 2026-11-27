@@ -70,6 +70,9 @@ export const HOME_COPY = {
   openSession: "Open laundry session",
 };
 
+/** A step that has been waiting this long is described as "waiting for you" instead of by its timer. */
+export const WAITING_AFTER_MS = 12 * 60 * 60 * 1000;
+
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 // ─── Small pure helpers ─────────────────────────────────────────────────────────────────────────────────
@@ -232,9 +235,10 @@ export function buildAttention(input) {
       });
     }
 
-    // 3. The user has a step to take. An unfinished load from an earlier day gets the gentle "waiting" wording.
+    // 3. The user has a step to take. A step left for a long while gets the gentle "waiting" wording. This goes by
+    // how long ago the step began, NOT by the calendar date, so a wash started at 23:50 is not "yesterday's" at 00:10.
     const startedMs = Date.parse(load.stage_start_time || "");
-    const fromEarlierDay = Number.isFinite(startedMs) && localDateOf(startedMs, zone) !== localDateOf(nowMs, zone);
+    const fromEarlierDay = Number.isFinite(startedMs) && nowMs - startedMs >= WAITING_AFTER_MS;
     let headline;
     let detail;
     if (fromEarlierDay) {
@@ -260,7 +264,7 @@ export function buildAttention(input) {
       note: savedNote,
       action: goSession(fromEarlierDay ? HOME_COPY.resume : HOME_COPY.continue),
       phase,
-      announceKey: `needs_action:${phase}:${fromEarlierDay ? "earlier" : "today"}`,
+      announceKey: `needs_action:${phase}:${fromEarlierDay ? "waiting" : "fresh"}`,
     });
   }
 
