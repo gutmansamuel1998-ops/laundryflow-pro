@@ -32,21 +32,29 @@ const LIBS = NEW_FILES.filter((f) => f.includes("/lib/"));
 
 test("Home shows the card between the session area and the ironing card, and hides it while a session is active or loading", () => {
   const home = strip(read("../pages/Home.jsx"));
-  assert.equal((home.match(/<LaundryDayCard\b/g) || []).length, 1);
+  // Home dashboard: the card is either THE attention item on a laundry day, or sits below the status card when the
+  // person is calm (all clear / finished today). It is never shown while loading, failing, or while laundry is active.
+  assert.equal((home.match(/<LaundryDayCard\b/g) || []).length, 2);
   assert.match(home, /import LaundryDayCard from "@\/components\/laundryDays\/LaundryDayCard";/);
-  assert.match(home, /<LaundryDayCard sessionActive=\{isLoading \|\| running\} \/>/);
-  assert.ok(home.indexOf("<LaundryDayCard") < home.indexOf("<IronQueueCard />"));
-  assert.ok(home.indexOf("<LaundryDayCard") > home.indexOf("<StartPanel"));
-  assert.ok(home.indexOf("<LaundryDayCard") < home.indexOf("<CarePanel"));
-  // "running" is Home's own meaning of an active session, unchanged by this patch
-  assert.match(home, /const running = !!load && phase !== "ready" && phase !== "none";/);
+  assert.match(home, /const dayCardBelow = attention\.kind === "all_clear" \|\| attention\.kind === "completed_today";/);
+  assert.match(home, /\{dayCardBelow && <LaundryDayCard sessionActive=\{false\} \/>\}/);
+  assert.match(home, /attention\.kind === "laundry_day" \? \(/);
+  assert.ok(home.indexOf("{dayCardBelow &&") < home.indexOf("<IronQueueCard />"));
+  assert.ok(home.indexOf("{dayCardBelow &&") > home.indexOf("<AttentionCard"));
+  assert.ok(home.indexOf("{dayCardBelow &&") < home.indexOf("<CarePanel"));
 });
 
 test("Home still does everything it did: start, resume, timer, ironing card, care guide, loads finished", () => {
   const home = strip(read("../pages/Home.jsx"));
-  for (const piece of ["<StartPanel onStarted={goToSession} />", "<SessionTimer phase={phase} timer={timer} sticky={false} airDry={copy.airDry} />", "Resume laundry session", "<IronQueueCard />", '<CarePanel view="all" label="Laundry Care Guide" headingLevel={2} />', "Loads finished so far:"]) {
+  // Kept on Home: the ironing card, the care guide and the finished-loads line. Start and the live timer moved to
+  // the Session page on purpose (Home is awareness; one place to start, one place to run), and Home's buttons open it.
+  for (const piece of ["<IronQueueCard />", '<CarePanel view="all" label="Laundry Care Guide" headingLevel={2} />', "Loads finished so far:", "<AttentionCard", 'createPageUrl(page)']) {
     assert.ok(home.includes(piece), piece);
   }
+  assert.doesNotMatch(home, /StartPanel|SessionTimer/);
+  const session = strip(read("../pages/Session.jsx"));
+  assert.match(session, /<StartPanel \/>/);
+  assert.match(session, /<SessionTimer /);
 });
 
 test("Settings & Care has one 'My laundry days' section, after the reminders and timers and before ironing, and every earlier setting is still there", () => {

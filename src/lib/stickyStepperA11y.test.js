@@ -137,9 +137,9 @@ test("the sticky classes depend on the measured 'pinned' value, not on the prop 
   assert.match(src, /const \{ ref: sectionRef, pinned \} = usePinned\(/);
 });
 
-test("Home still passes sticky={false}; Session still uses the default (pinned when there is room)", () => {
+test("Home has no timer of its own (so nothing there can pin or tick); Session still uses the default (pinned when there is room)", () => {
   const home = strip(read("../pages/Home.jsx"));
-  assert.match(home, /<SessionTimer phase=\{phase\} timer=\{timer\} sticky=\{false\} airDry=\{copy\.airDry\} \/>/);
+  assert.doesNotMatch(home, /SessionTimer|useNow|formatClock/);
   const session = strip(read("../pages/Session.jsx"));
   assert.match(session, /<SessionTimer /);
   assert.doesNotMatch(session.slice(session.indexOf("<SessionTimer "), session.indexOf("<SessionTimer ") + 200), /sticky=\{false\}/);

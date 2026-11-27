@@ -78,13 +78,15 @@ test("clothes are only called dry after the person says so", () => {
 });
 
 test("Home describes an air-dry load with the same words as the Session screen, and a dryer load exactly as before", () => {
+  // Home now shows ONE attention card built by homeAttention.js. An air-dry load is still described as a check-in
+  // reminder there (never as a dryer or a prediction), using the same air-dry detection the Session screen uses.
   const home = strip(read("../pages/Home.jsx"));
-  assert.match(home, /import \{ phaseCopy \} from "@\/lib\/airDry";/);
-  assert.match(home, /const copy = phaseCopy\(\{ phase, load, timer \}\);/);
-  assert.match(home, /\{copy\.title\}/);
-  assert.match(home, /\{copy\.nextAction\}/);
-  assert.match(home, /<SessionTimer phase=\{phase\} timer=\{timer\} sticky=\{false\} airDry=\{copy\.airDry\} \/>/);
+  assert.match(home, /useHomeAttention\(\)/);
   assert.doesNotMatch(home, /PHASE_INFO|NEXT_ACTION/);
+  const attention = strip(read("./homeAttention.js"));
+  assert.match(attention, /import \{ isAirDryLoad \} from "\.\/airDry\.js";/);
+  assert.match(attention, /const air = isAirDryLoad\(load\);/);
+  assert.match(attention, /reminder to check, not a prediction/);
   for (const phase of Object.keys(PHASE_INFO)) {
     const c = phaseCopy({ phase, load: DRYER_LOAD, timer: null });
     assert.equal(c.title, PHASE_INFO[phase].title, phase);
