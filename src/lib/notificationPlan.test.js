@@ -8,9 +8,11 @@ import {
   SESSION_ROUTE,
   isAirDry,
   notificationId,
+  planAirDryNotifications,
   planNotifications,
   reminderCopy,
   routeForTap,
+  withUniqueIds,
 } from "./notificationPlan.js";
 
 const byEvent = (plan) => Object.fromEntries(plan.map((p) => [p.event, p]));
@@ -136,6 +138,49 @@ test("tap routing always opens the session screen; foreign payloads are ignored"
   assert.equal(routeForTap({ kind: "something-else" }), null);
   assert.equal(routeForTap(undefined), null);
   assert.equal(routeForTap(null), null);
+});
+
+test("quiet hours drop follow-up nudges but keep the finish reminder and the heads-ups", () => {
+  const load = washing();
+  // A window covering the whole day in local time, so every follow-up falls inside it.
+  const quietAll = { enabled: true, start: "00:00", end: "23:59" };
+  const quietPlan = planNotifications({ load, level: "standard", now: T0, quietHours: quietAll });
+  assert.deepEqual(quietPlan.map((p) => p.event), ["five_min", "one_min", "done"]);
+  // Quiet hours off (the default) changes nothing.
+  assert.equal(planNotifications({ load, level: "standard", now: T0, quietHours: { enabled: false } }).length, 6);
+  assert.equal(planNotifications({ load, level: "standard", now: T0 }).length, 6);
+});
+
+test("air-dry check-ins join the same plan, and a collision never overwrites an id", () => {
+  const session = {
+    id: "AD1",
+    status: "drying",
+    started_at: new Date(T0).toISOString(),
+    remind_after_hours: 2,
+    item_names: "Wool sweater",
+    notified: false,
+  };
+  const items = planAirDryNotifications({ sessions: [session], level: "standard", now: T0 });
+  assert.equal(items.length, 1);
+  assert.equal(items[0].at, T0 + 120 * MINUTE);
+  assert.equal(items[0].extra.kind, NOTIFICATION_KIND);
+  assert.equal(items[0].extra.airDrySessionId, "AD1");
+  assert.match(items[0].body, /Wool sweater/);
+  // an acknowledged check-in is not planned again, and Off plans nothing
+  assert.deepEqual(planAirDryNotifications({ sessions: [{ ...session, notified: true }], level: "standard", now: T0 }), []);
+  assert.deepEqual(planAirDryNotifications({ sessions: [session], level: "off", now: T0 }), []);
+  // the browser can ask for one that already came due
+  const late = planAirDryNotifications({ sessions: [session], level: "standard", now: T0 + 130 * MINUTE });
+  assert.deepEqual(late, []);
+  assert.equal(planAirDryNotifications({ sessions: [session], level: "standard", now: T0 + 130 * MINUTE, includePast: true }).length, 1);
+
+  const collide = withUniqueIds([
+    { id: 7, at: 1 },
+    { id: 7, at: 2 },
+    { id: 8, at: 3 },
+  ]);
+  // the second one moves to the next free id; the original 8 then moves too, so all stay unique
+  assert.deepEqual(collide.map((i) => i.id), [7, 8, 9]);
 });
 
 test("notification language is supportive and never guilt-based", () => {

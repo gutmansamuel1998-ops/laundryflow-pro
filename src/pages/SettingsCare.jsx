@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { usePrefs, setPrefs } from "@/lib/sessionPrefs";
 import {
   ensureServiceWorker,
-  getPermission,
+  getBrowserPermission,
   isNativePlatform,
   permissionHelp,
   requestNotificationPermission,
   sendTestNotification,
 } from "@/lib/notify";
+import { nativeScheduler } from "@/lib/nativeNotifications";
+import { planAirDryNotifications, planNotifications } from "@/lib/notificationPlan";
+import { quietHoursFromPrefs } from "@/lib/quietHours";
+import { useLaundrySession } from "@/hooks/useLaundrySession";
 import { useNativePermission } from "@/hooks/useNativePermission";
 import { BigButton, MinutesStepper, OptionGroup, Panel, ToggleRow } from "@/components/session/ui";
 import CarePanel from "@/components/session/CarePanel";
@@ -65,7 +70,7 @@ export default function SettingsCare() {
   const prefs = usePrefs();
   const native = isNativePlatform();
   const nativePermission = useNativePermission(native);
-  const [webPermission, setPermission] = useState(getPermission());
+  const [webPermission, setPermission] = useState(getBrowserPermission());
   const permission = native ? (nativePermission.permission === "unknown" ? "prompt" : nativePermission.permission) : webPermission;
   const [testResult, setTestResult] = useState("");
   const [audioMessage, setAudioMessage] = useState("");
@@ -140,6 +145,38 @@ export default function SettingsCare() {
   const notificationsOn = prefs.notificationsEnabled && permission === "granted";
   const blocked = permission === "denied" || permission === "unsupported";
 
+  // What the reminder plan actually holds right now, so the person can see it instead of guessing.
+  const { load } = useLaundrySession();
+  const airDry = useQuery({
+    queryKey: ["air_dry_sessions"],
+    queryFn: () => base44.entities.AirDrySession.filter({ status: "drying" }, "-started_at"),
+    enabled: prefs.notificationsEnabled,
+    refetchInterval: 60000,
+  });
+  const quiet = quietHoursFromPrefs(prefs);
+  const nextReminder = useMemo(() => {
+    if (!notificationsOn) return null;
+    const now = Date.now();
+    const items = [
+      ...planNotifications({ load, level: prefs.reminderLevel, now, quietHours: quiet }),
+      ...planAirDryNotifications({ sessions: airDry.data || [], level: prefs.reminderLevel, now }),
+    ].sort((a, b) => a.at - b.at);
+    return items[0] || null;
+  }, [notificationsOn, load, airDry.data, prefs.reminderLevel, quiet.enabled, quiet.start, quiet.end]);
+  const nextReminderLabel = nextReminder
+    ? `Next reminder: ${new Date(nextReminder.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+    : "No reminders scheduled";
+
+  // The last scheduling failure, if the phone would not accept reminders.
+  const [syncError, setSyncError] = useState("");
+  useEffect(() => {
+    if (!native) return undefined;
+    const check = () => setSyncError(nativeScheduler.getLastError() || "");
+    check();
+    document.addEventListener("visibilitychange", check);
+    return () => document.removeEventListener("visibilitychange", check);
+  }, [native, prefs.notificationsEnabled, prefs.reminderLevel]);
+
   return (
     <div className="mx-auto max-w-lg space-y-6 px-5 pb-32 pt-10">
       <header>
@@ -185,12 +222,68 @@ export default function SettingsCare() {
               )}
             </>
           )}
+          <p className="text-base">{nextReminderLabel}</p>
+          {!native && notificationsOn && (
+            <p className="text-sm text-muted-foreground">
+              Reminders on the web only arrive while LaundryFun Pro is open in a browser tab or installed app.
+            </p>
+          )}
+          {native && syncError && (
+            <p role="status" className="text-base">
+              We couldn't schedule your reminders. Check your phone's notification settings.
+            </p>
+          )}
           <p className="text-sm text-muted-foreground">
             {native
               ? "Reminders are scheduled with your phone, so they can arrive even when the app is closed. Battery saver or Do Not Disturb settings can delay or hide them, so check your machine when your estimate ends. Timers themselves stay accurate either way."
               : "Reminders arrive while LaundryFun Pro is open in a browser tab or installed app, even in the background. If you close it completely or your device sleeps, they may be late or missed, so check your machine when your estimate ends. Timers themselves stay accurate either way."}
           </p>
         </div>
+      </Panel>
+
+      {/* Quiet hours: only the gentle follow-ups wait. Timer alerts still arrive. */}
+      <Panel aria-labelledby="quiet-hours-heading" className="space-y-5">
+        <h2 id="quiet-hours-heading" className="text-xl font-semibold">
+          Quiet hours
+        </h2>
+        <ToggleRow
+          id="quiet-hours"
+          label="Hold gentle follow-ups overnight"
+          hint="The timer-finished reminder and the 5 and 1 minute heads-ups still arrive. Only the gentle follow-ups wait until your quiet hours end."
+          checked={prefs.quietHoursEnabled}
+          onChange={(v) => setPrefs({ quietHoursEnabled: v })}
+        />
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1">
+            <label htmlFor="quiet-start" className="mb-2 block text-base font-semibold">
+              Quiet from
+            </label>
+            <input
+              id="quiet-start"
+              type="time"
+              value={prefs.quietStart}
+              disabled={!prefs.quietHoursEnabled}
+              onChange={(e) => setPrefs({ quietStart: e.target.value })}
+              className="min-h-[56px] w-full rounded-2xl border-2 border-border bg-background px-4 text-lg disabled:opacity-60"
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="quiet-end" className="mb-2 block text-base font-semibold">
+              Until
+            </label>
+            <input
+              id="quiet-end"
+              type="time"
+              value={prefs.quietEnd}
+              disabled={!prefs.quietHoursEnabled}
+              onChange={(e) => setPrefs({ quietEnd: e.target.value })}
+              className="min-h-[56px] w-full rounded-2xl border-2 border-border bg-background px-4 text-lg disabled:opacity-60"
+            />
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Overnight is the usual choice. If your quiet hours start after they end, they run across midnight.
+        </p>
       </Panel>
 
       {/* Timers */}

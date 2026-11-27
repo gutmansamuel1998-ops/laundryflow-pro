@@ -16,7 +16,6 @@ import {
 import WashCompleteAlert from "@/components/laundry/WashCompleteAlert";
 import { useVoiceCommands } from "@/components/laundry/useVoiceCommands";
 import VoiceCommandIndicator from "@/components/laundry/VoiceCommandIndicator";
-import { useNotifications } from "@/hooks/useNotifications";
 
 // ─── Config ────────────────────────────────────────────────────────────────
 
@@ -415,15 +414,7 @@ export default function LaundryMode() {
         if (Date.now() >= end) {
           // Show alert instead of auto-advancing (unless snoozed)
           if (!snoozedUntil || Date.now() >= snoozedUntil) {
-            setWashAlertVisible(prev => {
-              if (!prev) {
-                sendNotification("🫧 Wash Cycle Done!", {
-                  body: "Your laundry is done washing — time to move it to the dryer.",
-                  tag: "wash-done",
-                });
-              }
-              return true;
-            });
+            setWashAlertVisible(true);
           }
         }
       }
@@ -431,10 +422,6 @@ export default function LaundryMode() {
       if (current_state === "drying" && stage_start_time) {
         const end = new Date(stage_start_time).getTime() + dry_timer_minutes * 60000;
         if (Date.now() >= end) {
-          sendNotification("✅ Dryer Done!", {
-            body: "Your laundry is ready — remove it and put it away.",
-            tag: "dry-done",
-          });
           updateMutation.mutate({ id: load.id, data: { current_state: "dry_finished", stage_start_time: new Date().toISOString() } });
         }
       }
@@ -495,8 +482,6 @@ export default function LaundryMode() {
     setSnoozedUntil(Date.now() + minutes * 60000);
     setWashAlertVisible(false);
   }, []);
-
-  const { sendNotification } = useNotifications();
 
   // Voice command handlers
   const handleVoiceStartWash = useCallback(() => {
