@@ -31,9 +31,8 @@ export const HOME_ATTENTION_KINDS = [
   "all_clear",
 ];
 
-/** Lower number = higher priority. */
+/** Lower number = higher priority. "loading" and "unknown" are priorities 1 and 2 in the brief. */
 export const HOME_ATTENTION_PRIORITY = Object.fromEntries(HOME_ATTENTION_KINDS.map((k, i) => [k, i + 1]));
-// "loading" and "unknown" are the two halves of priority 1/2 in the brief; keep them distinct and in order.
 
 export const HOME_COPY = {
   pageHeading: "Your Laundry",
@@ -167,7 +166,6 @@ const goSession = (label, emphasis = "primary") => ({ label, page: HOME_ACTION_P
  *   nowMs: number                                           one shared "now"
  *   zone: string                                            IANA zone (device zone when omitted)
  *   dayCard: object|null                                    homeCardModel() output, or null when none/not ready
- *   dayCardReady: boolean                                   whether the laundry-days plan has finished loading
  *   completedToday: boolean|null                            a load was finished today (null = not known)
  *   completedPending: boolean                               the "finished today" answer is still loading
  */
@@ -270,11 +268,8 @@ export function buildAttention(input) {
   const today = dayCard && dayCard.kind === "today" ? dayCard : null;
   const completedYes = i.completedToday === true;
 
-  // A laundry-day reminder needs the plan loaded AND the "finished today" answer, or it could pop up again
-  // right after the laundry was finished. Wait for them rather than flashing a reminder.
-  if (i.dayCardReady !== true && i.dayCardReady !== undefined) {
-    // Plan still loading: fall through quietly; the caller keeps showing "loading" for the plan area.
-  }
+  // A laundry-day reminder is only shown once the "finished today" answer is in, or it could pop up again
+  // right after the laundry was finished. (The caller passes dayCard = null until the plan has loaded.)
 
   // 5. A scheduled laundry day (unless laundry was already finished today).
   if (today && !completedYes) {
