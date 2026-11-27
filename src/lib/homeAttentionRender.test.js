@@ -178,12 +178,13 @@ t("exactly one polite status region for the attention section, visually hidden, 
   assert.doesNotMatch(html, /aria-live="assertive"|role="alert"/);
 });
 
-t("buttons are real <button>s at least 56px tall, the card is a labelled region, and nothing animates", () => {
+t("buttons are real <button>s at least 56px tall, the card is not a noisy landmark, and nothing animates", () => {
   const html = mod.renderHome({ session: washing(40, 30) });
   const buttons = html.match(/<button[^>]*>/g) || [];
   assert.ok(buttons.length >= 1);
   assert.match(html, /<button[^>]*type="button"[^>]*min-h-\[56px\]|<button[^>]*min-h-\[56px\][^>]*type="button"/);
-  assert.match(html, /<section[^>]*aria-labelledby="home-attention-headline"/);
+  assert.doesNotMatch(html, /aria-labelledby="home-attention-headline"/);
+  assert.match(html, /<section[^>]*data-attention-kind="needs_action"/);
   assert.doesNotMatch(html, /animate-|motion-|autoplay/);
 });
 
