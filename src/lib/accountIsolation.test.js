@@ -53,7 +53,8 @@ async function load() {
         const s = useLaundrySession();
         return <p data-load={s.load ? s.load.id : "none"} data-loading={String(s.isLoading)} data-known={String(s.known)} />;
       }
-      export const makeClient = () => new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      // gcTime Infinity: no cache-cleanup timer, so the test process can exit.
+      export const makeClient = () => new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
       export const render = (client) => renderToStaticMarkup(<QueryClientProvider client={client}><Probe /></QueryClientProvider>);
     `;
     const out = await esbuild.build({
