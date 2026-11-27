@@ -164,7 +164,8 @@ const goSession = (label, emphasis = "primary") => ({ label, page: HOME_ACTION_P
 /**
  * Decides the ONE primary item for Home.
  * @param {any} input
- *   session: { isLoading, known, error, showingSaved, load }  what the laundry-session hook reports
+ *   session: { isLoading, known, showingSaved, load }        what the laundry-session hook reports
+ *   planPending: boolean                                    the laundry-days plan has not been read yet
  *   ownerMismatch: boolean                                  true when the load belongs to someone else
  *   nowMs: number                                           one shared "now"
  *   zone: string                                            IANA zone (device zone when omitted)
@@ -178,12 +179,14 @@ export function buildAttention(input) {
   const nowMs = i.nowMs;
   const zone = i.zone;
   const dayCard = i.dayCard || null;
-  const saved = s.showingSaved === true && !!s.load;
-  const known = s.known === true || saved;
-  const savedNote = saved ? HOME_COPY.savedCopyNote : "";
+  // Not confirmed by the server right now (offline saved copy, or the last good answer after a failed refresh):
+  // still shown, with an honest note, because hiding a running timer would be worse than a slightly old one.
+  const stale = !!s.load && s.known !== true && s.isLoading !== true;
+  const known = s.known === true || stale;
+  const savedNote = stale ? HOME_COPY.savedCopyNote : "";
 
-  // 1. Loading or not yet known. Never an all-clear, never a Start button.
-  if (!known && !s.error) {
+  // 1. Loading. Never an all-clear, never a Start button.
+  if (s.isLoading === true && s.known !== true) {
     return item("loading", {
       headline: HOME_COPY.loadingHeadline,
       detail: HOME_COPY.loadingDetail,
@@ -191,7 +194,8 @@ export function buildAttention(input) {
     });
   }
 
-  // 2. Retrieval failed (or the answer cannot be trusted). Never an all-clear.
+  // 2. Retrieval failed (or the answer cannot be trusted). Never an all-clear. (The session hook's own `error` is
+  // about the last SAVE, not about reading, so a failed read shows up here as "not loading and not known".)
   if (!known || i.ownerMismatch === true || !Number.isFinite(nowMs)) {
     return item("unknown", {
       headline: HOME_COPY.unknownHeadline,
@@ -272,8 +276,14 @@ export function buildAttention(input) {
   const today = dayCard && dayCard.kind === "today" ? dayCard : null;
   const completedYes = i.completedToday === true;
 
+  // The laundry-days plan has not been read yet: wait a moment instead of flashing "nothing needs attention" and
+  // then switching to a reminder.
+  if (i.planPending === true) {
+    return item("loading", { headline: HOME_COPY.loadingHeadline, detail: HOME_COPY.loadingDetail, announceKey: "loading" });
+  }
+
   // A laundry-day reminder is only shown once the "finished today" answer is in, or it could pop up again
-  // right after the laundry was finished. (The caller passes dayCard = null until the plan has loaded.)
+  // right after the laundry was finished.
 
   // 5. A scheduled laundry day (unless laundry was already finished today).
   if (today && !completedYes) {
