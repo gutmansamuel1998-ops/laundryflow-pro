@@ -35,7 +35,7 @@ async function load() {
       import Home from "@/pages/Home";
       import AttentionCard from "@/components/attention/AttentionCard";
       const client = (seed) => {
-        const c = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
+        const c = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity, retryOnMount: false } } });
         if (seed && seed.session !== undefined) c.setQueryData(["v1-session"], seed.session);
         if (seed && seed.sessionError) c.getQueryCache().build(c, { queryKey: ["v1-session"] }).setState({ status: "error", error: new Error("synthetic"), fetchStatus: "idle", data: undefined });
         return c;
@@ -97,7 +97,12 @@ const washing = (startedMinutesAgo, minutes = 30, extra = {}) => ({
   wash_timer_minutes: minutes,
   ...extra,
 });
-const text = (html) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+const text = (html) =>
+  html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ");
 const count = (html, re) => (html.match(re) || []).length;
 
 // ─── Home, as the session answer arrives ───────────────────────────────────────────────────────────
