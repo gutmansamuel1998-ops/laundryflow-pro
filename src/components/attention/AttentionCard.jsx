@@ -16,12 +16,13 @@ export default function AttentionCard({ item, onNavigate, onRetry }) {
   if (!item) return null;
   const action = item.action;
   return (
+    // Not a landmark: the section heading above already names this area, and a long sentence as a landmark name
+    // would be read out every time someone moves through the page's regions.
     <PanelAny
-      aria-labelledby="home-attention-headline"
       data-attention-kind={item.kind}
       className={cn("space-y-3", item.tone === "action" && "border-foreground")}
     >
-      <p id="home-attention-headline" className="break-words text-2xl font-semibold">
+      <p className="break-words text-2xl font-semibold">
         {item.headline}
       </p>
       {item.detail && <p className="break-words text-lg">{item.detail}</p>}
