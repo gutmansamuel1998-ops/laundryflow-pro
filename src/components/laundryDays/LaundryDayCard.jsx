@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Disclosure from "@/components/session/Disclosure";
-import { Panel } from "@/components/session/ui";
+import { BigButton, Panel } from "@/components/session/ui";
 import LaundryDayActions from "@/components/laundryDays/LaundryDayActions";
 import { useLaundryRoutine } from "@/hooks/useLaundryRoutine";
 import { LAUNDRY_DAYS_COPY as COPY, actionNote, homeCardModel, shouldShowDayCard } from "@/lib/laundryRoutineView";
@@ -17,8 +17,13 @@ import { LAUNDRY_DAYS_COPY as COPY, actionNote, homeCardModel, shouldShowDayCard
 // (so focus would fall to the top of the page), focus goes to this card's heading.
 const PanelAny = /** @type {any} */ (Panel);
 const DisclosureAny = /** @type {any} */ (Disclosure);
+const BigButtonAny = /** @type {any} */ (BigButton);
 
-export default function LaundryDayCard({ sessionActive = false }) {
+// On Home the card can also be the "Needs Your Attention" item for a laundry day. Then Home passes `headline` (the
+// attention wording), `onStart` + `startLabel` (a button that only opens the Session page), and `headingLevel`.
+// Without these props it looks and behaves exactly as before.
+export default function LaundryDayCard({ sessionActive = false, headline = "", onStart = null, startLabel = "Start laundry", headingLevel = 2 }) {
+  const Heading = /** @type {any} */ (`h${headingLevel === 3 ? 3 : 2}`);
   const days = useLaundryRoutine();
   const [note, setNote] = useState("");
   const rootRef = useRef(null);
@@ -49,15 +54,17 @@ export default function LaundryDayCard({ sessionActive = false }) {
     <div ref={rootRef}>
     <PanelAny aria-labelledby="laundry-day-heading" className="space-y-4">
       <div className="space-y-1">
-        <h2 id="laundry-day-heading" ref={headingRef} tabIndex={-1} className="text-xl font-semibold">
+        <Heading id="laundry-day-heading" ref={headingRef} tabIndex={-1} className="text-xl font-semibold">
           {COPY.cardHeading}
-        </h2>
+        </Heading>
         {model.eyebrow && <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">{model.eyebrow}</p>}
-        <p className="break-words text-2xl font-semibold">{model.headline}</p>
+        <p className="break-words text-2xl font-semibold">{headline && model.kind === "today" ? headline : model.headline}</p>
         <p className="text-lg">{model.detail}</p>
         {model.extra && <p className="text-base">{model.extra}</p>}
         {model.nextText && <p className="text-base">{model.nextText}</p>}
       </div>
+
+      {onStart && model.kind === "today" && <BigButtonAny onClick={onStart}>{startLabel}</BigButtonAny>}
 
       {model.kind === "skipped_today" && model.restoreId && (
         <button
