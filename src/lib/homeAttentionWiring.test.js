@@ -119,3 +119,33 @@ test("no file outside the Home dashboard's own files was changed in ways the bou
     for (const n of names(dir)) assert.doesNotMatch(n, /home|attention/i, `${dir}/${n}`);
   }
 });
+
+// ─── Phase 6: accessibility of the markup's classes (text scaling, narrow screens, touch targets) ───────────────
+
+test("the attention card and Home use no fixed heights or widths, so 200% text and a 320 px screen can reflow", () => {
+  for (const [name, src] of Object.entries({ "AttentionCard.jsx": card, "Home.jsx": home })) {
+    assert.doesNotMatch(src, /\b(?:h|w|max-h|min-w)-\[\d+px\]|\bh-\d+\b|\bw-\d+\b|overflow-hidden|truncate|line-clamp/, name);
+  }
+  assert.match(card, /break-words text-2xl font-semibold/);
+  assert.match(card, /break-words text-lg/);
+  assert.match(home, /max-w-lg/);
+  assert.match(home, /px-5/);
+});
+
+test("every control on the card is a BigButton (at least 56 px, or 48 px for the quiet 'Try again' link-style button)", () => {
+  assert.equal((card.match(/<BigButtonAny\b/g) || []).length, 2);
+  assert.doesNotMatch(card, /<button\b|<a\b|onClick=\{\(\) => window/);
+  const ui = strip(read("../components/session/ui.jsx"));
+  assert.match(ui, /w-full min-h-\[56px\]/);
+  assert.match(ui, /ghost: "[^"]*min-h-\[48px\]/);
+});
+
+test("no guilt-inducing or urgent styling: no red/destructive colour and no pulsing on the attention card", () => {
+  assert.doesNotMatch(card, /destructive|text-red|bg-red|border-red|animate|pulse|blink/);
+});
+
+test("Bubbles are not on Home and the Home files do not import them", () => {
+  for (const [name, src] of Object.entries({ ...NEW_FILES, "Home.jsx": home })) {
+    assert.doesNotMatch(src, /Bubbles/i, name);
+  }
+});
